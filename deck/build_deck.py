@@ -74,7 +74,7 @@ S["cover"] = (f'<section id="cover" data-transition="fade" style="background:{BG
     f'<div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:{GLOW}"></div>'
     f'<div style="position:relative;padding:120px 96px;display:flex;flex-direction:column;gap:30px;width:980px">'
     f'{kicker("Client Personal and Business Funding Sequence")}'
-    f'<h1 style="font-size:92px;font-weight:700;line-height:1.02;margin:0">FP&amp;A Credit Stacking &amp; Funding Sequencing Strategy</h1>'
+    f'<h1 style="font-size:92px;font-weight:700;line-height:1.02;margin:0">FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy</h1>'
     f'<div style="font-size:40px;font-weight:600;color:{TEAL};margin-top:-6px">Which Bureau Will They Pull?</div>'
     f'<div style="font-size:30px;line-height:1.4;color:{INK2}">{b("Experian, Equifax or TransUnion: the report a lender is most likely to check, state by state, and the order to apply in so approvals stack up.")}</div>'
     f'<div style="display:flex;gap:14px;margin-top:30px">{ban("355", "original rows")}{ban("670", "outside datapoints")}{ban("204", "lenders")}{ban("3,003", "recorded pulls", TEAL)}</div>'
