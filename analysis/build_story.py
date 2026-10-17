@@ -99,7 +99,8 @@ def zstyle(margin=4, padding=4, bg=None, border=None):
     return f"<zone-style>{b}<format attr='margin' value='{margin}' /><format attr='padding' value='{padding}' />{bgx}</zone-style>"
 
 # ================================================================== layout: 8 dashboard cards, 1200 x 800, dark "metal card" theme
-W, H = 1200, 800
+W, H = 1200, 800            # layout grid every zone is placed on
+DW, DH = 1110, 740          # rendered dashboard size: the 1200 x 800 layout scaled to 92.5% so a card fits a 1080p browser without scrolling
 CC = "federated.1cc5tate0ab1cd2ef3gh4ij5kl6m"
 BG, CARD, CARD2, LINE_C = IMG.BG, IMG.CARD, IMG.CARD2, IMG.LINE
 INK, INK2, MUT, TEAL, ORANGE = IMG.INK, IMG.INK2, IMG.MUTED, IMG.TEAL, IMG.ORANGE
@@ -115,7 +116,7 @@ def lzone(x, y, w, h, sheet, param):
 def fzone(x, y, w, h, sheet, param):
     return f"<zone {geo(x, y, w, h)} id='{nid()}' mode='dropdown' name='{esc(sheet)}' param='{param}' type-v2='filter' values='database'>{zstyle(0, 6, CARD)}</zone>"
 def dashboard(name, zones):
-    return (f"<dashboard enable-sort-zone-taborder='true' name='{esc(name)}'><style /><size maxheight='{H}' maxwidth='{W}' minheight='{H}' minwidth='{W}' />"
+    return (f"<dashboard enable-sort-zone-taborder='true' name='{esc(name)}'><style /><size maxheight='{DH}' maxwidth='{DW}' minheight='{DH}' minwidth='{DW}' />"
             f"<zones><zone h='100000' id='{nid()}' type-v2='layout-basic' w='100000' x='0' y='0'>{''.join(zones)}"
             f"<zone-style><format attr='background-color' value='{BG}' /></zone-style></zone></zones>"
             f"<simple-id uuid='{{{str(uuid.uuid4()).upper()}}}' /></dashboard>")
@@ -152,6 +153,15 @@ def shell(i, title, sub):
         ph, fo = HEAD_PHOTO.get(i, (None, None))
         IMG.header_band(1000, 80, title, sub, TABS, TAB_OF[i - 1], f"hd_{i}", right_gap=96, photo=ph, focus=fo or (0.5, 0.5))
         z.append(izone(192, 8, 1000, 80, f"hd_{i}.png"))
+        # clickable section tabs: Overview opens card 1, Maps card 4, Decide card 7
+        from PIL import Image as PImage
+        hd = PImage.open(WORK / "Image" / f"hd_{i}.png")
+        for t, (x0, y0, x1, y1), target in zip(TABS, IMG.tab_boxes(1000, 80, TABS, right_gap=96), (1, 4, 7)):
+            nm = f"tab_{i}_{t.lower()}"
+            hd.crop((int(x0 * IMG.S), int(y0 * IMG.S), int(x1 * IMG.S), int(y1 * IMG.S))).save(WORK / "Image" / f"{nm}.png")
+            z.append(f"<zone {geo(192 + x0, 8 + y0, x1 - x0, y1 - y0)} id='{nid()}' type-v2='dashboard-object'>"
+                     f"<button action='tabdoc:goto-sheet window-id=&quot;{WINUUID[DASH[target - 1]]}&quot;'>"
+                     f"<button-visual-state><image-path>Image/{nm}.png</image-path></button-visual-state></button>{zstyle(0, 0)}</zone>")
         z.append(szone(1096, 28, 84, 38, f"Help {i}", bg=CARD2, pad=2))
     return z
 
@@ -175,7 +185,7 @@ IMG.steps_card(324, 414, "How to Use This Story", [
     ("Move through 8 cards", "Use the arrows or the captions above; the side panel shows where you are."),
     ("Hover any number", "Tooltips show each formula and its source."),
     ("Click a state or KPI", "A detail panel updates beside the chart."),
-    ("Open the Help button", "Each card's popover explains it and its terms."),
+    ("Open the About button", "Each card's popover explains it and its terms."),
     ("Follow the orange marks", "Numbered badges show the order to read a card."),
 ], "c1_steps")
 D[DASH[0]] = dashboard(DASH[0], shell(1, None, None) + [
@@ -368,6 +378,38 @@ K2 = [(6, "Predicted likelihood", "the chance each bureau is pulled for a typica
       (10, "Lender confidence mix", "how much evidence stands behind each lender profile.",
        "lenders at each confidence level ÷ 204 lenders.",
        f"{conf['High']} High ({conf['High'] / 204:.0%}), {conf['Medium']} Medium ({conf['Medium'] / 204:.0%}), {conf['Low']} Low ({conf['Low'] / 204:.0%}).")]
+
+# Every number in a worked example says what it is, in parentheses.
+WORKED = {
+    1: (f"Florida, Experian: 466 (Experian pulls in Florida) ÷ 885 (all bureau pulls in Florida) = {466 / 885:.0%} (Experian's share of Florida pulls).",
+        f"Florida: 466 (Experian pulls) ÷ 885 (all pulls) = {466 / 885:.0%} (share)"),
+    2: (f"{tot['Experian']:,} (Experian pulls nationwide) ÷ {TOTAL:,} (all recorded pulls) = {tot['Experian'] / TOTAL:.0%} (Experian's national share). "
+        f"Equifax: {tot['Equifax']:,} (pulls) = {tot['Equifax'] / TOTAL:.0%} (share); TransUnion: {tot['TransUnion']:,} (pulls) = {tot['TransUnion'] / TOTAL:.0%} (share).",
+        f"{tot['Experian']:,} (Experian pulls) ÷ {TOTAL:,} (all pulls) = {tot['Experian'] / TOTAL:.0%} (share)"),
+    3: (f"Texas: {tx[0][0]:.0%} (Experian's share of Texas pulls) − {tx[1][0]:.0%} ({tx[1][1]}'s share, the runner-up) = {TX_MARGIN} points (Experian's lead in Texas).",
+        f"Texas: {tx[0][0]:.0%} (Experian) − {tx[1][0]:.0%} ({tx[1][1]}) = {TX_MARGIN} pts (lead)"),
+    4: (f"{close_n} (close-call states) of 49 (states with data). Alabama: {share('Alabama', 'Experian'):.0%} (Experian's share) and {share('Alabama', 'Equifax'):.0%} (Equifax's share) = 0 points (lead, a tie).",
+        f"{close_n} (close-call states) of 49 (states with data)"),
+    5: (f"American Express: {habit['American Express']['Experian']:.0%} (share of its pulls on Experian). Synchrony: {habit['Synchrony']['TransUnion']:.0%} (share on TransUnion). "
+        f"Capital One: {habit['Capital One']['Experian']:.0%} (Experian), {habit['Capital One']['Equifax']:.0%} (Equifax), {habit['Capital One']['TransUnion']:.0%} (TransUnion).",
+        f"American Express: {habit['American Express']['Experian']:.0%} (of its pulls on Experian)"),
+    6: (f"Alabama: {float(rs['Alabama']['P_Experian']):.0%} (chance of Experian), {float(rs['Alabama']['P_Equifax']):.0%} (chance of Equifax), "
+        f"{float(rs['Alabama']['P_TransUnion']):.0%} (chance of TransUnion); the three add to 100%.",
+        f"Alabama: {float(rs['Alabama']['P_Experian']):.0%} (chance the pull is Experian)"),
+    7: (f"Connecticut: {float(rs['Connecticut']['Leader Holds in Resamples']):.0%} (of 150 refits keep its leader, a clear lean). "
+        f"Alabama: {float(rs['Alabama']['Leader Holds in Resamples']):.0%} (of refits keep its leader, a moderate lean).",
+        f"Connecticut: {float(rs['Connecticut']['Leader Holds in Resamples']):.0%} (of 150 refits keep the leader)"),
+    8: (f"1 − ({LL_FULL:.3f} (model log loss) ÷ {LL_BASE:.3f} (national-shares log loss)) = {1 - LL_FULL / LL_BASE:.0%} (lower error). "
+        f"Accuracy: {ACC_FULL:.0%} (model) versus {ACC_BASE:.0%} (national shares alone).",
+        f"{1 - LL_FULL / LL_BASE:.0%} (lower error than national shares)"),
+    9: (f"{CHECKED} (rows that could be checked) = {CONF_ROWS} (confirmed) + {PART_ROWS} (partly confirmed) + {FIT_ROWS} (fit the national pattern); 0 (contradicted).",
+        f"{CHECKED} (rows checked), 0 (contradicted)"),
+    10: (f"{conf['High']} (High-confidence lenders, {conf['High'] / 204:.0%}), {conf['Medium']} (Medium, {conf['Medium'] / 204:.0%}), {conf['Low']} (Low, {conf['Low'] / 204:.0%}) of 204 (lenders profiled).",
+         f"{conf['High']} High, {conf['Medium']} Medium, {conf['Low']} Low (lenders by confidence)"),
+}
+K1 = [(n, nm, t, f, WORKED[n][0]) for n, nm, t, f, _ in K1]
+K2 = [(n, nm, t, f, WORKED[n][0]) for n, nm, t, f, _ in K2]
+
 # ------------------------------------------------------------------ worksheets and datasources for the interactive and source cards
 from tableauhyperapi import HyperProcess, Telemetry, Connection, CreateMode, TableDefinition, SqlType, TableName, Inserter
 def hyper(fname, cols, rows):
@@ -500,7 +542,7 @@ def T(ds, c, kind="nk", pre="none"):   # field token inside formatted text
 def tiprun(t, color="#1F2937", size=9, bold=False):
     b = " bold='true'" if bold else ""
     return f"<run{b} fontcolor='{color}' fontsize='{size}'>{t}</run>"
-def tooltip(runs): return f"<customized-tooltip><formatted-text>{runs}</formatted-text></customized-tooltip>"
+def tooltip(runs): return f"<customized-tooltip show-buttons='false'><formatted-text>{runs}</formatted-text></customized-tooltip>"
 def label(runs): return f"<customized-label><formatted-text>{runs}</formatted-text></customized-label>"
 NLR = "<run>Æ&#10;</run>"
 def catfilter(ds, col, val):
@@ -524,24 +566,45 @@ TILES = [
     ("1", 2, "670", "outside datapoints", "Ink", "State-level datapoints added from 56 cited sources, 2008 to 2026."),
     ("1", 3, "204", "lenders profiled", "Ink", f"Each with funding type, typical score and paperwork level; {conf['High']} High, {conf['Medium']} Medium and {conf['Low']} Low confidence."),
     ("1", 4, "56", "cited sources", "Ink", "Doctor of Credit, myFICO, MyBankTracker, CardRight, StackEasy and lender pages. Every link is on card 8."),
-    ("1", 5, f"{TOTAL:,}", "recorded pulls", "Teal", f"Experian {tot['Experian']:,} + Equifax {tot['Equifax']:,} + TransUnion {tot['TransUnion']:,} = {TOTAL:,} bureau pulls, all lenders combined."),
-    ("2", 1, f"{tot['Experian'] / TOTAL:.0%}", "Experian share", "Experian", f"KPI 2. Experian pulls ÷ all pulls = {tot['Experian']:,} ÷ {TOTAL:,} = {tot['Experian'] / TOTAL:.0%}."),
-    ("2", 2, f"{tot['Equifax'] / TOTAL:.0%}", "Equifax share", "Equifax", f"KPI 2. Equifax pulls ÷ all pulls = {tot['Equifax']:,} ÷ {TOTAL:,} = {tot['Equifax'] / TOTAL:.0%}."),
-    ("2", 3, f"{tot['TransUnion'] / TOTAL:.0%}", "TransUnion share", "TransUnion", f"KPI 2. TransUnion pulls ÷ all pulls = {tot['TransUnion']:,} ÷ {TOTAL:,} = {tot['TransUnion'] / TOTAL:.0%}."),
-    ("2", 4, f"{top_counts.get('Experian', 0)} of 49", "states led by Experian", "Ink", f"Top bureau by state: Experian {top_counts.get('Experian', 0)}, Equifax {top_counts.get('Equifax', 0)}, TransUnion {top_counts.get('TransUnion', 0)}, ties {ties}."),
-    ("2", 5, f"{close_n}", "close-call states", "Teal", f"KPI 4. States where the top two bureaus are within 20 points: {status_n.get('Clear lean', 0)} clear leans, {status_n.get('Moderate lean', 0)} moderate, {len(tossups)} toss-ups, {status_n.get('Thin data (national pattern)', 0)} thin."),
+    ("1", 5, f"{TOTAL:,}", "recorded pulls", "Teal", f"{tot['Experian']:,} (Experian pulls) + {tot['Equifax']:,} (Equifax pulls) + {tot['TransUnion']:,} (TransUnion pulls) = {TOTAL:,} (all recorded bureau pulls, all lenders combined)."),
+    ("2", 1, f"{tot['Experian'] / TOTAL:.0%}", "Experian share", "Experian", f"KPI 2. {tot['Experian']:,} (Experian pulls) ÷ {TOTAL:,} (all recorded pulls) = {tot['Experian'] / TOTAL:.0%} (Experian share of all pulls)."),
+    ("2", 2, f"{tot['Equifax'] / TOTAL:.0%}", "Equifax share", "Equifax", f"KPI 2. {tot['Equifax']:,} (Equifax pulls) ÷ {TOTAL:,} (all recorded pulls) = {tot['Equifax'] / TOTAL:.0%} (Equifax share of all pulls)."),
+    ("2", 3, f"{tot['TransUnion'] / TOTAL:.0%}", "TransUnion share", "TransUnion", f"KPI 2. {tot['TransUnion']:,} (TransUnion pulls) ÷ {TOTAL:,} (all recorded pulls) = {tot['TransUnion'] / TOTAL:.0%} (TransUnion share of all pulls)."),
+    ("2", 4, f"{top_counts.get('Experian', 0)} of 49", "states led by Experian", "Ink", f"{top_counts.get('Experian', 0)} (states Experian leads) + {top_counts.get('Equifax', 0)} (Equifax leads) + {top_counts.get('TransUnion', 0)} (TransUnion leads) + {ties} (ties) = 49 (states and DC with data)."),
+    ("2", 5, f"{close_n}", "close-call states", "Teal", f"KPI 4. {close_n} (states where the top two bureaus are within 20 points) = {status_n.get('Clear lean', 0)} (clear leans) + {status_n.get('Moderate lean', 0)} (moderate leans) + {len(tossups)} (toss-ups) + {status_n.get('Thin data (national pattern)', 0)} (thin data)."),
 ]
-tile_rows = [dict(Card=c, Order=str(o), Value=v, Label=l, Tone=t, Tip=tp) for c, o, v, l, t, tp in TILES]
+TILE_MORE = {  # (what it means, how to use it) for each tile, in order
+    ("1", 1): ("Each row is one consumer-reported hard inquiry: a lender, a state and the bureau or bureaus it pulled.",
+               "This is the starting dataset; every other number in the story was built from it or checked against it."),
+    ("1", 2): ("Each datapoint is an outside record of a lender pulling a bureau in a state, from issuer tables, forums and lender pages.",
+               "They confirm or correct the original rows; 0 rows were contradicted (card 3)."),
+    ("1", 3): ("Every lender in the database has a profile: what it funds, the score it typically needs and how much paperwork it asks for.",
+               "Use the lender map (card 4) to see which bureau a lender pulls in each state."),
+    ("1", 4): ("Every number traces to a named, dated source.",
+               "Open any source from the clickable list on card 8."),
+    ("1", 5): ("A pull is one bureau checked for one application. Counts are weighted so one large report cannot dominate.",
+               "Shares on the maps and KPIs are calculated from these pulls."),
+    ("2", 1): ("More than half of all recorded pulls landed on Experian.",
+               "If your Experian report is your strongest, most lenders will see your best file."),
+    ("2", 2): ("About one pull in four landed on Equifax; it is often the second report a lender checks.",
+               "Citi and Chase lean Equifax more than most issuers (card 8)."),
+    ("2", 3): ("About one pull in five landed on TransUnion, the least-pulled bureau overall.",
+               "Synchrony and U.S. Bank lean TransUnion, so they suit a strong TransUnion report."),
+    ("2", 4): ("In most states Experian receives the largest share of pulls.",
+               "Check the share maps (card 5) for the states where Equifax or TransUnion leads or ties."),
+    ("2", 5): ("In these states the map alone cannot settle the bureau, so the regression model gives its best forecast.",
+               "Open card 6 and click your state to see the chance of each bureau."),
+}
+tile_rows = [dict(Card=c, Order=str(o), Value=v, Label=l, Tone=t, Tip=tp, Means=TILE_MORE[(c, o)][0], Use=TILE_MORE[(c, o)][1]) for c, o, v, l, t, tp in TILES]
 TL = "federated." + rid()
-tile_cols = [("Card", "string"), ("Order", "integer"), ("Value", "string"), ("Label", "string"), ("Tone", "string"), ("Tip", "string")]
+tile_cols = [("Card", "string"), ("Order", "integer"), ("Value", "string"), ("Label", "string"), ("Tone", "string"), ("Tip", "string"), ("Means", "string"), ("Use", "string")]
 ds_tiles = palette_style(datasource(TL[10:], "Story Tiles", "story_tiles.csv", tile_cols, tile_rows, dsname=TL),
                          {"Tone": {"Ink": INK, "Teal": TEAL, "Experian": EXP, "Equifax": EQ, "TransUnion": TU}})
 
 # ------------------------------------------------------------------ KPIs (list + dynamic detail card)
 kpi_rows = []
 for n, name, tells, formula, ex in K1 + K2:
-    short = ex.split(";")[0].split(". In")[0]
-    kpi_rows.append(dict(KPI=str(n), Name=tc(name), Tells=tells[0].upper() + tells[1:], Formula=formula[0].upper() + formula[1:], Worked=ex, Short=short[:70], Code=f"KPI {n}"))
+    kpi_rows.append(dict(KPI=str(n), Name=tc(name), Tells=tells[0].upper() + tells[1:], Formula=formula[0].upper() + formula[1:], Worked=ex, Short=WORKED[n][1], Code=f"KPI {n}"))
 KP = "federated." + rid()
 kpi_cols = [("KPI", "integer"), ("Name", "string"), ("Tells", "string"), ("Formula", "string"), ("Worked", "string"), ("Short", "string"), ("Code", "string")]
 KCALC = {"Calc_k_title": 'IF COUNTD([Name]) > 1 THEN "Pick a KPI" ELSE "KPI " + STR(ATTR([KPI])) + ". " + ATTR([Name]) END',
@@ -577,7 +640,7 @@ HELP = [
     ("8", "Scorecard and Sources", "Each bar shows the share of an issuer's recorded pulls that landed on each bureau (KPI 5). Click a source name to open it. Every recommendation traces back to a KPI or an earlier card. Not financial advice."),
 ]
 HP = "federated." + rid()
-help_rows = [dict(Card=c, Icon="ⓘ  Help", Title=t, Tip=tp) for c, t, tp in HELP]
+help_rows = [dict(Card=c, Icon="ⓘ  About", Title=t, Tip=tp) for c, t, tp in HELP]
 help_cols = [("Card", "string"), ("Icon", "string"), ("Title", "string"), ("Tip", "string")]
 ds_help = datasource(HP[10:], "Story Help", "story_help.csv", help_cols, help_rows, dsname=HP)
 
@@ -591,10 +654,13 @@ WS = {}
 txt_pane = lambda enc, tip, lab, extra="": (f"<pane selection-relaxation-option='selection-relaxation-allow'><view><breakdown value='auto' /></view><mark class='Text' /><encodings>{enc}</encodings>"
                                             f"{tooltip(tip) if tip else ''}{label(lab)}<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /></style-rule>{extra}</style></pane>")
 for card, nm in (("1", "Overview Tiles"), ("2", "Market Tiles")):
-    dep = deps(TL, tile_cols, [inst("Card", "nk"), inst("Order", "ok"), inst("Value", "nk"), inst("Label", "nk"), inst("Tone", "nk"), inst("Tip", "attr")]) + catfilter(TL, "Card", card)
+    dep = deps(TL, tile_cols, [inst("Card", "nk"), inst("Order", "ok"), inst("Value", "nk"), inst("Label", "nk"), inst("Tone", "nk"), inst("Tip", "attr"), inst("Means", "attr"), inst("Use", "attr")]) + catfilter(TL, "Card", card)
     WS[nm] = worksheet(nm, "", TL, "Story Tiles", dep,
-        txt_pane(f"<color column='{ref(TL, 'Tone')}' /><text column='{ref(TL, 'Value')}' /><text column='{ref(TL, 'Label')}' /><tooltip column='{ref(TL, 'Tip', 'nk').replace('none:', 'attr:')}' />",
-                 tiprun(T(TL, "Label"), "#0E1115", 10, True) + NLR + tiprun(T(TL, "Tip", "nk", "attr"), "#1F2937", 9),
+        txt_pane(f"<color column='{ref(TL, 'Tone')}' /><text column='{ref(TL, 'Value')}' /><text column='{ref(TL, 'Label')}' /><tooltip column='[{TL}].[attr:Tip:nk]' /><tooltip column='[{TL}].[attr:Means:nk]' /><tooltip column='[{TL}].[attr:Use:nk]' />",
+                 tiprun(T(TL, "Value") + " (" + T(TL, "Label") + ")", "#0E1115", 11, True) + NLR + NLR
+                 + tiprun("How it is calculated: ", "#0E1115", 9, True) + tiprun(T(TL, "Tip", "nk", "attr"), "#1F2937", 9) + NLR
+                 + tiprun("What it means: ", "#0E1115", 9, True) + tiprun(T(TL, "Means", "nk", "attr"), "#1F2937", 9) + NLR
+                 + tiprun("How to use it: ", "#0E1115", 9, True) + tiprun(T(TL, "Use", "nk", "attr"), "#1F2937", 9),
                  f"<run bold='true' fontalignment='1' fontsize='22'>{T(TL, 'Value')}</run>{NLR}<run fontalignment='1' fontcolor='{INK2}' fontsize='9'>{T(TL, 'Label')}</run>",
                  "<style-rule element='cell'><format attr='text-align' value='center' /><format attr='vertical-align' value='center' /></style-rule>"),
         "", ref(TL, "Order", "ok"),
@@ -745,13 +811,21 @@ SQLNAME = m.group(1)
 calcs = {}
 for c in re.finditer(r"<column caption='[^']*' datatype='[^']*' name='(\[Calculation_\d+\])'[^>]*>\s*<calculation[^>]*/>\s*</column>", s):
     calcs.setdefault(c.group(1), re.sub(r"\s*\n\s*", "", c.group(0)))
+for key_, xml_ in list(calcs.items()):
+    for bb in ("Experian", "Equifax", "TransUnion"):
+        if f"caption='{bb} Tooltip'" in xml_:
+            xml_ = xml_.replace("&quot; / &quot; + STR(INT(SUM([Total Datapoints]))) + &quot; = &quot;",
+                                f"&quot; ({bb} pulls) / &quot; + STR(INT(SUM([Total Datapoints]))) + &quot; (all bureau pulls) = &quot;")
+            xml_ = xml_.replace("&quot;%&quot; + CHAR(10) + CHAR(10) +&#10;&quot;All bureau pulls",
+                                f"&quot;% ({bb} share)&quot; + CHAR(10) + CHAR(10) +&#10;&quot;All bureau pulls")
+            calcs[key_] = xml_
 ls_rows = list(csv.DictReader(open(DT / "lender_state.csv")))
 ls_cols = [("State", "string"), ("StateAbbr", "string"), ("Lender", "string"), ("Industry", "string"), ("Experian", "integer"), ("Equifax", "integer"),
            ("TransUnion", "integer"), ("Top Bureau", "string"), ("Total Datapoints", "integer"), ("Bureaus Reported", "string")]
 def sd_line(b):
     sh = f"SUM([{b}])/SUM([Total Datapoints])"
-    return (f'"{b}  " + STR(INT(ROUND(100*{sh}))) + "%   " + LEFT("████████████████████", INT(ROUND(20*{sh}))) + '
-            f'"   " + STR(INT(SUM([{b}]))) + " of " + STR(INT(SUM([Total Datapoints])))')
+    return (f'"{b}  " + STR(INT(ROUND(100*{sh}))) + "% (share)  " + LEFT("████████████████████", INT(ROUND(20*{sh}))) + '
+            f'"  " + STR(INT(SUM([{b}]))) + " ({b} pulls) of " + STR(INT(SUM([Total Datapoints]))) + " (all pulls)"')
 SDCALC = {"Calc_sd_title": 'IF COUNTD([State]) > 1 THEN "All States" ELSE ATTR([State]) END',
           "Calc_sd_sub": 'IF COUNTD([State]) > 1 THEN "Click any state on a map to open its detail card." ELSE "Share of this state\'s recorded pulls, all lenders" END',
           "Calc_sd_exp": sd_line("Experian"), "Calc_sd_eq": sd_line("Equifax"), "Calc_sd_tu": sd_line("TransUnion"),
@@ -836,7 +910,7 @@ STORY = [(DASH[0], "Overview: context, purpose, sources and limits"),
 pts = "".join(f"<story-point caption='{i}. {esc(tc(c))}' captured-sheet='{esc(n)}' id='{100 + i}' />" for i, (n, c) in enumerate(STORY, 1))
 s = re.sub(r"<story-points>.*?</story-points>", f"<story-points>{pts}</story-points>", s, flags=re.S)
 s = re.sub(r"<flipboard active-id='\d+'", "<flipboard active-id='101'", s)
-SW, SH = W + 24, 964
+SW, SH = DW + 24, 880
 s = s.replace("<size maxheight='964' maxwidth='1016' minheight='964' minwidth='1016' />", f"<size maxheight='{SH}' maxwidth='{SW}' minheight='{SH}' minwidth='{SW}' />", 1)
 s = s.replace("<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830' />",
               "<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830'><zone-style><format attr='border-style' value='none' /><format attr='border-width' value='0' /></zone-style></zone>")

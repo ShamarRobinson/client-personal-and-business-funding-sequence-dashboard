@@ -5,7 +5,7 @@
 | View | Link |
 | --- | --- |
 | Dashboard site (this repository, GitHub Pages) | [shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/) |
-| Interactive maps and Story (Tableau Public) | [Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) |
+| Interactive maps and Story (Tableau Public) | [Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) (full screen, fits one screen with no scrolling) · [profile page](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) |
 | Slideshow | [Presentation](https://claude.ai/artifact/95vnkBxejyTxzMTD5QAxnw) |
 | Full workbook | [data/Inquiry_Database_Expanded.xlsx](data/Inquiry_Database_Expanded.xlsx) |
 
@@ -37,7 +37,7 @@ Context facts used in the story: [myFICO, Do Credit Inquiries Lower Your FICO Sc
 
 ## Tableau Public
 
-The [Tableau Story "Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) has 8 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with Overview, Maps and Decide tabs, and a Help button on every card. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
+The [Tableau Story "Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 8 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 4 and 7), and an About button on every card. Each card is 1110 x 740 so it fits a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
 
 | Card | What it shows |
 | --- | --- |
@@ -50,7 +50,7 @@ The [Tableau Story "Credit Stacking & Funding Sequencing Strategy: Which Bureau 
 | 7. Decide | Decision tree, four real forecasts and the funding ladder |
 | 8. Scorecard, Moves and Sources | Each issuer's bureau habit, the best move for each stakeholder and every source as a clickable list |
 
-Interactive features: tooltips with formulas on every number, nested charts (chance bars inside the close-call map tooltip, inline data bars in the State Detail card), dynamic detail cards (KPI, state and close-call panels), annotation callouts, numbered coach marks and a walkthrough, and a Help popover on each card.
+Interactive features: tooltips with formulas on every number, nested charts (chance bars inside the close-call map tooltip, inline data bars in the State Detail card), dynamic detail cards (KPI, state and close-call panels), annotation callouts, numbered coach marks and a walkthrough, and an About popover on each card. Every number in a worked example or tooltip says what it is in parentheses, for example 466 (Experian pulls in Florida) ÷ 885 (all bureau pulls in Florida) = 53% (Experian's share).
 
 ### How the Numbers Work: KPIs
 

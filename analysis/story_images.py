@@ -597,6 +597,18 @@ def fade_left(ph, frac=0.5, dark=1.0):
     return ph, mask
 
 
+def tab_boxes(w, h, tabs, right_gap=0):
+    """Pixel boxes (x0, y0, x1, y1, in 1x units) of the pill tabs header_band draws, so they can be made clickable."""
+    d = ImageDraw.Draw(Image.new("RGB", (10, 10)))
+    ft = f("bold", 10)
+    pads = [d.textlength(t.upper(), font=ft) + 30 * S for t in tabs]
+    px1 = w * S - 14 * S - right_gap * S; px0 = px1 - (sum(pads) + 10 * S)
+    out, x = [], px0 + 5 * S
+    for p in pads:
+        out.append((x / S, 22, (x + p) / S, h - 24)); x += p
+    return out
+
+
 def header_band(w, h, title, sub, tabs, current, name, right_gap=0, photo=None, focus=(0.5, 0.5)):
     """Title band with pill tabs (current section lit teal); a teal-to-orange glow along the bottom edge.
     An optional photo fills the right part of the band and fades into it."""

@@ -107,16 +107,16 @@ S["market"] = section("market", header(3, "Market, Scope and Who It Serves", "3,
     + '</div>', "Experian dominates nationally, but Equifax leads 2 states and TransUnion 3, with 6 ties. Hover the tiles in the Tableau Story for each formula.")
 
 # 4 KPIs (table with inline data bars) ---------------------------------
-KPIS = [("Bureau Share of Pulls", "pulls on one bureau in a state ÷ all bureau pulls there", "Florida, Experian: 466 ÷ 885 = 53%", .53, EXP),
-        ("National Share of Pulls", "one bureau's pulls ÷ all 3,003 pulls", "Experian 1,616 ÷ 3,003 = 54%", .54, EXP),
-        ("Lead Margin", "top share − second share, in points", "Texas: Experian 66% − TransUnion 17% = 49 pts", .49, TEAL),
-        ("Close Call", "a state whose lead margin is under 20 points", "24 of 49 states", 24 / 49, TEAL),
-        ("Issuer Bureau Habit", "an issuer's pulls on one bureau ÷ its pulls", "American Express 87% Experian", .87, EXP),
-        ("Predicted Likelihood", "multinomial logistic regression probability", "Alabama: Experian 43%", .43, EXP),
-        ("Leader Stability", "refits of 150 where the leader holds", "Connecticut 95% (clear lean)", .95, TEAL),
-        ("Model Lift", "1 − model log loss ÷ baseline log loss", "1 − 0.903 ÷ 1.041 = 13% lower error", .13, TEAL),
-        ("Cross-Check Result", "rows supported ÷ rows checkable", "193 checked, 0 contradicted", 1.0, TEAL),
-        ("Lender Confidence Mix", "lenders at each level ÷ 204", "39 High (19%), 104 Medium, 61 Low", .19, TEAL)]
+KPIS = [("Bureau Share of Pulls", "pulls on one bureau in a state ÷ all bureau pulls there", "Florida: 466 (Experian pulls) ÷ 885 (all pulls) = 53% (share)", .53, EXP),
+        ("National Share of Pulls", "one bureau's pulls ÷ all 3,003 pulls", "1,616 (Experian pulls) ÷ 3,003 (all pulls) = 54% (share)", .54, EXP),
+        ("Lead Margin", "top share − second share, in points", "Texas: 66% (Experian) − 17% (TransUnion) = 49 pts (lead)", .49, TEAL),
+        ("Close Call", "a state whose lead margin is under 20 points", "24 (close-call states) of 49 (states with data)", 24 / 49, TEAL),
+        ("Issuer Bureau Habit", "an issuer's pulls on one bureau ÷ its pulls", "American Express: 87% (of its pulls on Experian)", .87, EXP),
+        ("Predicted Likelihood", "multinomial logistic regression probability", "Alabama: 43% (chance the pull is Experian)", .43, EXP),
+        ("Leader Stability", "refits of 150 where the leader holds", "Connecticut: 95% (of 150 refits keep the leader)", .95, TEAL),
+        ("Model Lift", "1 − model log loss ÷ baseline log loss", "1 − 0.903 (model log loss) ÷ 1.041 (baseline) = 13% (lower error)", .13, TEAL),
+        ("Cross-Check Result", "rows supported ÷ rows checkable", "193 (rows checked), 0 (contradicted)", 1.0, TEAL),
+        ("Lender Confidence Mix", "lenders at each level ÷ 204", "39 (High), 104 (Medium), 61 (Low) of 204 (lenders)", .19, TEAL)]
 rows = "".join(f'<tr style="background:{CARD if i % 2 == 0 else CARD2}"><td style="padding:11px 16px;color:{TEAL};font-family:{MONO};font-size:18px">KPI {i + 1}</td>'
                f'<td style="padding:11px 16px;font-weight:600;color:{INK}">{n}</td><td style="padding:11px 16px;color:{INK2}">{f}</td><td style="padding:11px 16px;color:{INK2}">{b(e)}</td>'
                f'<td style="padding:11px 16px;width:220px"><div style="background:#262C35;height:14px"><div style="width:{v * 100:.0f}%;height:14px;background:{c}"></div></div></td></tr>'
@@ -228,7 +228,7 @@ S["sources"] = section("sources", header(10, "Sources, Limits and Next Steps", "
     f'<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;flex:1">'
     + card(h3("Key Sources") + "".join(f'<div style="font-size:25px;line-height:1.35;margin-bottom:18px">{link(t, u)}</div>' for t, u in SRC))
     + '<div style="display:flex;flex-direction:column;gap:24px">'
-    + card(h3("Live Now") + f'<div style="font-size:25px;line-height:1.7">{link("Tableau Story: Which Bureau Will They Pull", "https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull")}<br>'
+    + card(h3("Live Now") + f'<div style="font-size:25px;line-height:1.7">{link("Tableau Story: Which Bureau Will They Pull", "https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no")}<br>'
            f'{link("Dashboard website", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/")}<br>{link("Code and data on GitHub", "https://github.com/ShamarRobinson/Client-Personal-and-Business-Funding-Sequence-Dashboard")}</div>')
     + card(h3("Next Steps", ORANGE) + p("Log new inquiry datapoints and refit the model; resolve the 11 unidentified names; refresh lender minimums each quarter.", 20))
     + '</div></div>', "Close by pointing to the live Story and the sources page; every source opens from Tableau card 8.")

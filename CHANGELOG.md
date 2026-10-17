@@ -1,5 +1,12 @@
 # Change Log
 
+## October 17, 2026 (evening)
+
+- Every number in the KPI worked examples, KPI list, tile tooltips, map tooltips and State Detail card now says what it is in parentheses.
+- Tile tooltips explain how each number is calculated, what it means and how to use it; the Keep Only and Exclude buttons are hidden.
+- The Overview, Maps and Decide tabs are clickable (cards 1, 4 and 7). The Help button is renamed About.
+- Cards resized to 1110 x 740 (Story 1134 x 880) so a card fits a 1080p screen; links now open the full-screen view, which starts at the top with no page header to scroll past.
+
 ## October 17, 2026 (redesign)
 
 - The side menu on every card is clickable: each row is a navigation button that opens its card.
