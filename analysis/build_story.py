@@ -169,7 +169,7 @@ D = {}
 # ------------------------------------------------------------------ card 1: overview (hero photo, tiles, context, sources and limits, walkthrough)
 PHOTO = ROOT / "assets" / "cover_cards.png"
 IMG.photo_hero(1000, 262, PHOTO, "hero",
-               ["Credit Stacking &", "Funding Sequencing Strategy"],
+               ["FP&A Credit Stacking &", "Funding Sequencing Strategy"],
                "Experian, Equifax or TransUnion: which report a lender is most likely to check, state by state, and the order to apply in so approvals stack up without piling inquiries on one report.",
                [], subhead="Which Bureau Will They Pull?")
 IMG.text_card(326, 414, [
@@ -916,7 +916,7 @@ s = s.replace("<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830' /
               "<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830'><zone-style><format attr='border-style' value='none' /><format attr='border-width' value='0' /></zone-style></zone>")
 s = s.replace("<dashboard name='Which Bureau Will They Pull' type='storyboard'>",
               "<dashboard name='Which Bureau Will They Pull' type='storyboard'><layout-options><title><formatted-text>"
-              "<run bold='true' fontcolor='#14213D' fontsize='18'>Credit Stacking &amp; Funding Sequencing Strategy</run>"
+              "<run bold='true' fontcolor='#14213D' fontsize='18'>FP&amp;A Credit Stacking &amp; Funding Sequencing Strategy</run>"
               "<run fontcolor='#4A5568' fontsize='13'>   Which Bureau Will They Pull?</run></formatted-text></title></layout-options>", 1)
 # dark story frame
 s = re.sub(r"(<dashboard name='Which Bureau Will They Pull' type='storyboard'>.*?<zone h='100000' id='2' type-v2='layout-basic' w='100000' x='0' y='0'>)",

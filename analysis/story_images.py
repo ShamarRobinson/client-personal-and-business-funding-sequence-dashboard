@@ -544,7 +544,7 @@ def sidebar(w, h, items, current, name):
     for i, b in enumerate(("Experian", "Equifax", "TransUnion")):
         hh = (34, 24, 18)[i] * S
         d.rounded_rectangle((x0 + i * 22 * S, 58 * S - hh, x0 + i * 22 * S + 14 * S, 58 * S), radius=3 * S, fill=BUREAU[b])
-    for k, line in enumerate(("Credit Stacking &", "Funding Sequencing", "Strategy")):
+    for k, line in enumerate(("FP&A Credit Stacking &", "Funding Sequencing", "Strategy")):
         t = f("bold", 12); tw = d.textlength(line, font=t)
         d.text(((w * S - tw) / 2, (66 + k * 16) * S), line, font=t, fill=INK)
     t = f("semibold", 9); line = "Which Bureau Will They Pull?"; tw = d.textlength(line, font=t)
