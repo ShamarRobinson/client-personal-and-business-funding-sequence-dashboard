@@ -2,6 +2,7 @@
 
 ## 2026-10-17 (late night)
 
+- Presentation slide 6: wider diagram boxes (tighter gaps between steps) so fewer values wrap.
 - Presentation: image and font links carry a content version tag, so browsers show updated slides immediately instead of a cached copy.
 - Presentation slide 6: balanced text in both diagrams; values line up in one column per box and every box in a row starts on the same line, centered vertically.
 - Presentation slide 6 (Data and Method): larger-type flow diagrams that fill the slide; the ETL panel text is about 60% larger.

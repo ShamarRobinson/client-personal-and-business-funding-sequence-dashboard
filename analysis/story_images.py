@@ -393,10 +393,10 @@ def scope(w, h, ins, outs):
 
 
 # ---------------------------------------------------------------- 8. data and method
-def flow(w, h, title, steps, name, result_head=None, balanced=False):
+def flow(w, h, title, steps, name, result_head=None, balanced=False, gap_px=22):
     im, d = canvas(w, h)
     d.text((10 * S, 6 * S), title, font=f("bold", 12), fill=NAVY)
-    top, n, gap = 28 * S, len(steps), 22 * S
+    top, n, gap = 28 * S, len(steps), gap_px * S
     bw = (w * S - 20 * S - gap * (n - 1)) / n
     shift = 0
     if balanced:   # line values up in one column per box; one shared vertical offset so every box starts on the same line
