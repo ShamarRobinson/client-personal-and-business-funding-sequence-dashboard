@@ -2,6 +2,7 @@
 
 ## 2026-10-17 (late night)
 
+- Presentation slide 7 (Share Maps): the "In Tableau, click a state" badge now links to the Tableau Public story (also clickable in the PDF).
 - Presentation slide 4 (Out of Scope): removed the approval odds line; the advice line now reads "legal, tax or investment advice".
 - Presentation slide 3 (Funding Ladder): the step table now spans the full slide width with larger text, and a wider ladder chart closes the gap beside the rules panel.
 - Story card 11 (Sources): new link buttons for the Slideshow, Slideshow PDF, Dashboard Website and Funding Generator.

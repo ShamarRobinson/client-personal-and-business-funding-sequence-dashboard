@@ -172,7 +172,7 @@ S["maps"] = section("maps", header(7, "Share Maps: Where Each Bureau Is Pulled",
     + card(h3(b("Equifax belt")) + p("Virginia 39%, South Carolina 37%, North Carolina 36%.", 22))
     + card(h3(b("TransUnion in Georgia")) + p("About 1 in 3 pulls (37 of 116).", 22))
     + card(h3("Small Samples", ORANGE) + p("Montana shows 0% Experian from only 2 pulls.", 22))
-    + f'</div><div style="display:flex;gap:16px">{coach(1, "In Tableau, click a state")}{coach(2, "Its detail card opens beside the maps")}</div>',
+    + f'</div><div style="display:flex;gap:16px"><a href="https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull" target="_blank" rel="noopener" title="Open the interactive maps on Tableau Public" style="text-decoration:none;display:inline-flex">{coach(1, "In Tableau, click a state  &#8599;")}</a>{coach(2, "Its detail card opens beside the maps")}</div>',
     "The Equifax and TransUnion maps use a 0 to 50% scale, so a bright Equifax state is still about half as strong as a bright Experian state. The live maps and the State Detail panel are on Tableau Public, card 5.")
 
 # 7 close calls -------------------------------------------------------
