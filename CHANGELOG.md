@@ -2,6 +2,8 @@
 
 ## 2026-10-17 (late night)
 
+- Tableau Story: "View Slideshow" link in the side panel of all 12 cards (opens the standalone presentation).
+- Tableau Story card 3: Out of Scope matches the slides (approval odds line removed; "legal, tax or investment advice"); Data and Method diagrams use the balanced alignment and wider boxes.
 - Presentation slide 6: wider diagram boxes (tighter gaps between steps) so fewer values wrap.
 - Presentation: image and font links carry a content version tag, so browsers show updated slides immediately instead of a cached copy.
 - Presentation slide 6: balanced text in both diagrams; values line up in one column per box and every box in a row starts on the same line, centered vertically.

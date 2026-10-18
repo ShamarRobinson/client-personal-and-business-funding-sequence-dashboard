@@ -80,11 +80,10 @@ ins = [("Which bureau a lender pulls", "It covers Experian, Equifax and TransUni
        ("Facts about each lender", "Each lender has a funding type, a typical score", "and whether low or no paperwork options exist."),
        ("A funding sequence", "It suggests an application order for seven", "score ranges, from 500-549 up to 800+."),
        ("The evidence used", "It starts from a 355-row inquiry table and adds", "public datapoints dated 2008 to 2026.")]
-outs = [("Approval odds", "It does not predict whether", "anyone will be approved."),
-        ("Business credit bureaus", "Business files like D&B are not", "mapped by state in this project."),
+outs = [("Business credit bureaus", "Business files like D&B are not", "mapped by state in this project."),
         ("Soft pulls", "Prequalification checks and account reviews", "do not affect scores, so they are left out."),
         ("Live rates and terms", "Minimum scores and terms are a snapshot", "from October 2026 and can change."),
-        ("Advice", "Nothing here is legal, tax", "or financial advice.")]
+        ("Advice", "Nothing here is legal, tax", "or investment advice.")]
 for r, (a, b) in enumerate(zip(ins, outs), start=2):
     cell(D, 1, r, *a, "green_light")
     cell(D, 2, r, *b, "red_light")

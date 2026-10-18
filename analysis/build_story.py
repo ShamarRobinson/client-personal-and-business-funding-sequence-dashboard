@@ -131,6 +131,7 @@ TAB_OF = [None, "Overview", "Overview", "Overview", "Maps", "Maps", "Maps", "Dec
 DASH = [f"{i} {n}" for i, n in enumerate(NAV, 1)]
 for i in range(1, len(NAV) + 1):
     IMG.sidebar(172, 784, NAV, i, f"sb_{i}")
+IMG.link_button(144, 28, "View Slideshow", "sb_slides")
 HEAD_PHOTO = {4: (ROOT / "assets" / "photo_analytics.png", (0.55, 0.6)), 2: (ROOT / "assets" / "photo_funding.png", (0.52, 0.5))}
 WINUUID = {n: "{" + str(uuid.uuid4()).upper() + "}" for n in DASH}
 def nav_buttons(i):
@@ -149,6 +150,9 @@ def nav_buttons(i):
 def shell(i, title, sub):
     """Sidebar, header band and the help popover for card i."""
     z = [izone(8, 8, 172, 784, f"sb_{i}.png")] + nav_buttons(i)
+    # Slideshow link in the side panel on every card (free band between the bureau key and the as-of note)
+    z.append(f"<zone {geo(22, 646, 144, 28)} id='{nid()}' is-scaled='1' param='Image/sb_slides.png' type-v2='bitmap' "
+             f"url='https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/'>{zstyle(0, 0)}</zone>")
     if title:
         ph, fo = HEAD_PHOTO.get(i, (None, None))
         IMG.header_band(1000, 80, title, sub, TABS, TAB_OF[i - 1], f"hd_{i}", right_gap=96, photo=ph, focus=fo or (0.5, 0.5))
@@ -206,9 +210,9 @@ IMG.text_card(324, 596, [
                   ("Funding types", "cards, lines, loans, SBA, auto, equipment, real estate."),
                   ("Lender facts", f"funding type, typical score and paperwork for 204 lenders ({lowdoc} low or no doc)."),
                   ("A sequence", "an application order for seven score ranges, 500 to 800+.")]),
-    ("Out of Scope", [("Approval odds", "nothing here predicts approval."),
-                      ("Business bureaus", "D&B and similar files are not mapped."),
-                      ("Soft pulls and rates", "prequalification and live rates are left out.")])], "c2_scope", size=9.5)
+    ("Out of Scope", [("Business bureaus", "D&B and similar files are not mapped."),
+                      ("Soft pulls and rates", "prequalification and live rates are left out."),
+                      ("Advice", "nothing here is legal, tax or investment advice.")])], "c2_scope", size=9.5)
 D[DASH[2]] = dashboard(DASH[2], shell(3, "Market and KPIs", f"{TOTAL:,} recorded pulls. Hover a tile for its formula; click a KPI to open its detail card.") + [
     szone(192, 96, 1000, 92, "Market Tiles", pad=4),
     szone(192, 196, 330, 596, "KPI List", pad=8),
@@ -226,7 +230,7 @@ IMG.flow(1000, 150, "From One Table to a Checked Database", [
     ("3. ENRICH", [("added", "funding type"), ("added", "score needed"), ("added", "paperwork level")]),
     ("4. CROSS-CHECK", [("datapoints", "670"), ("sources", "56"), ("years", "2008 to 2026")]),
     ("5. RESULT", [("confirmed", f"{CONF_ROWS} (+{PART_ROWS} partly)"), ("national fit", f"{FIT_ROWS}"), ("contradicted", "0")]),
-], "c3_enrich", result_head="#1D7A72")
+], "c3_enrich", result_head="#1D7A72", balanced=True, gap_px=14)
 IMG.flow(840, 240, "From One Table to a Checked Database", [
     ("1. ORIGINAL TABLE", [("rows", "355"), ("states", "16"), ("columns", "State, Bank and three bureau marks")]),
     ("2. CLEAN AND MATCH", [("spellings", "229"), ("lenders", "102"), ("unknown", "11 kept and labeled")]),
@@ -238,7 +242,7 @@ IMG.flow(1000, 172, "How It Was Built: Extract, Transform, Load", [
     ("1. EXTRACT", [("read", "original workbook, All States & Banks tab"), ("read", "issuer state tables, 2008 to 2017"), ("read", "myFICO grid (2023) and 2025-2026 posts"), ("read", "lender pages for scores and rules")]),
     ("2. TRANSFORM", [("match", "229 spellings to 102 lenders"), ("normalize", "x, blanks, counts to pulled or not"), ("join", "each row to outside data by lender and state"), ("reshape", "one row per state, lender and bureau")]),
     ("3. LOAD", [("excel", "six-tab workbook with live totals"), ("web", "seven-page site on GitHub Pages"), ("tableau", "maps, regression and this story"), ("model", "weighted datapoints for the regression")]),
-], "c3_etl")
+], "c3_etl", balanced=True, gap_px=16)
 IMG.flow(640, 198, "How It Was Built: Extract, Transform, Load", [
     ("1. EXTRACT", [("read", "original workbook, All States & Banks tab"), ("read", "issuer state tables, 2008 to 2017"), ("read", "myFICO grid (2023) and 2025-2026 posts"), ("read", "lender pages for scores and rules")]),
     ("2. TRANSFORM", [("match", "229 spellings to 102 lenders"), ("normalize", "x, blanks, counts to pulled or not"), ("join", "each row to outside data by lender and state"), ("reshape", "one row per state, lender and bureau")]),
