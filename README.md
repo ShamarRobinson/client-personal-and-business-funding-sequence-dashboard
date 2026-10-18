@@ -37,7 +37,7 @@ Context facts used in the story: [myFICO, Do Credit Inquiries Lower Your FICO Sc
 
 ## Tableau Public
 
-The [Tableau Story "FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 11 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 5 and 8), and an About button on every card. Each card is 1110 x 740 so it fits a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
+The [Tableau Story "FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 11 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 5 and 8), and an About button on every card. Each card is 1320 x 880 so it fills a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
 
 | Card | What it shows |
 | --- | --- |

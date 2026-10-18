@@ -100,7 +100,7 @@ def zstyle(margin=4, padding=4, bg=None, border=None):
 
 # ================================================================== layout: 8 dashboard cards, 1200 x 800, dark "metal card" theme
 W, H = 1200, 800            # layout grid every zone is placed on
-DW, DH = 1110, 740          # rendered dashboard size: the 1200 x 800 layout scaled to 92.5% so a card fits a 1080p browser without scrolling
+DW, DH = 1320, 880          # rendered dashboard size: the 1200 x 800 layout scaled to 110% so a card fills a 1080p screen (full-screen view) without scrolling
 CC = "federated.1cc5tate0ab1cd2ef3gh4ij5kl6m"
 BG, CARD, CARD2, LINE_C = IMG.BG, IMG.CARD, IMG.CARD2, IMG.LINE
 INK, INK2, MUT, TEAL, ORANGE = IMG.INK, IMG.INK2, IMG.MUTED, IMG.TEAL, IMG.ORANGE
@@ -271,24 +271,24 @@ D[DASH[4]] = dashboard(DASH[4], shell(5, "Pick a Lender", "Each state shows the 
 ])
 
 # ------------------------------------------------------------------ card 5: share maps with a state detail panel
-IMG.callouts(664, 310, "What the Maps Show", [
-    (EXP, "Florida is the most reliable Experian state", "466 of 885 pulls (53%). Big samples barely move when new data arrives."),
-    (EQ, "An Equifax belt runs through the Southeast", "Virginia 39%, South Carolina 37%, North Carolina 36%. Its scale tops out near 50%."),
-    (TU, "TransUnion matters in a few states", "About 1 in 3 Georgia pulls (37 of 116) landed on TransUnion."),
-    (ORANGE, "Small samples look extreme", "Montana shows 0% Experian from only 2 pulls; under 10 pulls is a hint, not a finding.")], "c5_callouts")
-IMG.coach(1, "Click any state", "cm5_1", w=170, h=26)
+IMG.callouts(492, 176, "What the Maps Show", [
+    (EXP, "Florida: 466 (Experian pulls) of 885 (all pulls) = 53%", "Big samples barely move when new data arrives."),
+    (EQ, "Equifax belt: VA 39%, SC 37%, NC 36% (Equifax share)", "The Equifax scale tops out near 50%."),
+    (ORANGE, "Montana: 0% Experian from 2 (pulls)", "Under 10 pulls is a hint, not a finding.")], "c5_callouts")
+IMG.coach(1, "Click any state", "cm5_1", w=150, h=26)
 IMG.coach(2, "Its detail opens here", "cm5_2", w=190, h=26)
 SHARE_CALC = {"Experian": "Calculation_0014759374798936", "Equifax": "Calculation_0014759375044698", "TransUnion": "Calculation_0014759375245404"}
 MAPS = [f"{b} Share of Pulls" for b in ("Experian", "Equifax", "TransUnion")]
+MAP_BOX = {"Experian": (192, 96), "Equifax": (700, 96), "TransUnion": (192, 448)}   # 2 x 2 grid: three big maps plus the detail corner
 D[DASH[5]] = dashboard(DASH[5], shell(6, "Share Maps", "Share = pulls on one bureau in a state ÷ all bureau pulls in that state. Brighter means a bigger share.") + [
-    z for i, b in enumerate(("Experian", "Equifax", "TransUnion")) for z in (
-        szone(192 + i * 336, 96, 328, 330, f"{b} Share of Pulls", title=True, pad=6),
-        lzone(192 + i * 336, 430, 328, 44, f"{b} Share of Pulls", f"[{SQLP}].[usr:{SHARE_CALC[b]}:qk]"))
+    z for b, (x, y) in MAP_BOX.items() for z in (
+        szone(x, y, 492, 306, f"{b} Share of Pulls", title=True, pad=6),
+        lzone(x, y + 306, 492, 38, f"{b} Share of Pulls", f"[{SQLP}].[usr:{SHARE_CALC[b]}:qk]"))
 ] + [
-    szone(192, 482, 328, 310, "State Detail", pad=12),
-    izone(528, 482, 664, 310, "c5_callouts.png"),
-    izone(200, 392, 170, 26, "cm5_1.png"),
-    izone(322, 488, 190, 26, "cm5_2.png"),
+    szone(700, 448, 492, 160, "State Detail", pad=10),
+    izone(700, 616, 492, 176, "c5_callouts.png"),
+    izone(204, 368, 150, 26, "cm5_1.png"),
+    izone(994, 454, 190, 26, "cm5_2.png"),
 ])
 
 # ------------------------------------------------------------------ card 6: close calls (existing explorer, now with viz in tooltip)
@@ -345,7 +345,7 @@ IMG.ladder_strip(592, 188, [
     ("800+", "Biggest first", "Largest facilities.")], name="c7_ladder")
 IMG.callouts(592, 178, "How the Tree Connects", [
     (TEAL, "Step 1 comes from the ladder", "Your score step (card 2) decides which lenders are in reach at all."),
-    ("#9A7BFF", "Close calls come from the model", "Card 7 shows the chance of each bureau in your state."),
+    ("#F2B634", "Close calls come from the model", "Card 7 shows the chance of each bureau in your state."),
     (ORANGE, "Step 3 comes from issuer habits", "Card 9 shows each issuer's bureau habit (KPI 5).")], "c8_links")
 D[DASH[7]] = dashboard(DASH[7], shell(8, "Decision Tree: Which Lender, in What Order", "Check the five overrides, follow your strongest report's branch, then apply in the Step 3 order.") + [
     izone(192, 96, 1000, 510, "c7_tree.png"),
@@ -765,7 +765,8 @@ help_cols = [("Card", "string"), ("Icon", "string"), ("Title", "string"), ("Tip"
 ds_help = datasource(HP[10:], "Story Help", "story_help.csv", help_cols, help_rows, dsname=HP)
 
 # ------------------------------------------------------------------ close calls (dark theme colors)
-STATUS_COL = {"Clear lean": "#9A7BFF", "Moderate lean": "#5E4BA8", "Toss-up": "#E0B43A", "Thin data (national pattern)": "#4A5260", "Not a close call": "#252B34"}
+# close-call verdicts: one neutral light-to-dark ramp for confidence (so no verdict looks like a bureau color), gold for toss-ups
+STATUS_COL = {"Clear lean": "#ECE6D6", "Moderate lean": "#A69F8E", "Toss-up": "#F2B634", "Thin data (national pattern)": "#6B7380", "Not a close call": "#1E232B"}
 ds_cc = datasource("0cc5tate0ab1cd2ef3gh4ij5kl6m", "Close Calls by State", "close_calls_state.csv", cc_cols, cc_rows, cc_calc, dsname=CC)
 ds_cc = palette_style(ds_cc, {"Close Call Status": STATUS_COL, "Bureau": BUREAU_COL})
 
@@ -841,10 +842,10 @@ WS["CC Map"] = worksheet("CC Map", "", CC, "Close Calls by State",
     f"<pane selection-relaxation-option='selection-relaxation-allow'><view><breakdown value='auto' /></view><mark class='Multipolygon' /><encodings>"
     f"<color column='[{CC}].[none:Close Call Status:nk]' /><lod column='[{CC}].[none:State:nk]' /><text column='[{CC}].[none:Calc_cc_label:nk]' />"
     f"<geometry column='[{CC}].[Geometry (generated)]' /></encodings>"
-    + tooltip(tiprun(T(CC, "State"), "#0E1115", 11, True) + NLR + tiprun(T(CC, "Close Call Status"), "#5B3FA8", 9, True) + NLR
+    + tooltip(tiprun(T(CC, "State"), "#0E1115", 11, True) + NLR + tiprun(T(CC, "Close Call Status"), "#8A6500", 9, True) + NLR
               + "<run>&lt;Sheet name=&quot;CC Chance Bars&quot; maxwidth=&quot;300&quot; maxheight=&quot;150&quot; filter=&quot;&lt;All Fields&gt;&quot;&gt;</run>"
               + NLR + tiprun("Click to pin this state in the side panel.", "#4A5568", 8))
-    + f"<customized-label><formatted-text><run bold='true' fontalignment='1' fontcolor='{INK}' fontsize='8'>&lt;[{CC}].[none:Calc_cc_label:nk]&gt;</run></formatted-text></customized-label>"
+    + f"<customized-label><formatted-text><run bold='true' fontalignment='1' fontcolor='#0E1115' fontsize='8'>&lt;[{CC}].[none:Calc_cc_label:nk]&gt;</run></formatted-text></customized-label>"
     f"<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /><format attr='mark-labels-cull' value='false' /></style-rule></style></pane>",
     f"[{CC}].[Latitude (generated)]", f"[{CC}].[Longitude (generated)]",
     style=bgstyle(f"<style-rule element='axis'><encoding attr='space' class='0' field='[{CC}].[Longitude (generated)]' field-type='quantitative' max='-7300000' min='-13950000' projection='EPSG:3857' range-type='fixed' scope='cols' type='space' />"
@@ -854,7 +855,7 @@ WS["CC State Panel"] = worksheet("CC State Panel", "", CC, "Close Calls by State
     ccdeps([uk(k) for k in PANEL], cc_calc),
     txt_pane("".join(f"<text column='[{CC}].[usr:{k}:nk]' />" for k in PANEL), "",
              f"<run bold='true' fontcolor='{INK}' fontsize='17'>{T(CC, 'Calc_p_title', 'nk', 'usr')}</run>{NLR}"
-             f"<run bold='true' fontcolor='#9A7BFF' fontsize='11'>{T(CC, 'Calc_p_status', 'nk', 'usr')}</run>{NLR}"
+             f"<run bold='true' fontcolor='#F2B634' fontsize='11'>{T(CC, 'Calc_p_status', 'nk', 'usr')}</run>{NLR}"
              f"<run fontcolor='{INK2}' fontsize='10'>{T(CC, 'Calc_p_result', 'nk', 'usr')}</run>{NLR}"
              f"<run fontcolor='{MUT}' fontsize='9'>{T(CC, 'Calc_p_note', 'nk', 'usr')}</run>",
              "<style-rule element='cell'><format attr='text-align' value='left' /><format attr='vertical-align' value='top' /></style-rule>"),
@@ -946,7 +947,7 @@ ls_cols = [("State", "string"), ("StateAbbr", "string"), ("Lender", "string"), (
 def sd_line(b):
     sh = f"SUM([{b}])/SUM([Total Datapoints])"
     return (f'"{b}  " + STR(INT(ROUND(100*{sh}))) + "% (share)  " + LEFT("████████████████████", INT(ROUND(20*{sh}))) + '
-            f'"  " + STR(INT(SUM([{b}]))) + " ({b} pulls) of " + STR(INT(SUM([Total Datapoints]))) + " (all pulls)"')
+            f'"  " + STR(INT(SUM([{b}]))) + " (pulls) of " + STR(INT(SUM([Total Datapoints]))) + " (all pulls)"')
 SDCALC = {"Calc_sd_title": 'IF COUNTD([State]) > 1 THEN "All States" ELSE ATTR([State]) END',
           "Calc_sd_sub": 'IF COUNTD([State]) > 1 THEN "Click any state on a map to open its detail card." ELSE "Share of this state\'s recorded pulls, all lenders" END',
           "Calc_sd_exp": sd_line("Experian"), "Calc_sd_eq": sd_line("Equifax"), "Calc_sd_tu": sd_line("TransUnion"),
@@ -958,11 +959,11 @@ s = s[:m.start()] + ds_pulls + s[m.end():]
 s = re.sub(r"\s*<datasource [^>]*formatted-name='Funding Lender State Bureau Pulls'.*?</datasource>", "", s, flags=re.S)
 WS["State Detail"] = worksheet("State Detail", "", SQLNAME, "Funding Lender State Bureau Pulls", deps(SQLNAME, ls_cols, [uk(k) for k in SDCALC], sd_xml),
     txt_pane("".join(f"<text column='[{SQLNAME}].[usr:{k}:nk]' />" for k in SDCALC), "",
-             f"<run bold='true' fontcolor='{INK}' fontsize='17'>{T(SQLNAME, 'Calc_sd_title', 'nk', 'usr')}</run>{NLR}"
-             f"<run fontcolor='{MUT}' fontsize='9'>{T(SQLNAME, 'Calc_sd_sub', 'nk', 'usr')}</run>{NLR}{NLR}"
-             f"<run bold='true' fontcolor='{EXP}' fontsize='11'>{T(SQLNAME, 'Calc_sd_exp', 'nk', 'usr')}</run>{NLR}{NLR}"
-             f"<run bold='true' fontcolor='{EQ}' fontsize='11'>{T(SQLNAME, 'Calc_sd_eq', 'nk', 'usr')}</run>{NLR}{NLR}"
-             f"<run bold='true' fontcolor='{TU}' fontsize='11'>{T(SQLNAME, 'Calc_sd_tu', 'nk', 'usr')}</run>{NLR}{NLR}"
+             f"<run bold='true' fontcolor='{INK}' fontsize='15'>{T(SQLNAME, 'Calc_sd_title', 'nk', 'usr')}</run>{NLR}"
+             f"<run fontcolor='{MUT}' fontsize='9'>{T(SQLNAME, 'Calc_sd_sub', 'nk', 'usr')}</run>{NLR}"
+             f"<run bold='true' fontcolor='{EXP}' fontsize='10'>{T(SQLNAME, 'Calc_sd_exp', 'nk', 'usr')}</run>{NLR}"
+             f"<run bold='true' fontcolor='{EQ}' fontsize='10'>{T(SQLNAME, 'Calc_sd_eq', 'nk', 'usr')}</run>{NLR}"
+             f"<run bold='true' fontcolor='{TU}' fontsize='10'>{T(SQLNAME, 'Calc_sd_tu', 'nk', 'usr')}</run>{NLR}"
              f"<run fontcolor='{ORANGE}' fontsize='9'>{T(SQLNAME, 'Calc_sd_note', 'nk', 'usr')}</run>",
              "<style-rule element='cell'><format attr='text-align' value='left' /><format attr='vertical-align' value='top' /></style-rule>"),
     "", "", style=bgstyle())
@@ -988,6 +989,8 @@ for b in ("Experian", "Equifax", "TransUnion"):
     x = re.sub(r"<run><!\[CDATA\[<Sheet Name>(.*?)\]\]></run>", lambda mm: f"<run bold='true' fontcolor='{BUREAU_COL[b]}' fontsize='11'>{b}</run><run fontcolor='{INK2}' fontsize='9'><![CDATA[ Share{mm.group(1)}]]></run>", x)
     x = x.replace("fontcolor='#ffffff'", "fontcolor='#0E1115'").replace("fontcolor='#1f2937'", f"fontcolor='{INK}'")
     x = x.replace("<format attr='washout' value='0.0' />", MAPSTYLE[b])
+    x = re.sub(r"(field='\[[^\]]+\]\.\[Longitude \(generated\)\]' field-type='quantitative' )max='[^']*' min='[^']*'", r"\1max='-7300000' min='-13950000'", x)
+    x = re.sub(r"(field='\[[^\]]+\]\.\[Latitude \(generated\)\]' field-type='quantitative' )max='[^']*' min='[^']*'", r"\1max='6450000' min='2850000'", x)
     x = x.replace("<style>", "<style>" + bgstyle(), 1)
     s = s[:i] + x + s[j:]
 # lender map: dark pane, washed-out base map, rich tooltip
@@ -1034,10 +1037,18 @@ STORY = [(DASH[0], "Overview: context, purpose, sources and limits"),
 pts = "".join(f"<story-point caption='{i}. {esc(tc(c))}' captured-sheet='{esc(n)}' id='{100 + i}' />" for i, (n, c) in enumerate(STORY, 1))
 s = re.sub(r"<story-points>.*?</story-points>", f"<story-points>{pts}</story-points>", s, flags=re.S)
 s = re.sub(r"<flipboard active-id='\d+'", "<flipboard active-id='101'", s)
-SW, SH = DW + 24, 880
+SW, SH = DW + 24, DH + 140   # story frame: 8 px margins, 31 px title, 92 px caption bar, flipboard = card + 2
+def _f(px): return int(px * 100000 / SH)
+s = s.replace("<zone h='98340' id='1' param='vert' removable='false' type-v2='layout-flow' w='98426' x='787' y='830'>",
+              f"<zone h='{100000 - 2 * _f(7)}' id='1' param='vert' removable='false' type-v2='layout-flow' w='98426' x='787' y='{_f(7)}'>", 1)
+s = s.replace("<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830' />", f"<zone h='{_f(31)}' id='3' type-v2='title' w='98426' x='787' y='{_f(7)}' />", 1)
+s = s.replace("<zone h='10477' id='4' is-fixed='true' paired-zone-id='5' removable='false' type-v2='flipboard-nav' w='98426' x='787' y='4357' />",
+              f"<zone h='{_f(92)}' id='4' is-fixed='true' paired-zone-id='5' removable='false' type-v2='flipboard-nav' w='98426' x='787' y='{_f(38)}' />", 1)
+s = s.replace("<zone h='84336' id='5' paired-zone-id='4' removable='false' type-v2='flipboard' w='98426' x='787' y='14834'>",
+              f"<zone h='{_f(DH + 2)}' id='5' paired-zone-id='4' removable='false' type-v2='flipboard' w='98426' x='787' y='{_f(130)}'>", 1)
 s = s.replace("<size maxheight='964' maxwidth='1016' minheight='964' minwidth='1016' />", f"<size maxheight='{SH}' maxwidth='{SW}' minheight='{SH}' minwidth='{SW}' />", 1)
-s = s.replace("<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830' />",
-              "<zone h='3527' id='3' type-v2='title' w='98426' x='787' y='830'><zone-style><format attr='border-style' value='none' /><format attr='border-width' value='0' /></zone-style></zone>")
+s = re.sub(r"<zone h='(\d+)' id='3' type-v2='title' w='98426' x='787' y='(\d+)' />",
+              r"<zone h='\1' id='3' type-v2='title' w='98426' x='787' y='\2'><zone-style><format attr='border-style' value='none' /><format attr='border-width' value='0' /></zone-style></zone>", s, count=1)
 s = s.replace("<dashboard name='Which Bureau Will They Pull' type='storyboard'>",
               "<dashboard name='Which Bureau Will They Pull' type='storyboard'><layout-options><title><formatted-text>"
               "<run bold='true' fontcolor='#14213D' fontsize='18'>FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy</run>"

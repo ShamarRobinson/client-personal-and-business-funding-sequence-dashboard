@@ -1,5 +1,12 @@
 # Change Log
 
+## 2026-10-17 (late evening)
+
+- Share Maps card: 2x2 map grid with lower-48 framing so each map gets more room; compact State Detail panel.
+- Close Calls card: new ivory, taupe, gold and slate status colors with dark map labels; deck slide matched.
+- Full-screen view: cards enlarged from 1110 x 740 to 1320 x 880 (story frame 1344 x 1020) so they fill a 1080p screen.
+- Repository renamed to lowercase: client-personal-and-business-funding-sequence-dashboard.
+
 ## October 17, 2026 (evening)
 
 - Story is now 11 cards: the Funding Ladder has its own page right after the Overview (ladder, what each step looks like, five rules for climbing); Recommendations has its own page right before Sources; Sources is the last page under the Story title.

@@ -179,7 +179,7 @@ S["maps"] = section("maps", header(7, "Share Maps: Where Each Bureau Is Pulled",
 groups = {}
 for ab, r in rs.items():
     groups.setdefault(r["Close Call Status"], []).append((ab, float(r["P_Experian"])))
-GCOL = {"Clear lean": "#9A7BFF", "Moderate lean": "#5E4BA8", "Toss-up": "#E0B43A", "Thin data (national pattern)": "#4A5260"}
+GCOL = {"Clear lean": "#ECE6D6", "Moderate lean": "#A69F8E", "Toss-up": "#F2B634", "Thin data (national pattern)": "#6B7380"}
 GDESC = {"Clear lean": "leader holds in 90%+ of 150 refits", "Moderate lean": "leader holds in 70%+ of refits", "Toss-up": "leader holds in under 70% of refits", "Thin data (national pattern)": "under 10 datapoints; national pattern shown"}
 gcards = ""
 for g, col in GCOL.items():
@@ -241,7 +241,7 @@ S["sources"] = section("sources", header(12, "FP&amp;A: Credit Stacking &amp; Fu
     + card(h3("Key Sources") + "".join(f'<div style="font-size:25px;line-height:1.35;margin-bottom:18px">{link(t, u)}</div>' for t, u in SRC))
     + '<div style="display:flex;flex-direction:column;gap:24px">'
     + card(h3("Live Now") + f'<div style="font-size:25px;line-height:1.7">{link("Tableau Story: Which Bureau Will They Pull", "https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no")}<br>'
-           f'{link("Dashboard website", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/")}<br>{link("Code and data on GitHub", "https://github.com/ShamarRobinson/Client-Personal-and-Business-Funding-Sequence-Dashboard")}</div>')
+           f'{link("Dashboard website", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/")}<br>{link("Code and data on GitHub", "https://github.com/ShamarRobinson/client-personal-and-business-funding-sequence-dashboard")}</div>')
     + card(h3("Next Steps", ORANGE) + p("Log new inquiry datapoints and refit the model; resolve the 11 unidentified names; refresh lender minimums each quarter.", 20))
     + '</div></div>', "Close by pointing to the live Story and the sources page; every source opens from Tableau card 11.")
 
