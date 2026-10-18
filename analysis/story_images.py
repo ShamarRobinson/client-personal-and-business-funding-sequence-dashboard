@@ -133,7 +133,7 @@ def elbow(d, x0, y0, x1, y1, color="#8A93A3", dash=False, arrow=True):
 def pill(d, cx, cy, text, color=NEUTRAL, fill=CARD):
     ft = mono(8, True)
     w = d.textlength(text, font=ft) + 12 * S
-    d.rounded_rectangle((cx - w / 2, cy - 9 * S, cx + w / 2, cy + 9 * S), radius=9 * S, fill=fill, outline=color, width=1 * S)
+    d.rectangle((cx - w / 2, cy - 9 * S, cx + w / 2, cy + 9 * S), fill=fill, outline=color, width=1 * S)
     d.text((cx - w / 2 + 6 * S, cy - 6 * S), text, font=ft, fill=color)
 
 
@@ -648,8 +648,7 @@ def text_card(w, h, blocks, name, title=None, accent=TEAL, size=10.5):
         d.text((18 * S, y), title, font=f("bold", 13), fill=INK); y += 26 * S
     for head, body in blocks:
         d.rounded_rectangle((18 * S, y + 3 * S, 22 * S, y + 17 * S), radius=2 * S, fill=accent)
-        d.text((30 * S, y), head, font=f("bold", 12), fill=INK)
-        y += 24 * S
+        y = draw_rich(d, 30 * S, y, w * S - 52 * S, head, size=12, weight="bold", color=INK, line_gap=2) + 8 * S
         if isinstance(body, str):
             y = draw_rich(d, 30 * S, y, w * S - 52 * S, body, size=size, color=INK2, line_gap=3) + 8 * S
         else:
@@ -793,3 +792,92 @@ def photo_card(w, h, photo, name, kicker, title, lines=(), focus=(0.5, 0.5)):
     for lab, txt in lines:
         yy = draw_rich(d, 18 * S, yy, W_ - 36 * S, txt, size=9.5, color="#E3E6EB", line_gap=2, lead=f"{lab}:" if lab else None) + 4 * S
     return save(out, name)
+
+
+def decision_tree2(w, h, gates, branches, rules, name="c7_tree"):
+    """Three-step decision tree in the data-model style.
+    gates: [(if, then)] checked first; branches: [(bureau, why, [(if, then), ...])]; rules: [(head, line)] for the sequence."""
+    im, d = canvas(w, h)
+    W = w * S
+    d.text((10 * S, 8 * S), "Decision Tree: Which Lender to Apply to, and in What Order", font=f("bold", 13), fill=NAVY)
+    d.text((10 * S, 28 * S), "Step 1 checks override everything. Then follow the branch for your strongest report. Step 3 sets the order.", font=f("regular", 9), fill=MUTED)
+    # start
+    root = (W / 2 - 170 * S, 46 * S, W / 2 + 170 * S, 100 * S)
+    entity(d, root, "START: pull all three reports", [("then", "compare scores, errors and recent inquiries on each one")], head=NEUTRAL, fsize=8, title_size=9)
+    # step 1 gates
+    gy0, gy1 = 132 * S, 212 * S
+    n = len(gates); gap = 10 * S; gw = (W - 20 * S - gap * (n - 1)) / n
+    d.line((10 * S + gw / 2, 118 * S, W - 10 * S - gw / 2, 118 * S), fill="#8A93A3", width=int(1.5 * S))
+    d.line((W / 2, root[3], W / 2, 118 * S), fill="#8A93A3", width=int(1.5 * S))
+    pill(d, 10 * S + gw + gap / 2, 118 * S, "STEP 1: CHECK THESE FIRST", color=ORANGE)
+    for i, (cond, act) in enumerate(gates):
+        x0 = 10 * S + i * (gw + gap)
+        d.line((x0 + gw / 2, 118 * S, x0 + gw / 2, gy0), fill="#8A93A3", width=int(1.5 * S))
+        entity(d, (x0, gy0, x0 + gw, gy1), f"IF {cond}", [("then", act)], head="#5B3FA8", fsize=8, title_size=8.5)
+    # step 2 branches
+    by0 = 248 * S; by1 = by0 + 150 * S
+    d.line((10 * S, 228 * S, W - 10 * S, 228 * S), fill=LINE, width=1 * S)
+    pill(d, W / 2, 228 * S, "STEP 2: NONE APPLY? FOLLOW YOUR STRONGEST REPORT", color=TEAL)
+    nb = len(branches); bw = (W - 20 * S - 12 * S * (nb - 1)) / nb
+    for i, (b, why, subs) in enumerate(branches):
+        x0 = 10 * S + i * (bw + 12 * S)
+        entity(d, (x0, by0, x0 + bw, by1), f"IF {b.upper()} IS STRONGEST", [("why", why)] + [(f"if {c}", t) for c, t in subs], head=BUREAU[b], fsize=8, title_size=8.5)
+    # step 3 sequence
+    sy0 = by1 + 22 * S
+    d.line((10 * S, sy0 - 10 * S, W - 10 * S, sy0 - 10 * S), fill=LINE, width=1 * S)
+    pill(d, W / 2, sy0 - 10 * S, "STEP 3: THEN APPLY IN THIS ORDER", color=ORANGE)
+    nr = len(rules); rw = (W - 20 * S - 10 * S * (nr - 1)) / nr
+    for i, (head, line) in enumerate(rules):
+        x0 = 10 * S + i * (rw + 10 * S)
+        entity(d, (x0, sy0 + 4 * S, x0 + rw, h * S - 6 * S), f"{i + 1}. {head}", body=line, head=NEUTRAL, fsize=8, title_size=8.5)
+    return save(im, name)
+
+
+def ladder_strip(w, h, tiers, name="c7_ladder"):
+    """Compact funding ladder: seven score steps left to right, each riser a little taller, with the move for that step."""
+    im, d = panel(w, h)
+    d.text((16 * S, 12 * S), "The Funding Ladder: One Score Step at a Time", font=f("bold", 12), fill=INK)
+    n = len(tiers); gap = 8 * S
+    cw = (w * S - 32 * S - gap * (n - 1)) / n
+    base = 40 * S + 70 * S
+    ramp = ["#16302F", "#1A4542", "#1D5B56", "#21716A", "#25877E", "#2A9E93", "#2FB4A7"]
+    for i, (rng, head, do) in enumerate(tiers):
+        x0 = 16 * S + i * (cw + gap)
+        top = base - (16 + 8 * i) * S
+        d.rectangle((x0, top, x0 + cw, base), fill=ramp[i])
+        d.rectangle((x0, top, x0 + cw, top + 3 * S), fill=ORANGE if i == n - 1 else TEAL)
+        d.text((x0 + 6 * S, top - 30 * S), rng, font=mono(10, True), fill=INK)
+        d.text((x0 + 6 * S, top - 15 * S), head, font=f("semibold", 9), fill=INK2)
+        d.text((x0 + 6 * S, base - 14 * S), f"STEP {i + 1}", font=mono(7.5, True), fill="#FFFFFF")
+        draw_rich(d, x0, base + 8 * S, cw, do, size=8.5, color=INK2, line_gap=1)
+    return save(im, name)
+
+
+def tier_table(w, h, title, cols, rows, name):
+    """Entity-style table: header strip, mono column names, banded rows of rich text. cols = [(name, fraction)]."""
+    im, d = canvas(w, h)
+    x0, y0, x1, y1 = 8 * S, 6 * S, w * S - 8 * S, h * S - 6 * S
+    d.rectangle((x0, y0, x1, y1), fill=CARD, outline=LINE, width=1 * S)
+    hh = 26 * S
+    d.rectangle((x0, y0, x1, y0 + hh), fill=NEUTRAL)
+    d.text((x0 + 10 * S, y0 + 6 * S), f"◆ {title}", font=f("bold", 10), fill="#FFFFFF")
+    cx = [x0 + 10 * S]
+    for _, fr in cols:
+        cx.append(cx[-1] + fr * (x1 - x0 - 20 * S))
+    y = y0 + hh + 6 * S
+    for (cname, _), x in zip(cols, cx):
+        d.text((x, y), cname, font=mono(7.5, True), fill=MUTED)
+    y += 16 * S
+    d.line((x0, y, x1, y), fill=LINE, width=1 * S)
+    rh = (y1 - y - 2 * S) / len(rows)
+    for i, row in enumerate(rows):
+        ry = y + i * rh
+        if i % 2:
+            d.rectangle((x0 + 1 * S, ry, x1 - 1 * S, ry + rh), fill=CARD2)
+        for k, cell in enumerate(row):
+            if k == 0:
+                d.text((cx[0], ry + 6 * S), cell[0], font=mono(9.5, True), fill=TEAL)
+                d.text((cx[0], ry + 21 * S), cell[1], font=f("semibold", 8.5), fill=INK)
+            else:
+                draw_rich(d, cx[k], ry + 6 * S, cx[k + 1] - cx[k] - 8 * S, cell, size=8, color=INK2, line_gap=1)
+    return save(im, name)

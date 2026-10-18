@@ -37,18 +37,21 @@ Context facts used in the story: [myFICO, Do Credit Inquiries Lower Your FICO Sc
 
 ## Tableau Public
 
-The [Tableau Story "FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 8 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 4 and 7), and an About button on every card. Each card is 1110 x 740 so it fits a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
+The [Tableau Story "FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 11 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 5 and 8), and an About button on every card. Each card is 1110 x 740 so it fits a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
 
 | Card | What it shows |
 | --- | --- |
 | 1. Overview | Cover photo, headline numbers, context, purpose, sources, update cadence, data limits and a guided walkthrough |
-| 2. Market and KPIs | Bureau shares and close-call count, a KPI list that opens a detail card (formula and worked example), scope and who it serves |
-| 3. Data and Method | Enrichment flow, the extract, transform, load process, the cleaning steps and the cross-check result |
-| 4. Pick a Lender | Map of each lender's most-pulled bureau by state, with a lender drop-down and lenders grouped by habit |
-| 5. Share Maps | Experian, Equifax and TransUnion share maps; click a state to open its State Detail card |
-| 6. Close Calls | Click a state for the model's best forecast; hover a state to see its chance bars inside the tooltip |
-| 7. Decide | Decision tree, four real forecasts and the funding ladder |
-| 8. Scorecard, Moves and Sources | Each issuer's bureau habit, the best move for each stakeholder and every source as a clickable list |
+| 2. Funding Ladder | Seven score steps with their moves, what each step looks like (products, example lenders, bureau pulled, typical limit) and five rules for climbing |
+| 3. Market and KPIs | Bureau shares and close-call count, a KPI list that opens a detail card, scope and who it serves |
+| 4. Data and Method | Enrichment flow, the extract, transform, load process, the cleaning steps and the cross-check result |
+| 5. Pick a Lender | Map of each lender's most-pulled bureau by state, with a lender drop-down and lenders grouped by habit |
+| 6. Share Maps | Experian, Equifax and TransUnion share maps; click a state to open its State Detail card |
+| 7. Close Calls | Click a state for the model's best forecast; hover a state to see its chance bars inside the tooltip |
+| 8. Decision Tree | Five override checks, three bureau branches with three if/then cases each, four ordering rules, and four real forecasts |
+| 9. Scorecard | Each issuer's bureau habit and where every number comes from |
+| 10. Recommendations | Best move, when to choose it, why, next move, what to watch out for and which card to open, for five stakeholder types |
+| 11. Sources | Every source as a clickable list, under the Story title |
 
 Interactive features: tooltips with formulas on every number, nested charts (chance bars inside the close-call map tooltip, inline data bars in the State Detail card), dynamic detail cards (KPI, state and close-call panels), annotation callouts, numbered coach marks and a walkthrough, and an About popover on each card. Every number in a worked example or tooltip says what it is in parentheses, for example 466 (Experian pulls in Florida) ÷ 885 (all bureau pulls in Florida) = 53% (Experian's share).
 

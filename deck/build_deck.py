@@ -18,7 +18,7 @@ for src, name, w in [("cover_cards.png", "cover_cards.jpg", 1600), ("photo_analy
                      ("photo_funding.png", "photo_funding.jpg", 1000), ("photo_advisors.png", "photo_advisors.jpg", 1200),
                      ("photo_approved.png", "photo_approved.jpg", 900)]:
     jpg(REPO / "assets" / src, name, w)
-for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png"):
+for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png"):
     shutil.copy(REPO / "tableau" / "_build" / "Image" / img, AS / img)
 
 # ---------------------------------------------------------------- theme
@@ -53,7 +53,7 @@ def header(n, title, sub, tab, photo=None):
           f'-webkit-mask-image:linear-gradient(90deg,transparent,#000 60%);mask-image:linear-gradient(90deg,transparent,#000 60%)"></div>') if photo else ""
     return (f'<div style="position:relative;display:flex;align-items:center;justify-content:space-between;background:#0F1217;border:1px solid {LINE};padding:26px 36px;overflow:hidden">{ph}'
             f'<div style="position:absolute;left:0;right:0;bottom:-1px;height:3px;background:{GLOW}"></div>'
-            f'<div style="position:relative"><div style="font-family:{MONO};font-size:18px;color:{TEAL};letter-spacing:.14em">{n:02d} / 10</div>'
+            f'<div style="position:relative"><div style="font-family:{MONO};font-size:18px;color:{TEAL};letter-spacing:.14em">{n:02d} / 12</div>'
             f'<h2 style="font-size:54px;font-weight:600;color:{INK};margin:6px 0 6px;line-height:1.08">{title}</h2>'
             f'<div style="font-size:22px;color:{INK2}">{b(sub)}</div></div><div style="position:relative">{tabs(tab)}</div></div>')
 def coach(n, t): return (f'<span style="display:inline-flex;align-items:center;gap:10px;background:{INK};color:{BG};font-size:18px;font-weight:600;padding:4px 16px 4px 4px">'
@@ -93,7 +93,12 @@ S["overview"] = section("overview", header(2, "Overview: Context, Sources and Li
     + '</div>', "Slide 2 keeps the sources, update cadence and limits up front, as the Tableau Story does on card 1.")
 
 # 3 market, scope, who it serves ---------------------------------------
-S["market"] = section("market", header(3, "Market, Scope and Who It Serves", "3,003 recorded bureau pulls, all lenders combined.", "Overview") +
+S["ladder"] = section("ladder", header(3, "The Funding Ladder: One Score Step at a Time", "Find your step by credit score, finish its moves, let the score rise, then climb. 57 (steps) across 7 (score ranges).", "Overview", "photo_funding.jpg") +
+    f'<div style="display:flex;gap:20px;justify-content:space-between"><img src="assets/c7_ladder_big.png" style="height:350px;display:block"><img src="assets/c7_rules.png" style="height:350px;display:block"></div>'
+    f'<img src="assets/c7_tiers_wide.png" style="height:420px;display:block;align-self:center">',
+    "Each step is a credit score range with its own moves, example lenders, bureau pulled and typical limit, taken from the 57-step funding sequence.")
+
+S["market"] = section("market", header(4, "Market, Scope and Who It Serves", "3,003 recorded bureau pulls, all lenders combined.", "Overview") +
     f'<div style="display:flex;gap:16px">{ban("54%", "Experian share of pulls", EXP)}{ban("25%", "Equifax share", EQ)}{ban("21%", "TransUnion share", TU)}{ban("38 of 49", "states led by Experian")}{ban("24", "close-call states", TEAL)}</div>'
     f'<div style="display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:24px;flex:1">'
     + card(h3("In Scope") + lead("Bureau pulls", "Experian, Equifax and TransUnion, every state and DC.") + lead("Funding types", "cards, lines, loans, SBA, auto, equipment and real estate.")
@@ -121,7 +126,7 @@ rows = "".join(f'<tr style="background:{CARD if i % 2 == 0 else CARD2}"><td styl
                f'<td style="padding:11px 16px;font-weight:600;color:{INK}">{n}</td><td style="padding:11px 16px;color:{INK2}">{f}</td><td style="padding:11px 16px;color:{INK2}">{b(e)}</td>'
                f'<td style="padding:11px 16px;width:220px"><div style="background:#262C35;height:14px"><div style="width:{v * 100:.0f}%;height:14px;background:{c}"></div></div></td></tr>'
                for i, (n, f, e, v, c) in enumerate(KPIS))
-S["kpis"] = section("kpis", header(4, "Ten KPIs With Formulas", "Each formula worked with the October 7, 2026 numbers. The bar shows the worked value.", "Overview") +
+S["kpis"] = section("kpis", header(5, "Ten KPIs With Formulas", "Each formula worked with the October 7, 2026 numbers. The bar shows the worked value.", "Overview") +
     f'<table style="width:100%;border-collapse:collapse;font-size:21px;line-height:1.3;border:1px solid {LINE}"><tr style="background:#0F1217;text-align:left;font-family:{MONO};font-size:16px;color:{MUT};letter-spacing:.08em">'
     f'<th style="padding:12px 16px">#</th><th style="padding:12px 16px">KPI</th><th style="padding:12px 16px">FORMULA</th><th style="padding:12px 16px">WORKED EXAMPLE</th><th style="padding:12px 16px">VALUE</th></tr>{rows}</table>',
     "In the Tableau Story, click any KPI to open its detail card with what it tells you, the formula and the worked example.")
@@ -129,7 +134,7 @@ S["kpis"] = section("kpis", header(4, "Ten KPIs With Formulas", "Each formula wo
 # 5 data and method ----------------------------------------------------
 def hbar(label, v, mx, c): return (f'<div style="display:flex;align-items:center;gap:14px;margin-bottom:12px"><div style="width:240px;font-size:21px;color:{INK2}">{label}</div>'
                                    f'<div style="flex:1;background:#262C35;height:22px"><div style="width:{v / mx * 100:.0f}%;height:22px;background:{c}"></div></div><div style="width:50px;font-size:22px;font-weight:600">{v}</div></div>')
-S["data"] = section("data", header(5, "Data and Method", "355 inquiries, cleaned, enriched and checked against 670 datapoints from 56 sources.", "Overview", "photo_analytics.jpg") +
+S["data"] = section("data", header(6, "Data and Method", "355 inquiries, cleaned, enriched and checked against 670 datapoints from 56 sources.", "Overview", "photo_analytics.jpg") +
     f'<div style="display:grid;grid-template-columns:2.7fr 1fr;gap:24px;flex:1"><div style="display:flex;flex-direction:column;gap:20px;justify-content:center">'
     f'<img src="assets/c3_enrich.png" style="width:100%;display:block"><img src="assets/c3_etl.png" style="width:100%;display:block"></div>'
     f'<div style="display:flex;flex-direction:column;gap:20px">'
@@ -160,7 +165,7 @@ def tilemap(bureau, mx):
     return f'<div style="position:relative;width:528px;height:352px">{cells}</div>'
 maps = "".join(card(f'<div style="font-size:24px;font-weight:600;margin-bottom:14px">{b(k)} <span style="color:{INK2};font-weight:400">Share of Pulls</span></div>{tilemap(k, mx)}', "padding:22px 24px")
                for k, mx in (("Experian", 1.0), ("Equifax", .5), ("TransUnion", .5)))
-S["maps"] = section("maps", header(6, "Share Maps: Where Each Bureau Is Pulled", "Share = pulls on one bureau in a state ÷ all bureau pulls in that state. Brighter means a bigger share.", "Maps") +
+S["maps"] = section("maps", header(7, "Share Maps: Where Each Bureau Is Pulled", "Share = pulls on one bureau in a state ÷ all bureau pulls in that state. Brighter means a bigger share.", "Maps") +
     f'<div style="display:flex;gap:20px">{maps}</div>'
     f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px">'
     + card(h3(b("Florida, Experian")) + p("466 of 885 pulls (53%); big samples barely move.", 22))
@@ -181,19 +186,17 @@ for g, col in GCOL.items():
     chips = "".join(f'<span style="display:inline-block;border:1px solid {LINE};background:{CARD2};padding:8px 12px;margin:0 10px 10px 0;font-size:24px"><b>{ab}</b> <span style="color:{EXP}">{v:.0%}</span></span>' for ab, v in sorted(groups.get(g, [])))
     gcards += card(f'<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:64px;font-weight:700;color:{col}">{len(groups.get(g, []))}</span><span style="font-size:26px;font-weight:600">{g.replace(" (national pattern)", "")}</span></div>'
                    f'<div style="font-size:22px;color:{MUT};margin:4px 0 18px">{GDESC[g]}</div>{chips}', f"border-top:0")
-S["close"] = section("close", header(7, "Close Calls: The Model's Best Forecast", "In 24 states the top two bureaus are within 20 points. Chips show Experian's predicted likelihood for a typical application.", "Maps") +
+S["close"] = section("close", header(8, "Close Calls: The Model's Best Forecast", "In 24 states the top two bureaus are within 20 points. Chips show Experian's predicted likelihood for a typical application.", "Maps") +
     f'<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:20px;flex:1">{gcards}</div>'
     f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:20px">{ban("55%", "held-out accuracy vs 50% for national shares")}{ban("13%", "lower error (log loss 0.903 vs 1.041)", TEAL)}{ban("150", "refits to test each leader")}</div>',
     "Multinomial logistic regression on 2,901 datapoints from 862 reports, with five-fold cross-validation that holds out whole reports. In Tableau, hover a state to see its chance bars inside the tooltip.")
 
 # 8 decide -------------------------------------------------------------
-S["decide"] = section("decide", header(8, "Decide: Tree, Forecast and Ladder", "Start from your strongest report, check a real forecast, then find your step on the funding ladder.", "Decide", "photo_funding.jpg") +
-    f'<div style="display:flex;gap:20px"><img src="assets/c7_tree.png" style="height:420px;display:block">'
-    + card(h3("How to Read It") + p("Check the override rules first. Then start at the top with your strongest report and follow its branch to the issuers that pull it.", 24)
-           + '<div style="height:12px"></div>' + p("The forecast table shows the model's chance of each bureau for four real lender and state cases (KPI 6). The ladder shows the move for each score step.", 24), "flex:1")
-    + f'</div><div style="display:flex;gap:20px;flex:1;min-height:0"><img src="assets/c7_whatif.png" style="height:370px;display:block"><img src="assets/c7_ladder.png" style="height:370px;display:block">'
-    + card(h3("The Rule of Thumb", ORANGE) + p("Spread applications across bureaus, apply to the strictest lender first, and use soft pulls before hard pulls.", 23), "flex:1") + '</div>',
-    "Overrides come first: close-call states, scores under 650, or a report that already has new inquiries. Then follow the branch for the strongest report.")
+S["decide"] = section("decide", header(9, "Decision Tree: Which Lender, in What Order", "Check the five overrides, follow your strongest report's branch, then apply in the Step 3 order.", "Decide", "photo_funding.jpg") +
+    f'<div style="display:flex;gap:20px;flex:1;min-height:0"><img src="assets/c7_tree.png" style="height:690px;display:block">'
+    f'<div style="display:flex;flex-direction:column;gap:20px;flex:1;min-width:0"><img src="assets/c7_whatif.png" style="width:100%;display:block">'
+    + card(p("Every number says what it is in parentheses. Overrides come first; then the branch for your strongest report; then the order in Step 3.", 21), "flex:1") + '</div></div>',
+    "Walk the tree top to bottom: five override checks, three bureau branches with three if/then cases each, then four ordering rules.")
 
 # 9 scorecard and recommendations --------------------------------------
 HAB = [("All lenders", 54, 25, 21), ("American Express", 87, 5, 8), ("Bank of America", 56, 12, 32), ("Citi", 50, 39, 11), ("Chase", 44, 36, 21),
@@ -201,17 +204,26 @@ HAB = [("All lenders", 54, 25, 21), ("American Express", 87, 5, 8), ("Bank of Am
 bars = "".join(f'<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px"><div style="width:220px;font-size:22px;color:{INK2};text-align:right">{n}</div><div style="flex:1;display:flex;height:40px">'
                + "".join(f'<div style="width:{v}%;background:{c};font-size:18px;font-weight:600;color:#fff;display:flex;align-items:center;padding-left:6px">{str(v) + "%" if v >= 12 else ""}</div>' for v, c in ((e, EXP), (q, EQ), (t, TU)))
                + '</div></div>' for n, e, q, t in HAB)
-REC = [("Personal credit clients", "Pull all three reports, then apply where your strongest report gets pulled in your state."),
-       ("Business credit clients", "Most business cards check the owner's personal report; build the business file in parallel."),
-       ("Credit consulting companies", "Fix the report the client's target lenders pull first."),
-       ("Business funding companies", "Stack in strictest-rule order; leave Capital One last."),
-       ("Advisors and brokers", "Run the close-call check first; 4 states are toss-ups (HI, KS, SC, VA).")]
-S["moves"] = section("moves", header(9, "Scorecard and the Best Move for Each Stakeholder", "Each issuer's bureau habit (KPI 5), then one move per stakeholder.", "Decide") +
-    f'<div style="display:grid;grid-template-columns:1.05fr 1fr;gap:24px;flex:1">'
+NOTES = [("Sources", "56 (cited sources) plus the original 355-row (inquiry) table."),
+         ("Clean", "229 (spellings) matched to 102 (lenders); every mark normalized."),
+         ("Check", "193 (rows checked), 0 (contradicted)."),
+         ("Model", "multinomial logistic regression, 5-fold cross-validation, 150 (refits)."),
+         ("Limits", "consumer-reported; most pulls from 2008 to 2016; likelihoods, not promises.")]
+S["scorecard"] = section("scorecard", header(10, "Scorecard: Issuer Habits and Where the Numbers Come From", "Each issuer's bureau habit (KPI 5), how every number was built and what the data cannot tell you.", "Decide") +
+    f'<div style="display:grid;grid-template-columns:1.2fr 1fr;gap:24px;flex:1">'
     + card(h3("Issuer Bureau Habits") + f'<div style="font-size:18px;color:{MUT};margin-bottom:16px">{b("Share of each issuer's recorded pulls: Experian, Equifax, TransUnion")}</div>' + bars)
-    + f'<div style="display:flex;flex-direction:column;gap:20px"><div style="position:relative;height:200px;border:1px solid {LINE};background:url(assets/photo_approved.jpg) center 55%/cover;display:flex;align-items:flex-end">'
-      f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div><div style="width:100%;padding:18px 28px;background:linear-gradient(transparent,rgba(7,9,12,.92) 45%)">{kicker("Recommendations")}<div style="font-size:32px;font-weight:600">Approvals That Stack Up</div></div></div>'
-    + card("".join(lead(r, t, 24) for r, t in REC), "flex:1") + '</div></div>',
+    + card(h3("Where the Numbers Come From") + "".join(lead(r, t, 24) for r, t in NOTES)) + '</div>',
+    "Every number in the deck and the Story comes from the same files on GitHub.")
+RECS = [("Personal Credit Clients", "Pull all three reports, then apply where your strongest report gets pulled in your state.", "one report is clearly stronger or cleaner.", "check your lender on Tableau card 5; prequalify first."),
+        ("Business Credit Clients", "Treat business card applications as personal inquiries.", "you apply for business cards as an owner.", "build the business file in parallel; review the 47 (low or no doc) lenders."),
+        ("Credit Consulting Companies", "Plan disputes and inquiry spacing bureau by bureau.", "a client's three reports disagree or carry errors.", "fix the report target lenders pull first, then apply."),
+        ("Business Funding Companies", "Stack in strictest-rule order; spread each round across bureaus.", "a client is at 700+ (credit score).", "use the funding ladder and one lender per bureau group per round."),
+        ("Funding Advisors and Brokers", "Run the close-call check before advising.", "the client lives in one of the 24 (close-call states).", "in the 4 (toss-up states), plan for any bureau.")]
+S["recs"] = section("recs", header(11, "Recommendations: The Best Move for Each Stakeholder", "Best move, when to choose it and the next move, for five stakeholder types.", "Decide") +
+    f'<div style="position:relative;height:170px;border:1px solid {LINE};background:url(assets/photo_approved.jpg) center 55%/cover;display:flex;align-items:flex-end">'
+    f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div><div style="width:100%;padding:18px 28px;background:linear-gradient(transparent,rgba(7,9,12,.92) 45%)">{kicker("Recommendations")}<div style="font-size:34px;font-weight:600">Approvals That Stack Up</div></div></div>'
+    + '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px;flex:1">'
+    + "".join(card(h3(w) + lead("Best move", m, 22) + lead("Choose this when", c, 22) + lead("Next move", n, 22)) for w, m, c, n in RECS) + '</div>',
     "Every recommendation traces back to a KPI or an earlier slide. A planning guide, not financial advice.")
 
 # 10 sources, limits, next ---------------------------------------------
@@ -224,16 +236,16 @@ SRC = [("Doctor of Credit: Which Credit Bureau Does Each Card Issuer Pull?", "ht
        ("myFICO: Do credit inquiries lower your FICO Score?", "https://www.myfico.com/crediteducation/CreditChecks.aspx"),
        ("FTC: Five percent of consumers had errors (2013)", "https://www.ftc.gov/news-events/news/press-releases/2013/02/ftc-study-five-percent-consumers-had-errors-their-credit-reports-could-result-less-favorable-terms"),
        ("All 56 sources, cited by row", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sources.html")]
-S["sources"] = section("sources", header(10, "Sources, Limits and Next Steps", "As of October 7, 2026. Every number in the deck and the Story comes from the same files on GitHub.", "Decide") +
+S["sources"] = section("sources", header(12, "FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy", "Which Bureau Will They Pull? Sources, as of October 7, 2026.", "Decide") +
     f'<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;flex:1">'
     + card(h3("Key Sources") + "".join(f'<div style="font-size:25px;line-height:1.35;margin-bottom:18px">{link(t, u)}</div>' for t, u in SRC))
     + '<div style="display:flex;flex-direction:column;gap:24px">'
     + card(h3("Live Now") + f'<div style="font-size:25px;line-height:1.7">{link("Tableau Story: Which Bureau Will They Pull", "https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no")}<br>'
            f'{link("Dashboard website", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/")}<br>{link("Code and data on GitHub", "https://github.com/ShamarRobinson/Client-Personal-and-Business-Funding-Sequence-Dashboard")}</div>')
     + card(h3("Next Steps", ORANGE) + p("Log new inquiry datapoints and refit the model; resolve the 11 unidentified names; refresh lender minimums each quarter.", 20))
-    + '</div></div>', "Close by pointing to the live Story and the sources page; every source opens from Tableau card 8.")
+    + '</div></div>', "Close by pointing to the live Story and the sources page; every source opens from Tableau card 11.")
 
-ORDER = ["cover", "overview", "market", "kpis", "data", "maps", "close", "decide", "moves", "sources"]
+ORDER = ["cover", "overview", "ladder", "market", "kpis", "data", "maps", "close", "decide", "scorecard", "recs", "sources"]
 old = [f.stem for f in SL.glob("*.html")]
 for f in SL.glob("*.html"): f.unlink()
 for k in ORDER: (SL / f"{k}.html").write_text(S[k])
@@ -241,7 +253,7 @@ deck = json.load(open(P / "deck.json"))
 deck["order"] = ORDER; deck["cover"] = "cover"
 deck["sections"] = {"s1": {"description": "Overview: context, sources, limits, market, scope and KPIs.", "start": "cover"},
                     "s2": {"description": "Data, maps and close calls.", "start": "data"},
-                    "s3": {"description": "Decide: tree, ladder, moves and sources.", "start": "decide"}}
+                    "s3": {"description": "Decide: tree, scorecard, recommendations and sources.", "start": "decide"}}
 deck["faces"] = {"ibm-plex-sans": {"family": "IBM Plex Sans", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap"},
                  "ibm-plex-mono": {"family": "IBM Plex Mono", "href": "https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&display=swap"}}
 json.dump(deck, open(P / "deck.json", "w"))

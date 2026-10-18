@@ -2,6 +2,10 @@
 
 ## October 17, 2026 (evening)
 
+- Story is now 11 cards: the Funding Ladder has its own page right after the Overview (ladder, what each step looks like, five rules for climbing); Recommendations has its own page right before Sources; Sources is the last page under the Story title.
+- Stronger decision tree: five override checks, three bureau branches with three if/then cases each, and four ordering rules.
+- Slide deck updated to 12 slides in the same order.
+
 - Main title is now "FP&A: Credit Stacking & Funding Sequencing Strategy" in the Story, side panel and deck cover.
 
 - Every number in the KPI worked examples, KPI list, tile tooltips, map tooltips and State Detail card now says what it is in parentheses.

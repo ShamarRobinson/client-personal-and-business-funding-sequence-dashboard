@@ -1,10 +1,13 @@
 # Tableau Story Points
 
 1. Overview: Context, Purpose, Sources and Limits
-2. Market and KPIs: Experian Gets 54% of Pulls
-3. Data and Method: 355 Rows, 0 Contradicted
-4. Pick a Lender: Its Top Bureau by State
-5. Share Maps: Click a State for Its Detail
-6. Close Calls: The Forecast in 24 States
-7. Decide: Tree, Forecast and Funding Ladder
-8. Scorecard, Moves for Each Stakeholder and Sources
+2. The Funding Ladder: One Score Step at a Time
+3. Market and KPIs: Experian Gets 54% of Pulls
+4. Data and Method: 355 Rows, 0 Contradicted
+5. Pick a Lender: Its Top Bureau by State
+6. Share Maps: Click a State for Its Detail
+7. Close Calls: The Forecast in 24 States
+8. Decision Tree: Which Lender, in What Order
+9. Scorecard: Issuer Habits and Where the Numbers Come From
+10. Recommendations: The Best Move for Each Stakeholder
+11. Sources
