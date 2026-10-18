@@ -20,7 +20,7 @@ for src, name, w in [("cover_cards.png", "cover_cards.jpg", 1600), ("photo_analy
                      ("photo_funding.png", "photo_funding.jpg", 1000), ("photo_advisors.png", "photo_advisors.jpg", 1200),
                      ("photo_approved.png", "photo_approved.jpg", 900)]:
     jpg(REPO / "assets" / src, name, w)
-for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png", "c7_ladder_wide.png", "c7_tree_wide.png"):
+for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png", "c7_ladder_wide.png", "c7_tree_wide.png", "c3_enrich_wide.png", "c3_etl_wide.png"):
     shutil.copy(REPO / "tableau" / "_build" / "Image" / img, AS / img)
 
 # ---------------------------------------------------------------- theme
@@ -138,7 +138,7 @@ def hbar(label, v, mx, c): return (f'<div style="display:flex;align-items:center
                                    f'<div style="flex:1;background:#262C35;height:22px"><div style="width:{v / mx * 100:.0f}%;height:22px;background:{c}"></div></div><div style="width:50px;font-size:22px;font-weight:600">{v}</div></div>')
 S["data"] = section("data", header(6, "Data and Method", "355 inquiries, cleaned, enriched and checked against 670 datapoints from 56 sources.", "Overview", "photo_analytics.jpg") +
     f'<div style="display:grid;grid-template-columns:2.7fr 1fr;gap:24px;flex:1"><div style="display:flex;flex-direction:column;gap:20px;justify-content:center">'
-    f'<img src="assets/c3_enrich.png" style="width:100%;display:block"><img src="assets/c3_etl.png" style="width:100%;display:block"></div>'
+    f'<img src="assets/c3_enrich_wide.png" style="width:100%;display:block"><img src="assets/c3_etl_wide.png" style="width:100%;display:block"></div>'
     f'<div style="display:flex;flex-direction:column;gap:20px">'
     + card(h3("Messy Data That Was Cleaned") + lead("Many spellings", "229 names matched to 102 lenders.", 23) + lead("Mixed markers", "x marks, blanks and counts up to 211 became pulled or not, with counts kept as weights.", 23)
            + lead("Unknowns kept", "11 names are labeled, not forced into a match.", 23), "flex:1")

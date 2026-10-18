@@ -2,6 +2,7 @@
 
 ## 2026-10-17 (late night)
 
+- Presentation slide 6 (Data and Method): larger-type flow diagrams that fill the slide; the ETL panel text is about 60% larger.
 - Next update date shown everywhere the data date appears: Tableau Story side panel, Overview card, Sources card and Help text; slides 1, 2 and 12; the Funding Generator. Set in one place, `analysis/update_schedule.py`: change AS_OF on each quarterly refresh and the next update (AS_OF plus one quarter) rolls forward in every output. Current: as of October 7, 2026; next update January 7, 2027.
 - Presentation slide 9 (Decision Tree): larger-type tree that fills the slide height.
 - Presentation slide 7 (Share Maps): the "In Tableau, click a state" badge now links to the Tableau Public story (also clickable in the PDF).
