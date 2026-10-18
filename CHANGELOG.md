@@ -2,6 +2,7 @@
 
 ## 2026-10-17 (late night)
 
+- Presentation: freshness check reloads the page once when a newer build is live, so a browser's saved copy never shows outdated slides.
 - Tableau Story: "View Slideshow" link in the side panel of all 12 cards (opens the standalone presentation).
 - Tableau Story card 3: Out of Scope matches the slides (approval odds line removed; "legal, tax or investment advice"); Data and Method diagrams use the balanced alignment and wider boxes.
 - Presentation slide 6: wider diagram boxes (tighter gaps between steps) so fewer values wrap.

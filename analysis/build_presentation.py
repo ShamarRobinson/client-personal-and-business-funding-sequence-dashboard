@@ -108,5 +108,10 @@ def _tag(m):
     return f'{m.group(1)}{path}?v={v}'
 html = re.sub(r'((?:src|href)=")((?:assets|fonts)/[^"?]+)', _tag, html)
 html = re.sub(r'(url\()((?:assets|fonts)/[^)?]+)', _tag, html)
+# freshness check: the page compares its build id with version.json (fetched without cache) and reloads once if a newer build is live
+BUILD = hashlib.md5(html.encode()).hexdigest()[:12]
+html = html.replace("<script>", "<script>(function(){var B='" + BUILD + "';try{fetch('version.json?t='+Date.now(),{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){"
+                    "if(v.build&&v.build!==B&&!sessionStorage.getItem('rl'+v.build)){sessionStorage.setItem('rl'+v.build,'1');location.reload();}}).catch(function(){});}catch(e){}})();</script>\n<script>", 1)
+(OUT / "version.json").write_text(json.dumps({"build": BUILD}))
 (OUT / "index.html").write_text(html)
 print(f"wrote {OUT / 'index.html'} with {len(slides)} slides")
