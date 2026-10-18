@@ -9,6 +9,8 @@ from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 
 OUT = Path(__file__).resolve().parents[1] / "tableau" / "_images"
+import sys as _sys; _sys.path.insert(0, str(Path(__file__).resolve().parent))
+from update_schedule import ASOF, NEXT_UPDATE
 S = 2  # 2x for sharp text
 INTER = Path("/usr/share/fonts/opentype/inter")
 MONO = "/usr/share/fonts/truetype/dejavu/DejaVuSansMono.ttf"
@@ -573,7 +575,7 @@ def sidebar(w, h, items, current, name):
         y += 24 * S
     by = h * S - 96 * S
     d.line((14 * S, by, w * S - 16 * S, by), fill=LINE, width=1 * S)
-    for k, (txt, ft, col) in enumerate((("As of October 7, 2026", f("medium", 9), INK), ("Lender minimums reviewed quarterly", f("regular", 8), MUTED),
+    for k, (txt, ft, col) in enumerate(((f"As of {ASOF}", f("medium", 9), INK), (f"Next update {NEXT_UPDATE}", f("regular", 8), MUTED),
                                         ("Designed by", f("regular", 8), MUTED), ("Shamar Robinson", f("bold", 10), INK))):
         tw = d.textlength(txt, font=ft)
         d.text(((w * S - tw) / 2, by + (12 + k * 18) * S), txt, font=ft, fill=col)
@@ -797,36 +799,36 @@ def photo_card(w, h, photo, name, kicker, title, lines=(), focus=(0.5, 0.5)):
     return save(out, name)
 
 
-def decision_tree2(w, h, gates, branches, rules, name="c7_tree"):
+def decision_tree2(w, h, gates, branches, rules, name="c7_tree", vs=1.0, root_half=170, gate_h=80, branch_h=150):
     """Three-step decision tree in the data-model style.
     gates: [(if, then)] checked first; branches: [(bureau, why, [(if, then), ...])]; rules: [(head, line)] for the sequence."""
     im, d = canvas(w, h)
     W = w * S
     d.text((10 * S, 8 * S), "Decision Tree: Which Lender to Apply to, and in What Order", font=f("bold", 13), fill=NAVY)
-    d.text((10 * S, 28 * S), "Step 1 checks override everything. Then follow the branch for your strongest report. Step 3 sets the order.", font=f("regular", 9), fill=MUTED)
+    d.text((10 * S, 28 * vs * S), "Step 1 checks override everything. Then follow the branch for your strongest report. Step 3 sets the order.", font=f("regular", 9), fill=MUTED)
     # start
-    root = (W / 2 - 170 * S, 46 * S, W / 2 + 170 * S, 100 * S)
+    root = (W / 2 - root_half * S, 46 * vs * S, W / 2 + root_half * S, 100 * vs * S)
     entity(d, root, "START: pull all three reports", [("then", "compare scores, errors and recent inquiries on each one")], head=NEUTRAL, fsize=8, title_size=9)
     # step 1 gates
-    gy0, gy1 = 132 * S, 212 * S
+    gy0 = 132 * vs * S; gy1 = gy0 + gate_h * vs * S; l2 = gy1 + 16 * vs * S
     n = len(gates); gap = 10 * S; gw = (W - 20 * S - gap * (n - 1)) / n
-    d.line((10 * S + gw / 2, 118 * S, W - 10 * S - gw / 2, 118 * S), fill="#8A93A3", width=int(1.5 * S))
-    d.line((W / 2, root[3], W / 2, 118 * S), fill="#8A93A3", width=int(1.5 * S))
-    pill(d, 10 * S + gw + gap / 2, 118 * S, "STEP 1: CHECK THESE FIRST", color=ORANGE)
+    d.line((10 * S + gw / 2, 118 * vs * S, W - 10 * S - gw / 2, 118 * vs * S), fill="#8A93A3", width=int(1.5 * S))
+    d.line((W / 2, root[3], W / 2, 118 * vs * S), fill="#8A93A3", width=int(1.5 * S))
+    pill(d, 10 * S + gw + gap / 2, 118 * vs * S, "STEP 1: CHECK THESE FIRST", color=ORANGE)
     for i, (cond, act) in enumerate(gates):
         x0 = 10 * S + i * (gw + gap)
-        d.line((x0 + gw / 2, 118 * S, x0 + gw / 2, gy0), fill="#8A93A3", width=int(1.5 * S))
+        d.line((x0 + gw / 2, 118 * vs * S, x0 + gw / 2, gy0), fill="#8A93A3", width=int(1.5 * S))
         entity(d, (x0, gy0, x0 + gw, gy1), f"IF {cond}", [("then", act)], head="#5B3FA8", fsize=8, title_size=8.5)
     # step 2 branches
-    by0 = 248 * S; by1 = by0 + 150 * S
-    d.line((10 * S, 228 * S, W - 10 * S, 228 * S), fill=LINE, width=1 * S)
-    pill(d, W / 2, 228 * S, "STEP 2: NONE APPLY? FOLLOW YOUR STRONGEST REPORT", color=TEAL)
+    by0 = l2 + 20 * vs * S; by1 = by0 + branch_h * vs * S
+    d.line((10 * S, l2, W - 10 * S, l2), fill=LINE, width=1 * S)
+    pill(d, W / 2, l2, "STEP 2: NONE APPLY? FOLLOW YOUR STRONGEST REPORT", color=TEAL)
     nb = len(branches); bw = (W - 20 * S - 12 * S * (nb - 1)) / nb
     for i, (b, why, subs) in enumerate(branches):
         x0 = 10 * S + i * (bw + 12 * S)
         entity(d, (x0, by0, x0 + bw, by1), f"IF {b.upper()} IS STRONGEST", [("why", why)] + [(f"if {c}", t) for c, t in subs], head=BUREAU[b], fsize=8, title_size=8.5)
     # step 3 sequence
-    sy0 = by1 + 22 * S
+    sy0 = by1 + 22 * vs * S
     d.line((10 * S, sy0 - 10 * S, W - 10 * S, sy0 - 10 * S), fill=LINE, width=1 * S)
     pill(d, W / 2, sy0 - 10 * S, "STEP 3: THEN APPLY IN THIS ORDER", color=ORANGE)
     nr = len(rules); rw = (W - 20 * S - 10 * S * (nr - 1)) / nr

@@ -22,7 +22,7 @@ SRC = ROOT / "tableau" / "source" / "published_2026-10-08.twbx"
 OUT = ROOT / "tableau" / "Client_Personal_and_Business_Funding_Sequence_Dashboard.twbx"
 WORK = ROOT / "tableau" / "_build"
 DT = ROOT / "data" / "tableau"
-ASOF = "October 7, 2026"
+from update_schedule import ASOF, NEXT_UPDATE   # one source for the data date and the next quarterly update
 esc = lambda s: html.escape(str(s), quote=True)
 
 EXP, EQ, TU = IMG.BUREAU["Experian"], IMG.BUREAU["Equifax"], IMG.BUREAU["TransUnion"]
@@ -179,7 +179,7 @@ IMG.text_card(326, 414, [
                         ("1 in 5", "consumers had an error on at least one report (FTC, 2013).")])], "c1_context", size=10)
 IMG.text_card(326, 414, [
     ("Sources", "A 355-row inquiry table from 16 states, plus 670 outside datapoints from 56 cited sources: Doctor of Credit tables (2008 to 2019), the myFICO state grid (2023), 2025 to 2026 forum posts and lender pages."),
-    ("Updates", f"As of {ASOF}. Lender minimums are reviewed quarterly; each new datapoint reruns the maps and model."),
+    ("Updates", f"As of {ASOF}. Next update: {NEXT_UPDATE}. Lender minimums are reviewed quarterly; each new datapoint reruns the maps and model."),
     ("Limits", "Consumer-reported, uneven in age (most pulls are 2008 to 2016) and thin in some states. Likelihoods, not promises. Not financial advice.")], "c1_sources", size=10)
 IMG.steps_card(324, 414, "How to Use This Story", [
     ("Move through 12 cards", "Use the arrows or the captions above; the side panel shows where you are."),
@@ -332,6 +332,31 @@ IMG.decision_tree2(1000, 510,
      ("Soft pull, then hard pull", "prequalify; apply for real only when the offer looks good."),
      ("Capital One last", "it checks all three reports, so it goes after every other lender in the round.")],
     name="c7_tree")
+_fs = IMG.FONT_SCALE; IMG.FONT_SCALE = _fs * 1.3   # larger type for the slide deck copy
+IMG.decision_tree2(1150, 690,
+    [("your score is under 650", "start on ladder steps 1 to 3: fix errors, builder loan, secured or starter cards"),
+     ("a report has errors", "dispute and fix it before applying anywhere that pulls that bureau"),
+     ("a report has 3+ new inquiries", "route the next round to issuers that pull a different bureau"),
+     (f"you live in a close-call state", f"check card 7; {len(tossups)} (toss-up states) can land on any bureau"),
+     ("you want business funding", "most business cards still check your personal report; plan it as a personal pull")],
+    [("Experian", f"most-pulled bureau, {tot['Experian'] / TOTAL:.0%} (of all pulls)", [
+        ("650 to 699", f"Chase first (5/24 rule), then Amex, {A['American Express']['Experian']:.0%} (Amex pulls on Experian)"),
+        ("700+", f"stack Chase, Amex, BofA {A['Bank of America']['Experian']:.0%} (on Experian), Wells Fargo"),
+        ("in VA, SC or NC", "Equifax leans higher there, so stick to Amex and BofA")]),
+     ("Equifax", f"{tot['Equifax'] / TOTAL:.0%} (of all pulls); lead with it on purpose", [
+        ("you want bank cards", f"Citi {A['Citi']['Equifax']:.0%} and Chase {A['Chase']['Equifax']:.0%} (of their pulls on Equifax)"),
+        ("you want credit unions", "Truist, PenFed, Citizens, Huntington lean Equifax"),
+        ("in VA, SC or NC", "the Equifax belt: 39%, 37%, 36% (Equifax share of pulls)")]),
+     ("TransUnion", f"least pulled, {tot['TransUnion'] / TOTAL:.0%} (of all pulls), so pick lenders that lead with it", [
+        ("you want store cards", f"Synchrony, {A['Synchrony']['TransUnion']:.0%} (of its pulls on TransUnion)"),
+        ("you want bank cards", f"U.S. Bank {A['U.S. Bank']['TransUnion']:.0%} (on TransUnion), Barclays, Navy Federal"),
+        ("in Georgia", "37 of 116 (TransUnion pulls of all Georgia pulls) = 32%")])],
+    [("Strictest first", "Chase (5/24), then Amex, U.S. Bank, Wells Fargo, Bank of America, regionals."),
+     ("One per bureau per round", "spread each round across Experian-, Equifax- and TransUnion-leaning lenders."),
+     ("Soft pull, then hard pull", "prequalify; apply for real only when the offer looks good."),
+     ("Capital One last", "it checks all three reports, so it goes after every other lender in the round.")],
+    name="c7_tree_wide", vs=1.32, root_half=250, gate_h=88, branch_h=172)
+IMG.FONT_SCALE = _fs
 IMG.whatif_table(400, 188, [
     ("Amex in Kansas", "Experian", {"Experian": .84, "Equifax": .05, "TransUnion": .11}, ""),
     ("Chase in Florida", "Experian", {"Experian": .43, "Equifax": .37, "TransUnion": .21}, ""),
@@ -418,7 +443,7 @@ IMG.text_card(502, 696, [
         ("Consumer-reported", "no lender publishes its bureau by state."),
         ("Uneven in age", "most pulls are from 2008 to 2016; the newest from 2025 and 2026."),
         ("Not a promise", "income, utilization and recent inquiries decide approvals. Not financial advice.")]),
-    ("Updates", "As of October 7, 2026. Lender minimums are reviewed quarterly; each new datapoint reruns the maps and model."),
+    ("Updates", f"As of {ASOF}. Next update: {NEXT_UPDATE}. Lender minimums are reviewed quarterly; each new datapoint reruns the maps and model."),
 ], "c10_notes", size=9.5)
 D[DASH[8]] = dashboard(DASH[8], shell(9, "Scorecard: Issuer Habits and Where the Numbers Come From", "Each issuer's bureau habit (KPI 5), how every number was built, and what the data cannot tell you.") + [
     szone(192, 96, 490, 696, "Issuer Habits", title=True, pad=10),
@@ -479,7 +504,7 @@ LINK_ROW = []
 for k_, (t_, u_) in enumerate(LINKS):
     IMG.link_button(238, 34, t_, f"lnk_{k_}")
     LINK_ROW.append(f"<zone {geo(192 + k_ * 254, 754, 238, 34)} id='{nid()}' is-scaled='1' param='Image/lnk_{k_}.png' type-v2='bitmap' url='{u_}'>{zstyle(0, 0)}</zone>")
-D[DASH[10]] = dashboard(DASH[10], shell(11, "FP&A: Credit Stacking & Funding Sequencing Strategy", "Which Bureau Will They Pull? Sources: click a name to open it. As of October 7, 2026.") + [
+D[DASH[10]] = dashboard(DASH[10], shell(11, "FP&A: Credit Stacking & Funding Sequencing Strategy", f"Which Bureau Will They Pull? Sources: click a name to open it. As of {ASOF}; next update {NEXT_UPDATE}.") + [
     szone(192, 96, 1000, 648, "Sources List", title=True, pad=12),
 ] + LINK_ROW)
 
@@ -780,7 +805,7 @@ HELP = [
     ("9", "Reading the Scorecard", "Each bar shows the share of an issuer's recorded pulls that landed on each bureau (KPI 5); hover a bar for the exact share. The notes on the right show how every number was built and what the data cannot tell you."),
     ("10", "Using the Recommendations", "Find your stakeholder type. Each card gives the best move, when to choose it, why (with the number behind it) and the next move. Every recommendation traces back to a KPI or an earlier card. A planning guide, not financial advice."),
     ("12", "Using the Funding Generator", "Fill in the client's 3-bureau scores, inquiries, cards, banks, business details and business credit scores, then click Generate Strategy. The plan uses this story's data: the funding ladder for the client's tier and each lender's likely bureau in the client's state. Download PDF saves it. Everything runs in the browser; nothing is uploaded or saved."),
-    ("11", "Sources", "Every source behind the story, with the date it was published or read. Click a name to open it. Lender minimums are reviewed quarterly; new datapoints rerun the maps and model.")
+    ("11", "Sources", "Every source behind the story, with the date it was published or read. Click a name to open it. Lender minimums are reviewed quarterly (next update " + NEXT_UPDATE + "); new datapoints rerun the maps and model.")
 ]
 HP = "federated." + rid()
 help_rows = [dict(Card=c, Icon="ⓘ  About", Title=t, Tip=tp) for c, t, tp in HELP]

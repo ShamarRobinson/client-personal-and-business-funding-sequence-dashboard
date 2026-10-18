@@ -285,7 +285,7 @@
     const kp = (v, l) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`;
     const sb = P.stateBureau;
     let h = `<h2>Funding Strategy for ${esc(x.client)}</h2>
-      <p class="note">Prepared ${fmtDate(new Date())}${x.preparer !== "N/A" ? " by " + esc(x.preparer) : ""}. Strategy start ${fmtDate(addDays(x.start, 0))}. Data as of ${esc(D.asof)}.</p>
+      <p class="note">Prepared ${fmtDate(new Date())}${x.preparer !== "N/A" ? " by " + esc(x.preparer) : ""}. Strategy start ${fmtDate(addDays(x.start, 0))}. Data as of ${esc(D.asof)}; next update ${esc(D.next || "")}.</p>
       <div class="kpis">${kp(P.mid ?? "N/A", "Middle credit score")}${kp(P.tier, "Funding tier")}${kp(pct(P.util), "Personal utilization")}${kp(x.new24 ?? "N/A", "New accounts (24 mo)")}${kp(P.best ? B[P.best] : "N/A", "Strongest report")}${kp(P.tib != null ? P.tib + " mo" : "N/A", "Time in business")}${kp(P.rangeHi ? money(P.rangeLo) + " to " + money(P.rangeHi) : "Build first", "Planning range, card stack")}${kp(money(x.goal), "Funding goal")}</div>
       <h2>Readiness Check</h2>${P.flags.map(fl => `<div class="flag ${fl.lvl}">${esc(fl.t)}</div>`).join("") || `<div class="flag good">No blocking issues found.</div>`}
       <h2>Bureau Plan for ${esc(P.stateName)}</h2>

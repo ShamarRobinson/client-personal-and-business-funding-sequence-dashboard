@@ -5,8 +5,10 @@ Reads the same files as the dashboard, website and Tableau story so every number
   data/tableau/regression_lender_state_wide.csv  likely bureau per state x major lender (logistic regression)
   data/tableau/regression_state.csv              likely bureau per state, all lenders
 """
-import csv, json
+import csv, json, sys
 from pathlib import Path
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from update_schedule import ASOF, NEXT_UPDATE
 
 ROOT = Path(__file__).resolve().parents[1]
 DT = ROOT / "data" / "tableau"
@@ -37,7 +39,7 @@ for s in db["seq"]:
     tier, step, when, action, link, product, bureau, amount, note = (s + [""] * 9)[:9]
     seq.setdefault(tier, []).append({"step": step, "when": when, "action": action, "product": product, "bureau": bureau, "amount": amount, "note": note})
 
-out = {"asof": "October 7, 2026", "lenders": lenders, "lenderState": ls, "states": states, "seq": seq,
+out = {"asof": ASOF, "next": NEXT_UPDATE, "lenders": lenders, "lenderState": ls, "states": states, "seq": seq,
        "rules": db["rules"], "sources": db["sources"]}
 p = ROOT / "data" / "generator.json"
 p.write_text(json.dumps(out, separators=(",", ":")))

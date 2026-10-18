@@ -8,6 +8,8 @@ P = Path(__file__).parent / "project"
 SL = P / "slides"; AS = P / "assets"
 AS.mkdir(exist_ok=True)
 DT = REPO / "data" / "tableau"
+import sys; sys.path.insert(0, str(REPO / "analysis"))
+from update_schedule import ASOF, NEXT_UPDATE
 
 # ---------------------------------------------------------------- photos (compressed)
 def jpg(src, name, w):
@@ -18,7 +20,7 @@ for src, name, w in [("cover_cards.png", "cover_cards.jpg", 1600), ("photo_analy
                      ("photo_funding.png", "photo_funding.jpg", 1000), ("photo_advisors.png", "photo_advisors.jpg", 1200),
                      ("photo_approved.png", "photo_approved.jpg", 900)]:
     jpg(REPO / "assets" / src, name, w)
-for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png", "c7_ladder_wide.png"):
+for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png", "c7_ladder_wide.png", "c7_tree_wide.png"):
     shutil.copy(REPO / "tableau" / "_build" / "Image" / img, AS / img)
 
 # ---------------------------------------------------------------- theme
@@ -78,7 +80,7 @@ S["cover"] = (f'<section id="cover" data-transition="fade" style="background:{BG
     f'<div style="font-size:40px;font-weight:600;color:{TEAL};margin-top:-6px">Which Bureau Will They Pull?</div>'
     f'<div style="font-size:30px;line-height:1.4;color:{INK2}">{b("Experian, Equifax or TransUnion: the report a lender is most likely to check, state by state, and the order to apply in so approvals stack up.")}</div>'
     f'<div style="display:flex;gap:14px;margin-top:30px">{ban("355", "original rows")}{ban("670", "outside datapoints")}{ban("204", "lenders")}{ban("3,003", "recorded pulls", TEAL)}</div>'
-    f'<div style="font-size:20px;color:{MUT};margin-top:10px">As of October 7, 2026 &middot; Designed by Shamar Robinson</div></div>'
+    f'<div style="font-size:20px;color:{MUT};margin-top:10px">As of {ASOF} &middot; Next update {NEXT_UPDATE} &middot; Designed by Shamar Robinson</div></div>'
     f'<aside>Open with the one-line purpose: this replaces guesses about which bureau a lender will pull with recorded datapoints. Each bureau keeps one color throughout: Experian blue, Equifax orange, TransUnion green.</aside></section>\n')
 
 # 2 overview: context, purpose, sources, updates, limits ---------------
@@ -87,7 +89,7 @@ S["overview"] = section("overview", header(2, "Overview: Context, Sources and Li
     + card(h3("Context") + p("Every hard inquiry lands on one of three credit reports. The same person can have a strong report at one bureau and a weak one at another, and no lender publishes which bureau it pulls by state.")
            + '<div style="height:18px"></div>' + h3("Purpose") + p("Forecast the bureau a lender will pull in each state, then turn that into an application order for personal and business funding."))
     + card(h3("Sources and Updates") + lead("Sources", "a 355-row inquiry table from 16 states plus 670 outside datapoints from 56 cited sources: Doctor of Credit tables (2008 to 2019), the myFICO state grid (2023), 2025 to 2026 forum posts, MyBankTracker, CardRight, StackEasy and lender pages.")
-           + lead("As of", "October 7, 2026.") + lead("Updates", "lender minimums are reviewed every quarter; each new datapoint reruns the cleaning, maps and model from the same scripts."))
+           + lead("As of", f"{ASOF}. Next update: {NEXT_UPDATE}.") + lead("Updates", "lender minimums are reviewed every quarter; each new datapoint reruns the cleaning, maps and model from the same scripts."))
     + card(h3("Data Limits", ORANGE) + lead("Consumer-reported", "no lender publishes its bureau by state.") + lead("Uneven in age", "most pulls are from 2008 to 2016; the newest are 2025 and 2026.")
            + lead("Thin states", "under 10 pulls is a hint, not a finding.") + lead("Not a promise", "income, utilization and recent inquiries decide approvals. Not financial advice."))
     + '</div>', "Slide 2 keeps the sources, update cadence and limits up front, as the Tableau Story does on card 1.")
@@ -126,7 +128,7 @@ rows = "".join(f'<tr style="background:{CARD if i % 2 == 0 else CARD2}"><td styl
                f'<td style="padding:11px 16px;font-weight:600;color:{INK}">{n}</td><td style="padding:11px 16px;color:{INK2}">{f}</td><td style="padding:11px 16px;color:{INK2}">{b(e)}</td>'
                f'<td style="padding:11px 16px;color:{c};font-weight:700">{v:.0%}</td></tr>'
                for i, (n, f, e, v, c) in enumerate(KPIS))
-S["kpis"] = section("kpis", header(5, "Ten KPIs With Formulas", "Each formula worked with the October 7, 2026 numbers. The bar shows the worked value.", "Overview") +
+S["kpis"] = section("kpis", header(5, "Ten KPIs With Formulas", f"Each formula worked with the {ASOF} numbers. The bar shows the worked value.", "Overview") +
     f'<table style="width:100%;border-collapse:collapse;font-size:21px;line-height:1.3;border:1px solid {LINE}"><tr style="background:#0F1217;text-align:left;font-family:{MONO};font-size:16px;color:{MUT};letter-spacing:.08em">'
     f'<th style="padding:12px 16px;width:8%">#</th><th style="padding:12px 16px;width:20%">KPI</th><th style="padding:12px 16px;width:29%">FORMULA</th><th style="padding:12px 16px;width:33%">WORKED EXAMPLE</th><th style="padding:12px 16px;width:10%">VALUE</th></tr>{rows}</table>',
     "In the Tableau Story, click any KPI to open its detail card with what it tells you, the formula and the worked example.")
@@ -193,7 +195,7 @@ S["close"] = section("close", header(8, "Close Calls: The Model's Best Forecast"
 
 # 8 decide -------------------------------------------------------------
 S["decide"] = section("decide", header(9, "Decision Tree: Which Lender, in What Order", "Check the five overrides, follow your strongest report's branch, then apply in the Step 3 order.", "Decide", "photo_funding.jpg") +
-    f'<div style="display:flex;gap:20px;flex:1;min-height:0"><img src="assets/c7_tree.png" style="height:690px;display:block">'
+    f'<div style="display:flex;gap:20px;flex:1;min-height:0"><img src="assets/c7_tree_wide.png" style="height:786px;display:block">'
     f'<div style="display:flex;flex-direction:column;gap:20px;flex:1;min-width:0"><img src="assets/c7_whatif.png" style="width:100%;display:block">'
     + card(p("Every number says what it is in parentheses. Overrides come first; then the branch for your strongest report; then the order in Step 3.", 21), "flex:1") + '</div></div>',
     "Walk the tree top to bottom: five override checks, three bureau branches with three if/then cases each, then four ordering rules.")
@@ -237,7 +239,7 @@ SRC = [("Doctor of Credit: Which Credit Bureau Does Each Card Issuer Pull?", "ht
        ("myFICO: Do credit inquiries lower your FICO Score?", "https://www.myfico.com/crediteducation/CreditChecks.aspx"),
        ("FTC: Five percent of consumers had errors (2013)", "https://www.ftc.gov/news-events/news/press-releases/2013/02/ftc-study-five-percent-consumers-had-errors-their-credit-reports-could-result-less-favorable-terms"),
        ("All 56 sources, cited by row", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sources.html")]
-S["sources"] = section("sources", header(12, "FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy", "Which Bureau Will They Pull? Sources, as of October 7, 2026.", "Decide") +
+S["sources"] = section("sources", header(12, "FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy", f"Which Bureau Will They Pull? Sources, as of {ASOF}; next update {NEXT_UPDATE}.", "Decide") +
     f'<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;flex:1">'
     + card(h3("Key Sources") + "".join(f'<div style="font-size:25px;line-height:1.35;margin-bottom:18px">{link(t, u)}</div>' for t, u in SRC))
     + '<div style="display:flex;flex-direction:column;gap:24px">'
