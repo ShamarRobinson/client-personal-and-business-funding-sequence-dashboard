@@ -991,7 +991,7 @@ DARKMAP = "<format attr='washout' value='0.0' /><format attr='map-style' value='
 MAPSTYLE = {b_: DARKMAP for b_ in ("Experian", "Equifax", "TransUnion")}
 # share maps: dark-to-bright ramps in each bureau's color, light labels, dark panes
 def ramp(c):
-    a = tuple(int(IMG.CARD2[i:i + 2], 16) for i in (1, 3, 5)); b = tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)); w_ = (235, 240, 250)
+    b = tuple(int(c[i:i + 2], 16) for i in (1, 3, 5)); a = tuple(int(v + (255 - v) * 0.82) for v in b); w_ = (235, 240, 250)
     out = []
     for k in range(11):
         t = k / 10
@@ -1112,6 +1112,28 @@ def color_runs(block):
     return re.sub(r"<run((?: \w+='[^']*')*)>(.*?)</run>", fix, block, flags=re.S)
 s = re.sub(r"<customized-tooltip>.*?</customized-tooltip>|<formatted-text>.*?</formatted-text>",
            lambda mm: mm.group(0) if mm.group(0).startswith("<customized-tooltip>") else color_runs(mm.group(0)), s, flags=re.S)
+
+# map text: hide the base map's light state/country names; draw bold black state labels on the marks instead
+LBL = "#000000"
+NONAMES = "<style-rule element='map-layer'><format attr='enabled' id='tab_state_name' value='false' /><format attr='enabled' id='tab_country_name' value='false' /></style-rule>"
+def fix_map(mm):
+    w = mm.group(0)
+    if "Geometry (generated)" not in w: return w
+    w = w.replace("<style>", "<style>" + NONAMES, 1)
+    if "<customized-label>" in w:
+        w = re.sub(r"<customized-label>.*?</customized-label>", lambda c: re.sub(r"fontcolor='[^']*'", f"fontcolor='{LBL}'", re.sub(r"<run(?![^>]*bold=)", "<run bold='true'", c.group(0))), w, flags=re.S)
+    else:
+        ds = SQLNAME
+        w = w.replace("</encodings>", f"<text column='[{ds}].[none:StateAbbr:nk]' /></encodings>", 1)
+        w = w.replace("</customized-tooltip>", "</customized-tooltip>" + label(f"<run bold='true' fontalignment='1' fontcolor='{LBL}' fontsize='9'>&lt;[{ds}].[none:StateAbbr:nk]&gt;</run>"), 1)
+        w = re.sub(r"(</customized-label>)(\s*</pane>)", lambda c: c.group(1) + "<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /><format attr='mark-labels-cull' value='true' /></style-rule></style>" + c.group(2), w, count=1)
+        if "name='[none:StateAbbr:nk]'" not in w:
+            w = re.sub(r"(<datasource-dependencies datasource='" + re.escape(ds) + r"'>)",
+                       lambda c: c.group(1) + "<column datatype='string' name='[StateAbbr]' role='dimension' type='nominal' /><column-instance column='[StateAbbr]' derivation='None' name='[none:StateAbbr:nk]' pivot='key' type='nominal' />", w, count=1)
+    return w
+s = re.sub(r"<worksheet name='[^']*'.*?</worksheet>", fix_map, s, flags=re.S)
+# larger type everywhere in native Tableau text (+20%)
+s = re.sub(r"fontsize='(\d+)'", lambda m_: f"fontsize='{max(int(m_.group(1)) + 1, round(int(m_.group(1)) * 1.2))}'", s)
 
 OUT.parent.mkdir(exist_ok=True)
 drop = ("Story Diagrams.csv", "Scorecard Bars.csv", "Regression Bars.csv")

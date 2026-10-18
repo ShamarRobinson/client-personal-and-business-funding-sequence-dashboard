@@ -26,13 +26,16 @@ TEAL, ORANGE = "#2FD4C4", "#FF8A2A"
 BW = re.compile(r"(Experian|Equifax|TransUnion)")
 
 
+FONT_SCALE = 1.15  # larger type across every story card image
+
+
 def f(weight, size):
     name = {"regular": "Inter-Regular.otf", "medium": "Inter-Medium.otf", "semibold": "Inter-SemiBold.otf", "bold": "Inter-Bold.otf"}[weight]
-    return ImageFont.truetype(str(INTER / name), int(size * S))
+    return ImageFont.truetype(str(INTER / name), int(size * FONT_SCALE * S))
 
 
 def mono(size, bold=False):
-    return ImageFont.truetype(MONO_B if bold else MONO, int(size * S))
+    return ImageFont.truetype(MONO_B if bold else MONO, int(size * FONT_SCALE * S))
 
 
 def canvas(w, h, grid=True, bg=CANVAS):

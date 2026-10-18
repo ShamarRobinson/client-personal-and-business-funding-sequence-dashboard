@@ -2,6 +2,9 @@
 
 ## 2026-10-17 (night)
 
+- All maps: base map state and country names turned off; bold black state labels drawn on the maps instead (state abbreviations on Pick a Lender, bold black share and status labels on the Share Maps and Close Calls maps).
+- Share Maps: color ramps now start from a light tint of each bureau color, so black labels read on every state.
+- Larger type across the whole story: native Tableau text up 20%, card image text up 15%.
 - Pick a Lender map: tie colors are now light, high-contrast hues (lime for Experian / Equifax, aqua for Experian / TransUnion, yellow for Equifax / TransUnion, lilac for all three) so single-bureau states stand out and each tie is easy to tell apart.
 - Pick a Lender map: states with no recorded pulls for the chosen lender now show in light gray as "No Data: No Pulls Recorded" instead of blank, with a tooltip explaining why.
 - Pick a Lender tooltip: bureau counts separated with " | " so they no longer run together.
