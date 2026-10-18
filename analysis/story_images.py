@@ -884,3 +884,13 @@ def tier_table(w, h, title, cols, rows, name):
             else:
                 draw_rich(d, cx[k], ry + 6 * S, cx[k + 1] - cx[k] - 8 * S, cell, size=8, color=INK2, line_gap=1)
     return save(im, name)
+
+
+def link_button(w, h, text, name):
+    """Teal call-to-action button image (used as a clickable image with a URL)."""
+    im = Image.new("RGB", (w * S, h * S), TEAL)
+    d = ImageDraw.Draw(im)
+    ft = f("semibold", 12)
+    tw = d.textlength(text + "  >", font=ft)
+    d.text(((w * S - tw) / 2, (h * S - 12 * FONT_SCALE * S) / 2 - 2 * S), text + "  >", font=ft, fill="#0E1115")
+    im.save(OUT / f"{name}.png")

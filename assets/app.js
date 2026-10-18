@@ -1,5 +1,5 @@
 (function(){
-const PAGES=[["index.html","Dashboard"],["lenders.html","Lender Database"],["states.html","All States & Banks"],["matrix.html","Bureau by State"],["sequence.html","Funding Sequence"],["likelihood.html","Bureau Likelihood"],["sources.html","Sources & Notes"]];
+const PAGES=[["index.html","Dashboard"],["lenders.html","Lender Database"],["states.html","All States & Banks"],["matrix.html","Bureau by State"],["sequence.html","Funding Sequence"],["likelihood.html","Bureau Likelihood"],["sources.html","Sources & Notes"],["generator.html","Funding Generator"]];
 const SITE="https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/";
 const TABLEAU="https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull";
 const DECK="https://claude.ai/artifact/95vnkBxejyTxzMTD5QAxnw";
@@ -183,5 +183,6 @@ R.likelihood=(d,m)=>{
 };
 
 const main=$("main"),page=main.dataset.page;
+if(!R[page])return;
 fetch(page==="likelihood"?"data/regression.json":"data/db.json").then(r=>r.json()).then(d=>R[page](d,main)).catch(e=>{main.innerHTML=`<h1>Data could not be loaded</h1><p class="lede">Reload the page. If it keeps failing, the data file may still be publishing.</p>`;console.error(e)});
 })();

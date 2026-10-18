@@ -1,0 +1,164 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Credit Stack and Funding Generator | Client Personal and Business Funding Sequence Dashboard</title>
+<meta name="description" content="Enter a client's personal and business credit profile to generate a funding strategy, bureau plan and benchmark timeline, downloadable as a PDF.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="assets/style.css">
+<style>
+  .gen{max-width:1180px;margin:0 auto;padding:20px 20px 60px}
+  .gen h1{margin:8px 0 4px;font-size:28px}
+  .gen .lede{color:var(--ink2);max-width:860px}
+  .privacy{border-left:3px solid var(--tu);background:var(--surface);padding:10px 14px;margin:14px 0 18px;color:var(--ink2);font-size:14px}
+  fieldset{border:1px solid var(--line);background:var(--surface);margin:0 0 16px;padding:14px 16px 16px;border-radius:0}
+  legend{font-weight:600;padding:0 6px;font-size:16px}
+  .hint{color:var(--muted);font-size:13px;margin:-2px 0 10px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:12px 16px}
+  .grid3{display:grid;grid-template-columns:150px repeat(3,minmax(0,1fr));gap:8px 12px;align-items:center}
+  .grid3 .h{font-weight:600;font-size:13px}
+  .grid3 .h.ex{color:var(--ex)} .grid3 .h.eq{color:var(--eq)} .grid3 .h.tu{color:var(--tu)}
+  label{display:flex;flex-direction:column;gap:4px;font-size:13px;font-weight:500;color:var(--ink2)}
+  input,select,textarea{font:inherit;font-size:14px;color:var(--ink);background:var(--bg);border:1px solid var(--line);padding:7px 9px;border-radius:0;width:100%}
+  textarea{min-height:64px;resize:vertical}
+  .checks{display:flex;flex-wrap:wrap;gap:6px 14px}
+  .checks label{flex-direction:row;align-items:center;gap:6px;font-weight:400;color:var(--ink)}
+  .checks input{width:auto}
+  table.cards{width:100%;border-collapse:collapse;font-size:14px}
+  table.cards th{text-align:left;font-size:12px;color:var(--muted);font-weight:600;padding:4px 6px}
+  table.cards td{padding:3px 4px}
+  .btn{font:inherit;font-weight:600;font-size:14px;border:1px solid var(--accent);background:var(--accent);color:var(--surface);padding:9px 16px;cursor:pointer;border-radius:0}
+  .btn.ghost{background:transparent;color:var(--accent)}
+  .btn.small{padding:4px 10px;font-size:13px}
+  .actions{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:6px 0 24px}
+  .err{color:var(--bad);font-weight:500}
+  #out{display:none}
+  #out h2{font-size:22px;margin:26px 0 8px;border-bottom:1px solid var(--line);padding-bottom:6px}
+  #out h3{font-size:16px;margin:18px 0 6px}
+  .kpis{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+  .kpi{background:var(--surface);border:1px solid var(--line);padding:10px 12px}
+  .kpi b{display:block;font-size:22px;font-family:var(--mono)}
+  .kpi span{font-size:12px;color:var(--muted)}
+  .flag{padding:8px 12px;margin:6px 0;background:var(--surface);border-left:3px solid var(--warn);font-size:14px}
+  .flag.bad{border-left-color:var(--bad)} .flag.good{border-left-color:var(--good)}
+  table.res{width:100%;border-collapse:collapse;font-size:14px;background:var(--surface)}
+  table.res th,table.res td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+  table.res th{background:var(--band);font-size:13px}
+  .b-ex{color:var(--ex);font-weight:600} .b-eq{color:var(--eq);font-weight:600} .b-tu{color:var(--tu);font-weight:600}
+  .fit-good{color:var(--good);font-weight:600} .fit-warn{color:var(--warn);font-weight:600} .fit-bad{color:var(--bad);font-weight:600}
+  .note{font-size:13px;color:var(--muted)}
+  @media (max-width:640px){.grid3{grid-template-columns:100px repeat(3,minmax(0,1fr))}}
+</style>
+</head>
+<body>
+<main class="gen" data-page="generator">
+  <h1>Credit Stack and Funding Generator</h1>
+  <p class="lede">Enter a client's personal and business credit profile. The generator picks a funding tier, forecasts which bureau each major lender will pull in the client's state, orders the applications to protect the weakest report, and lays out a dated benchmark timeline. Download the result as a PDF.</p>
+  <div class="privacy"><b>Private by design:</b> everything runs in this browser. Nothing you type or attach is uploaded, saved or sent anywhere. Closing the page clears it.</div>
+
+  <form id="f" autocomplete="off" novalidate>
+    <fieldset>
+      <legend>Client and Engagement</legend>
+      <div class="grid">
+        <label>Client Name *<input name="client" required placeholder="Full name"></label>
+        <label>Prepared By<input name="preparer" placeholder="Advisor or consultant"></label>
+        <label>Strategy Start Date<input name="start" type="date"></label>
+        <label>State / Location *<select name="state" required></select></label>
+        <label>Funding Goal ($)<input name="goal" type="number" min="0" step="1000" placeholder="e.g. 75000"></label>
+        <label>Funding Purpose<select name="purpose">
+          <option value="">Select</option><option>Working capital</option><option>Startup costs</option><option>Equipment</option><option>Inventory</option><option>Real estate</option><option>Marketing and growth</option><option>Debt consolidation</option><option>Other</option></select></label>
+        <label>How Soon Is Funding Needed<select name="urgency"><option value="normal">Within 3 to 6 months</option><option value="urgent">Within 30 days</option><option value="flexible">6+ months, building first</option></select></label>
+        <label>Annual Personal Income ($)<input name="income" type="number" min="0" step="1000" placeholder="Stated income"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Business Profile</legend>
+      <p class="hint">Use N/A for anything that does not exist yet. Business type drives which funding entities fit.</p>
+      <div class="grid">
+        <label>Incorporated Business<select name="entity"><option value="N/A">N/A (no entity yet)</option><option>Sole proprietor (DBA)</option><option>LLC</option><option>S-Corp</option><option>C-Corp</option><option>Partnership</option></select></label>
+        <label>Business Name<input name="bizname" placeholder="Legal name or N/A"></label>
+        <label>NAICS Code<input name="naics" placeholder="e.g. 484121 or N/A" inputmode="numeric"></label>
+        <label>Date Business Formed<input name="formed" type="date"></label>
+        <label>Number of Employees<input name="employees" placeholder="e.g. 4 or N/A"></label>
+        <label>Annual Business Revenue ($)<input name="revenue" type="number" min="0" step="1000" placeholder="0 if pre-revenue"></label>
+        <label>Average Monthly Deposits ($)<input name="deposits" type="number" min="0" step="500"></label>
+        <label>EIN on File<select name="ein"><option>No</option><option>Yes</option></select></label>
+        <label>D-U-N-S Number<select name="duns"><option>No</option><option>Yes</option></select></label>
+        <label>Business Bank Account<select name="bizbank"><option>No</option><option>Yes</option></select></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Personal Credit: 3-Bureau Report</legend>
+      <p class="hint">Copy these from the client's 3-bureau report. Leave a box blank if that bureau was not pulled.</p>
+      <div class="grid3">
+        <div></div><div class="h ex">Experian</div><div class="h eq">Equifax</div><div class="h tu">TransUnion</div>
+        <div class="h">Credit Score</div><input name="s_ex" type="number" min="300" max="850"><input name="s_eq" type="number" min="300" max="850"><input name="s_tu" type="number" min="300" max="850">
+        <div class="h">Hard Inquiries (6 mo)</div><input name="i6_ex" type="number" min="0"><input name="i6_eq" type="number" min="0"><input name="i6_tu" type="number" min="0">
+        <div class="h">Hard Inquiries (24 mo)</div><input name="i24_ex" type="number" min="0"><input name="i24_eq" type="number" min="0"><input name="i24_tu" type="number" min="0">
+        <div class="h">Late Payments / Collections</div><input name="d_ex" type="number" min="0"><input name="d_eq" type="number" min="0"><input name="d_tu" type="number" min="0">
+      </div>
+      <div class="grid" style="margin-top:12px">
+        <label>New Personal Accounts (24 mo)<input name="new24" type="number" min="0" placeholder="Counts toward Chase 5/24"></label>
+        <label>Age of Oldest Account (years)<input name="oldest" type="number" min="0" step="0.5"></label>
+        <label>Public Records (bankruptcy, judgments)<select name="pubrec"><option>None</option><option>Yes, over 2 years old</option><option>Yes, within 2 years</option></select></label>
+        <label>Attach 3-Bureau Report (optional)<input name="rpt_personal" type="file" multiple accept=".pdf,.png,.jpg,.jpeg"></label>
+      </div>
+      <p class="note">Attached files stay on this device. Their names are listed in the PDF as documents reviewed; their contents are not read.</p>
+    </fieldset>
+
+    <fieldset>
+      <legend>Current Credit Cards, Limits and Utilization</legend>
+      <table class="cards"><thead><tr><th>Issuer / Card</th><th>Limit ($)</th><th>Balance ($)</th><th>Type</th><th></th></tr></thead><tbody id="cardrows"></tbody></table>
+      <button type="button" class="btn ghost small" id="addcard" style="margin-top:8px">Add Card</button>
+    </fieldset>
+
+    <fieldset>
+      <legend>Current Banking Relationships</legend>
+      <div class="checks" id="banks"></div>
+      <div class="grid" style="margin-top:10px">
+        <label>Other Banks or Credit Unions<input name="otherbanks" placeholder="Comma separated"></label>
+        <label>Longest Banking Relationship (years)<input name="banktenure" type="number" min="0" step="0.5"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Business Credit Reports</legend>
+      <p class="hint">Enter N/A or leave blank if the business has no file yet.</p>
+      <div class="grid">
+        <label>Dun &amp; Bradstreet Paydex (0 to 100)<input name="paydex" placeholder="e.g. 80 or N/A"></label>
+        <label>Experian Intelliscore Plus (1 to 100)<input name="intelliscore" placeholder="or N/A"></label>
+        <label>Equifax Business Credit Risk Score<input name="eqbiz" placeholder="or N/A"></label>
+        <label>Creditsafe Score (0 to 100)<input name="creditsafe" placeholder="or N/A"></label>
+        <label>Trade Lines Reporting<input name="tradelines" type="number" min="0" placeholder="Net-30 and other vendors"></label>
+        <label>Attach Business Reports (optional)<input name="rpt_business" type="file" multiple accept=".pdf,.png,.jpg,.jpeg"></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Notes</legend>
+      <label>Anything Else the Plan Should Consider<textarea name="notes" placeholder="Recent life events, pending disputes, collateral, co-signers, existing loans"></textarea></label>
+    </fieldset>
+
+    <div class="actions">
+      <button type="submit" class="btn">Generate Strategy</button>
+      <button type="button" class="btn ghost" id="sample">Load Sample Client</button>
+      <button type="reset" class="btn ghost">Clear Form</button>
+      <span id="msg" class="err" role="alert"></span>
+    </div>
+  </form>
+
+  <section id="out" aria-live="polite">
+    <div class="actions"><button type="button" class="btn" id="pdf">Download PDF</button><span class="note">Planning reference only. Not financial or legal advice.</span></div>
+    <div id="report"></div>
+  </section>
+</main>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.8.2/jspdf.plugin.autotable.min.js"></script>
+<script src="assets/app.js"></script>
+<script src="assets/generator.js"></script>
+</body>
+</html>

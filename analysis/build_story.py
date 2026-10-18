@@ -125,9 +125,9 @@ IMG.OUT = WORK / "Image"
 if WORK.exists(): shutil.rmtree(WORK)
 (WORK / "Image").mkdir(parents=True)
 
-NAV = ["Overview", "Funding Ladder", "Market and KPIs", "Data and Method", "Pick a Lender", "Share Maps", "Close Calls", "Decision Tree", "Scorecard", "Recommendations", "Sources"]
+NAV = ["Overview", "Funding Ladder", "Market and KPIs", "Data and Method", "Pick a Lender", "Share Maps", "Close Calls", "Decision Tree", "Scorecard", "Recommendations", "Sources", "Funding Generator"]
 TABS = ["Overview", "Maps", "Decide"]
-TAB_OF = [None, "Overview", "Overview", "Overview", "Maps", "Maps", "Maps", "Decide", "Decide", "Decide", "Decide"]
+TAB_OF = [None, "Overview", "Overview", "Overview", "Maps", "Maps", "Maps", "Decide", "Decide", "Decide", "Decide", "Decide"]
 DASH = [f"{i} {n}" for i, n in enumerate(NAV, 1)]
 for i in range(1, len(NAV) + 1):
     IMG.sidebar(172, 784, NAV, i, f"sb_{i}")
@@ -182,7 +182,7 @@ IMG.text_card(326, 414, [
     ("Updates", f"As of {ASOF}. Lender minimums are reviewed quarterly; each new datapoint reruns the maps and model."),
     ("Limits", "Consumer-reported, uneven in age (most pulls are 2008 to 2016) and thin in some states. Likelihoods, not promises. Not financial advice.")], "c1_sources", size=10)
 IMG.steps_card(324, 414, "How to Use This Story", [
-    ("Move through 11 cards", "Use the arrows or the captions above; the side panel shows where you are."),
+    ("Move through 12 cards", "Use the arrows or the captions above; the side panel shows where you are."),
     ("Hover any number", "Tooltips show each formula and its source."),
     ("Click a state or KPI", "A detail panel updates beside the chart."),
     ("Open the About button", "Each card's popover explains it and its terms."),
@@ -468,6 +468,13 @@ D[DASH[10]] = dashboard(DASH[10], shell(11, "FP&A: Credit Stacking & Funding Seq
     szone(192, 96, 1000, 696, "Sources List", title=True, pad=12),
 ])
 
+GEN_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/generator.html"
+IMG.link_button(200, 34, "Open Full Page in a New Tab", "gen_open")
+D[DASH[11]] = dashboard(DASH[11], shell(12, "Credit Stack and Funding Generator", "Enter a client's profile; get a funding strategy and dated timeline as a PDF. Runs in the browser; nothing is saved.") + [
+    f"<zone {geo(192, 96, 1000, 650)} id='{nid()}' param='{GEN_URL}' type-v2='web'>{zstyle(0, 0, CARD)}</zone>",
+    f"<zone {geo(192, 754, 200, 34)} id='{nid()}' is-scaled='1' param='Image/gen_open.png' type-v2='bitmap' url='{GEN_URL}'>{zstyle(0, 0)}</zone>",
+])
+
 # ================================================================== KPI definitions (used by the KPI list, detail panel and tooltips)
 K1 = [(1, "Bureau share of pulls", "how likely a pull in one state is to land on one bureau, all lenders combined.",
        "pulls on one bureau in a state ÷ all bureau pulls in that state.", f"Florida, Experian: 466 ÷ 885 = {466 / 885:.0%}."),
@@ -747,7 +754,7 @@ ds_habit = ds_habit.replace("<column datatype='real' name='[Share]'", "<column d
 
 # ------------------------------------------------------------------ help popovers (one per card)
 HELP = [
-    ("1", "About This Story", "Eleven cards move from context to a decision. Card 1 holds the context, purpose, sources, update cadence and data limits. Key terms: a hard inquiry (hard pull) is a lender's check of one report when you apply; a soft pull, such as prequalification, does not affect the score."),
+    ("1", "About This Story", "Twelve cards move from context to a decision, ending with a generator that builds a client's plan. Card 1 holds the context, purpose, sources, update cadence and data limits. Key terms: a hard inquiry (hard pull) is a lender's check of one report when you apply; a soft pull, such as prequalification, does not affect the score."),
     ("3", "Reading the KPIs", "The tiles are the headline shares (KPI 2) and the close-call count (KPI 4). Click a KPI in the list to open its detail card with the formula and a worked example. A close call is a state where the top two bureaus are within 20 points."),
     ("4", "How the Data Was Built", "Read each row left to right: the original table was cleaned, matched to 102 lenders, enriched with funding facts, then cross-checked against 670 outside datapoints. 0 rows were contradicted."),
     ("5", "Using the Lender Map", "Pick a lender in the drop-down list. Each state is colored by the bureau that lender pulled most in the recorded data. Gray means a tie. Hover a state to see the Experian, Equifax and TransUnion counts behind it."),
@@ -757,6 +764,7 @@ HELP = [
     ("8", "Reading the Decision Tree", "Start at the top with your strongest report and follow its branch. Check the override rules first. The forecast table shows the model's chance of each bureau for four real lender and state cases (KPI 6)."),
     ("9", "Reading the Scorecard", "Each bar shows the share of an issuer's recorded pulls that landed on each bureau (KPI 5); hover a bar for the exact share. The notes on the right show how every number was built and what the data cannot tell you."),
     ("10", "Using the Recommendations", "Find your stakeholder type. Each card gives the best move, when to choose it, why (with the number behind it) and the next move. Every recommendation traces back to a KPI or an earlier card. A planning guide, not financial advice."),
+    ("12", "Using the Funding Generator", "Fill in the client's 3-bureau scores, inquiries, cards, banks, business details and business credit scores, then click Generate Strategy. The plan uses this story's data: the funding ladder for the client's tier and each lender's likely bureau in the client's state. Download PDF saves it. Everything runs in the browser; nothing is uploaded or saved."),
     ("11", "Sources", "Every source behind the story, with the date it was published or read. Click a name to open it. Lender minimums are reviewed quarterly; new datapoints rerun the maps and model.")
 ]
 HP = "federated." + rid()
@@ -1052,7 +1060,8 @@ STORY = [(DASH[0], "Overview: context, purpose, sources and limits"),
          (DASH[7], "Decision tree: which lender, in what order"),
          (DASH[8], "Scorecard: issuer habits and where the numbers come from"),
          (DASH[9], "Recommendations: the best move for each stakeholder"),
-         (DASH[10], "Sources")]
+         (DASH[10], "Sources"),
+         (DASH[11], "Funding generator: a client's strategy and timeline as a PDF")]
 pts = "".join(f"<story-point caption='{i}. {esc(tc(c))}' captured-sheet='{esc(n)}' id='{100 + i}' />" for i, (n, c) in enumerate(STORY, 1))
 s = re.sub(r"<story-points>.*?</story-points>", f"<story-points>{pts}</story-points>", s, flags=re.S)
 s = re.sub(r"<flipboard active-id='\d+'", "<flipboard active-id='101'", s)
@@ -1078,7 +1087,7 @@ s = re.sub(r"(<dashboard name='Which Bureau Will They Pull' type='storyboard'>.*
 
 VIEWS = {DASH[0]: ["Help 1", "Overview Tiles"], DASH[1]: ["Help 2"], DASH[2]: ["Help 3", "Market Tiles", "KPI List", "KPI Detail"], DASH[3]: ["Help 4"],
          DASH[4]: ["Help 5", "Top Bureau by State, by Lender"], DASH[5]: ["Help 6", "State Detail"] + MAPS,
-         DASH[6]: ["Help 7", "CC Map", "CC State Panel", "CC Chance Bars"], DASH[7]: ["Help 8"], DASH[8]: ["Help 9", "Issuer Habits"], DASH[9]: ["Help 10"], DASH[10]: ["Help 11", "Sources List"]}
+         DASH[6]: ["Help 7", "CC Map", "CC State Panel", "CC Chance Bars"], DASH[7]: ["Help 8"], DASH[8]: ["Help 9", "Issuer Habits"], DASH[9]: ["Help 10"], DASH[10]: ["Help 11", "Sources List"], DASH[11]: ["Help 12"]}
 ZOOM = {"Sources List": "fit-width"}
 new_windows = "".join(f"<window class='dashboard' name='{esc(n)}'><viewpoints>{''.join(f'<viewpoint name={chr(39)}{esc(v)}{chr(39)}><zoom type={chr(39)}{ZOOM.get(v, chr(101)+'ntire-view')}{chr(39)} /></viewpoint>' for v in VIEWS.get(n, []))}</viewpoints>"
                       f"<active id='-1' /><simple-id uuid='{WINUUID[n]}' /></window>" for n in D)

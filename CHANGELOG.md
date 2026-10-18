@@ -1,5 +1,10 @@
 # Change Log
 
+## 2026-10-17 (late night)
+
+- New page and Story card 12, **Credit Stack and Funding Generator**: a form for a client's 3-bureau scores, inquiries, late payments, cards (limits and utilization), banking relationships, entity, NAICS, time in business, revenue, employees and business credit scores (Paydex, Experian Intelliscore, Equifax Business, Creditsafe). It returns a readiness check, a state-specific bureau plan for each major lender, an ordered application sequence with dated rounds, benchmarks, a business credit plan and funding entities matched to the NAICS code, and downloads it all as a PDF. Runs entirely in the browser; nothing is uploaded or saved.
+- `analysis/build_generator_data.py` builds `data/generator.json` from the same files as the dashboard and Story.
+
 ## 2026-10-17 (night)
 
 - All maps: base map state and country names turned off; bold black state labels drawn on the maps instead (state abbreviations on Pick a Lender, bold black share and status labels on the Share Maps and Close Calls maps).
