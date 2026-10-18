@@ -365,6 +365,14 @@ IMG.ladder(1000, 300, [
     ("700-749", "Build the stack", f"0% business cards in 6 (rounds). {len(seq_by_tier['700-749'])} (steps)."),
     ("750-799", "Add the banks", f"Bank lines, SBA, personal loans. {len(seq_by_tier['750-799'])} (steps)."),
     ("800+", "Go biggest first", f"Largest bank facilities, then cards. {len(seq_by_tier['800+'])} (steps).")], name="c7_ladder_big")
+IMG.ladder(1390, 300, [
+    ("500-549", "Repair first", f"Fix errors, builder loan, trade credit. {len(seq_by_tier['500-549'])} (steps)."),
+    ("550-599", "Start small", f"Prequalify, starter or secured card. {len(seq_by_tier['550-599'])} (steps)."),
+    ("600-649", "Go unsecured", f"Mainstream cards, credit union lines. {len(seq_by_tier['600-649'])} (steps)."),
+    ("650-699", "Enter the majors", f"Chase first at 670+, then Amex. {len(seq_by_tier['650-699'])} (steps)."),
+    ("700-749", "Build the stack", f"0% business cards in 6 (rounds). {len(seq_by_tier['700-749'])} (steps)."),
+    ("750-799", "Add the banks", f"Bank lines, SBA, personal loans. {len(seq_by_tier['750-799'])} (steps)."),
+    ("800+", "Go biggest first", f"Largest bank facilities, then cards. {len(seq_by_tier['800+'])} (steps).")], name="c7_ladder_wide")   # wider copy for the slide deck
 IMG.tier_table(620, 388, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding sequence)",
     [("score_step", 0.16), ("products", 0.24), ("example_lenders", 0.26), ("bureau_pulled", 0.18), ("typical_limit", 0.16)], [
     (("500-549", "Repair first"), "Builder loan, secured card, net-30 vendors", "Self, OpenSky, Navy Federal, Uline, Quill", "No hard pull; Navy Federal: TransUnion", "$200 to $2,000 (per account)"),
@@ -375,7 +383,7 @@ IMG.tier_table(620, 388, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding se
     (("750-799", "Add the banks"), "Bank lines, SBA loans, personal loans", "Chase, BofA, U.S. Bank, Huntington, LightStream", "The bank's usual bureau; LightStream: TransUnion", "$25,000 to $250,000 (per line)"),
     (("800+", "Go biggest first"), "Bank facilities, SBA 7(a), premium cards", "Chase, BofA, Wells Fargo, SBA lenders", "The bank's usual bureau; Capital One: all three", "$50,000 to $250,000+ (per facility)"),
 ], "c7_tiers")
-IMG.tier_table(1000, 330, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding sequence)",
+IMG.tier_table(1200, 290, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding sequence)",
     [("score_step", 0.16), ("products", 0.24), ("example_lenders", 0.26), ("bureau_pulled", 0.18), ("typical_limit", 0.16)], [
     (("500-549", "Repair first"), "Builder loan, secured card, net-30 vendors", "Self, OpenSky, Navy Federal, Uline, Quill", "No hard pull; Navy Federal: TransUnion", "$200 to $2,000 (per account)"),
     (("550-599", "Start small"), "Starter and secured cards, microloans", "Capital One, Mission Lane, Discover, Kiva", "Capital One: all three; Mission Lane: TransUnion", "$300 to $1,000 (per card)"),

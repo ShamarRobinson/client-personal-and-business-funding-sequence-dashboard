@@ -18,7 +18,7 @@ for src, name, w in [("cover_cards.png", "cover_cards.jpg", 1600), ("photo_analy
                      ("photo_funding.png", "photo_funding.jpg", 1000), ("photo_advisors.png", "photo_advisors.jpg", 1200),
                      ("photo_approved.png", "photo_approved.jpg", 900)]:
     jpg(REPO / "assets" / src, name, w)
-for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png"):
+for img in ("c7_tree.png", "c7_ladder.png", "c3_enrich.png", "c3_etl.png", "c7_whatif.png", "c7_ladder_big.png", "c7_tiers.png", "c7_rules.png", "c9_photo.png", "c7_tiers_wide.png", "c7_ladder_wide.png"):
     shutil.copy(REPO / "tableau" / "_build" / "Image" / img, AS / img)
 
 # ---------------------------------------------------------------- theme
@@ -94,8 +94,8 @@ S["overview"] = section("overview", header(2, "Overview: Context, Sources and Li
 
 # 3 market, scope, who it serves ---------------------------------------
 S["ladder"] = section("ladder", header(3, "The Funding Ladder: One Score Step at a Time", "Find your step by credit score, finish its moves, let the score rise, then climb. 57 (steps) across 7 (score ranges).", "Overview", "photo_funding.jpg") +
-    f'<div style="display:flex;gap:20px;justify-content:space-between"><img src="assets/c7_ladder_big.png" style="height:350px;display:block"><img src="assets/c7_rules.png" style="height:350px;display:block"></div>'
-    f'<img src="assets/c7_tiers_wide.png" style="height:420px;display:block;align-self:center">',
+    f'<div style="display:flex;gap:20px;justify-content:space-between"><img src="assets/c7_ladder_wide.png" style="height:314px;display:block"><img src="assets/c7_rules.png" style="height:314px;display:block"></div>'
+    f'<img src="assets/c7_tiers_wide.png" style="width:100%;height:auto;display:block">',
     "Each step is a credit score range with its own moves, example lenders, bureau pulled and typical limit, taken from the 57-step funding sequence.")
 
 S["market"] = section("market", header(4, "Market, Scope and Who It Serves", "3,003 recorded bureau pulls, all lenders combined.", "Overview") +
