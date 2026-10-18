@@ -11,3 +11,4 @@
 9. Scorecard: Issuer Habits and Where the Numbers Come From
 10. Recommendations: The Best Move for Each Stakeholder
 11. Sources
+12. Funding Generator: A Client's Strategy and Timeline as a PDF
