@@ -2,6 +2,7 @@
 
 ## 2026-10-17 (late night)
 
+- Presentation slide 4 (Out of Scope): removed the approval odds line; the advice line now reads "legal, tax or investment advice".
 - Presentation slide 3 (Funding Ladder): the step table now spans the full slide width with larger text, and a wider ladder chart closes the gap beside the rules panel.
 - Story card 11 (Sources): new link buttons for the Slideshow, Slideshow PDF, Dashboard Website and Funding Generator.
 - Slideshow moved to this site at `presentation/`: a standalone 12-slide presentation with self-hosted fonts, arrow-key, click and swipe navigation, full-screen mode and a downloadable PDF. No sign-in, no third-party branding. The Slideshow links on every page and in the README now point here. Built by `analysis/build_presentation.py`.

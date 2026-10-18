@@ -103,8 +103,8 @@ S["market"] = section("market", header(4, "Market, Scope and Who It Serves", "3,
     f'<div style="display:grid;grid-template-columns:1.1fr 1fr 1fr;gap:24px;flex:1">'
     + card(h3("In Scope") + lead("Bureau pulls", "Experian, Equifax and TransUnion, every state and DC.") + lead("Funding types", "cards, lines, loans, SBA, auto, equipment and real estate.")
            + lead("Lender facts", "funding type, typical score and paperwork for 204 lenders (47 low or no doc).") + lead("A sequence", "an application order for seven score ranges, 500 to 800+."))
-    + card(h3("Out of Scope", MUT) + lead("Approval odds", "nothing here predicts approval.") + lead("Business bureaus", "D&amp;B and similar files are not mapped.")
-           + lead("Soft pulls and rates", "prequalification and live rates are left out.") + lead("Advice", "nothing here is legal, tax or financial advice."))
+    + card(h3("Out of Scope", MUT) + lead("Business bureaus", "D&amp;B and similar files are not mapped.")
+           + lead("Soft pulls and rates", "prequalification and live rates are left out.") + lead("Advice", "nothing here is legal, tax or investment advice."))
     + (f'<div style="position:relative;border:1px solid {LINE};background:url(assets/photo_advisors.jpg) 35% 30%/cover;display:flex;align-items:flex-end">'
        f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div>'
        f'<div style="width:100%;padding:28px 30px;background:linear-gradient(transparent,rgba(7,9,12,.95) 40%)">{kicker("Who It Serves")}'
