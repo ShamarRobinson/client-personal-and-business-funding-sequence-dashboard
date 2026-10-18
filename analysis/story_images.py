@@ -100,7 +100,7 @@ def text_height(d, width, text, size=10, weight="regular", line_gap=4):
     return draw_rich(dd, 0, 0, width, text, size, weight, line_gap=line_gap)
 
 
-def entity(d, box, title, fields=(), head=NEUTRAL, head_ink="#FFFFFF", key="◆", fsize=9, title_size=10, body=None):
+def entity(d, box, title, fields=(), head=NEUTRAL, head_ink="#FFFFFF", key="◆", fsize=9, title_size=10, body=None, align_values=False, shift=0):
     """A data-model entity: header strip plus monospace field rows (name, value) or a rich body text."""
     x0, y0, x1, y1 = box
     d.rounded_rectangle(box, radius=0, fill=CARD, outline=LINE, width=1 * S)
@@ -108,10 +108,11 @@ def entity(d, box, title, fields=(), head=NEUTRAL, head_ink="#FFFFFF", key="◆"
     d.rounded_rectangle((x0, y0, x1, y0 + hh), radius=0, fill=head)
     d.rectangle((x0, y0 + hh - 6 * S, x1, y0 + hh), fill=head)
     d.text((x0 + 10 * S, y0 + 6 * S), f"{key} {title}", font=f("bold", title_size), fill=head_ink)
-    y = y0 + hh + 8 * S
+    y = y0 + hh + 8 * S + shift
+    col = max((d.textlength(n + "  ", font=mono(fsize)) for n, _ in fields), default=0) if align_values else None
     for name, val in fields:
         d.text((x0 + 10 * S, y), name, font=mono(fsize), fill=MUTED)
-        nx = x0 + 10 * S + d.textlength(name + "  ", font=mono(fsize))
+        nx = x0 + 10 * S + (col if align_values else d.textlength(name + "  ", font=mono(fsize)))
         y = draw_rich(d, nx, y, x1 - nx - 10 * S, val, size=fsize + 0.5, weight="medium", color=INK) + 2 * S
     if body:
         draw_rich(d, x0 + 10 * S, y, x1 - x0 - 20 * S, body, size=fsize + 0.5, color=INK2)
@@ -392,15 +393,23 @@ def scope(w, h, ins, outs):
 
 
 # ---------------------------------------------------------------- 8. data and method
-def flow(w, h, title, steps, name, result_head=None):
+def flow(w, h, title, steps, name, result_head=None, balanced=False):
     im, d = canvas(w, h)
     d.text((10 * S, 6 * S), title, font=f("bold", 12), fill=NAVY)
     top, n, gap = 28 * S, len(steps), 22 * S
     bw = (w * S - 20 * S - gap * (n - 1)) / n
+    shift = 0
+    if balanced:   # line values up in one column per box; one shared vertical offset so every box starts on the same line
+        scratch = ImageDraw.Draw(Image.new("RGB", (int(w * S), int(h * S))))
+        body_top, body_bottom = top + 26 * S + 8 * S, h * S - 6 * S - 8 * S
+        tallest = max(entity(scratch, (10 * S + i * (bw + gap), top, 10 * S + i * (bw + gap) + bw, h * S - 6 * S), t, f_, fsize=8, title_size=9, align_values=True) - body_top
+                      for i, (t, f_) in enumerate(steps))
+        shift = max(0, ((body_bottom - body_top) - tallest) / 2)
     for i, (t, fields) in enumerate(steps):
         x0 = 10 * S + i * (bw + gap)
         head = result_head if (result_head and i == n - 1) else NEUTRAL
-        entity(d, (x0, top, x0 + bw, h * S - 6 * S), t, fields, head=head, fsize=8, title_size=9)
+        box = (x0, top, x0 + bw, h * S - 6 * S)
+        entity(d, box, t, fields, head=head, fsize=8, title_size=9, align_values=balanced, shift=shift)
         if i < n - 1:
             ym = top + 13 * S
             d.line((x0 + bw + 3 * S, ym, x0 + bw + gap - 4 * S, ym), fill="#8A93A3", width=int(1.5 * S))

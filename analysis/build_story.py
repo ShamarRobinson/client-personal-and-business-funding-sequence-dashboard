@@ -233,7 +233,7 @@ IMG.flow(770, 220, "From One Table to a Checked Database", [
     ("3. ENRICH", [("added", "funding type"), ("added", "score needed"), ("added", "paperwork level")]),
     ("4. CROSS-CHECK", [("datapoints", "670"), ("sources", "56"), ("years", "2008 to 2026")]),
     ("5. RESULT", [("confirmed", f"{CONF_ROWS} (+{PART_ROWS} partly)"), ("national fit", f"{FIT_ROWS}"), ("contradicted", "0")]),
-], "c3_enrich_wide", result_head="#1D7A72")   # larger copy for the slide deck
+], "c3_enrich_wide", result_head="#1D7A72", balanced=True)   # larger copy for the slide deck
 IMG.flow(1000, 172, "How It Was Built: Extract, Transform, Load", [
     ("1. EXTRACT", [("read", "original workbook, All States & Banks tab"), ("read", "issuer state tables, 2008 to 2017"), ("read", "myFICO grid (2023) and 2025-2026 posts"), ("read", "lender pages for scores and rules")]),
     ("2. TRANSFORM", [("match", "229 spellings to 102 lenders"), ("normalize", "x, blanks, counts to pulled or not"), ("join", "each row to outside data by lender and state"), ("reshape", "one row per state, lender and bureau")]),
@@ -243,7 +243,7 @@ IMG.flow(640, 198, "How It Was Built: Extract, Transform, Load", [
     ("1. EXTRACT", [("read", "original workbook, All States & Banks tab"), ("read", "issuer state tables, 2008 to 2017"), ("read", "myFICO grid (2023) and 2025-2026 posts"), ("read", "lender pages for scores and rules")]),
     ("2. TRANSFORM", [("match", "229 spellings to 102 lenders"), ("normalize", "x, blanks, counts to pulled or not"), ("join", "each row to outside data by lender and state"), ("reshape", "one row per state, lender and bureau")]),
     ("3. LOAD", [("excel", "six-tab workbook with live totals"), ("web", "seven-page site on GitHub Pages"), ("tableau", "maps, regression and this story"), ("model", "weighted datapoints for the regression")]),
-], "c3_etl_wide")   # larger copy for the slide deck
+], "c3_etl_wide", balanced=True)   # larger copy for the slide deck
 IMG.text_card(490, 360, [("Messy Data That Was Cleaned", [
     ("One lender, many spellings", '"Capital One", "Capital One Bank USA" and "Capital One NA" became one company; 229 spellings matched to 102 lenders.'),
     ("Mixed markers", "x marks, blanks, zeros and counts up to 211 became pulled or not pulled, with counts kept as weights."),
