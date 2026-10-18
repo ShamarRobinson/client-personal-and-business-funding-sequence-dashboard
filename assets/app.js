@@ -2,7 +2,7 @@
 const PAGES=[["index.html","Dashboard"],["lenders.html","Lender Database"],["states.html","All States & Banks"],["matrix.html","Bureau by State"],["sequence.html","Funding Sequence"],["likelihood.html","Bureau Likelihood"],["sources.html","Sources & Notes"],["generator.html","Funding Generator"]];
 const SITE="https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/";
 const TABLEAU="https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull";
-const DECK="https://claude.ai/artifact/95vnkBxejyTxzMTD5QAxnw";
+const DECK="presentation/";
 const REPO="https://github.com/ShamarRobinson/Client-Personal-and-Business-Funding-Sequence-Dashboard";
 const here=(location.pathname.split("/").pop()||"index.html");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));

@@ -6,7 +6,7 @@
 | --- | --- |
 | Dashboard site (this repository, GitHub Pages) | [shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/) |
 | Interactive maps and Story (Tableau Public) | [FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) (full screen, fits one screen with no scrolling) · [profile page](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) |
-| Slideshow | [Presentation](https://claude.ai/artifact/95vnkBxejyTxzMTD5QAxnw) |
+| Slideshow | [Presentation](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/) ([PDF](presentation/Credit_Stacking_and_Funding_Sequencing_Strategy.pdf)) |
 | Full workbook | [data/Inquiry_Database_Expanded.xlsx](data/Inquiry_Database_Expanded.xlsx) |
 
 A dashboard and database of which credit bureau each lender pulls by state, with funding type, average score needed, documentation level, and a funding sequence for every credit score tier.
