@@ -100,5 +100,13 @@ a{{color:#2FD4C4}}
 </body>
 </html>
 """
+# cache-busting: tag every asset link with a short content hash so browsers fetch new versions right after an update
+import hashlib
+def _tag(m):
+    path = m.group(2); f = OUT / path
+    v = hashlib.md5(f.read_bytes()).hexdigest()[:8] if f.exists() else "0"
+    return f'{m.group(1)}{path}?v={v}'
+html = re.sub(r'((?:src|href)=")((?:assets|fonts)/[^"?]+)', _tag, html)
+html = re.sub(r'(url\()((?:assets|fonts)/[^)?]+)', _tag, html)
 (OUT / "index.html").write_text(html)
 print(f"wrote {OUT / 'index.html'} with {len(slides)} slides")
