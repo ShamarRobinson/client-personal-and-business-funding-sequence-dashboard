@@ -30,7 +30,7 @@ SANS = "'IBM Plex Sans', Arial, sans-serif"; MONO = "'IBM Plex Mono', Menlo, mon
 GLOW = f"linear-gradient(90deg,{TEAL},{ORANGE})"
 def b(t):  # bold bureau names in their color
     for k, c in BC.items():
-        t = t.replace(k, f"<b style=\"color:{c}\">{k}</b>")
+        t = t.replace(k, f"<span style=\"font-weight:700;color:{c}\">{k}</span>")
     return t
 def kicker(t, c=TEAL): return f'<div style="font-family:{MONO};font-size:20px;letter-spacing:.14em;color:{c};text-transform:uppercase">{t}</div>'
 def card(inner, style=""):
@@ -38,7 +38,7 @@ def card(inner, style=""):
             f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div>{inner}</div>')
 def h3(t, c=INK): return f'<div style="font-size:32px;font-weight:600;color:{c};margin-bottom:12px">{t}</div>'
 def p(t, size=26, c=INK2): return f'<div style="font-size:{size}px;line-height:1.42;color:{c}">{b(t)}</div>'
-def lead(l, t, size=25): return f'<div style="font-size:{size}px;line-height:1.4;color:{INK2};margin-bottom:10px"><b style="color:{INK}">{l}:</b> {b(t)}</div>'
+def lead(l, t, size=25): return f'<div style="font-size:{size}px;line-height:1.4;color:{INK2};margin-bottom:10px"><span style="font-weight:700;color:{INK}">{l}:</span> {b(t)}</div>'
 def ban(v, l, c=INK): return (f'<div style="flex:1;background:{CARD};border:1px solid {LINE};padding:20px 24px;position:relative">'
                               f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div>'
                               f'<div style="font-size:56px;font-weight:600;color:{c};line-height:1">{v}</div><div style="font-size:19px;color:{INK2};margin-top:10px">{b(l)}</div></div>')
@@ -108,7 +108,7 @@ S["market"] = section("market", header(4, "Market, Scope and Who It Serves", "3,
     + (f'<div style="position:relative;border:1px solid {LINE};background:url(assets/photo_advisors.jpg) 35% 30%/cover;display:flex;align-items:flex-end">'
        f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div>'
        f'<div style="width:100%;padding:28px 30px;background:linear-gradient(transparent,rgba(7,9,12,.95) 40%)">{kicker("Who It Serves")}'
-       f'<div style="font-size:21px;line-height:1.45;color:{INK};margin-top:10px"><b>Clients:</b> personal and business credit clients.<br><b>Firms:</b> credit consultants, funding companies, advisors and brokers.<br><b>Reviewers:</b> analysts and partners tracing each number.</div></div></div>')
+       f'<div style="font-size:21px;line-height:1.45;color:{INK};margin-top:10px"><span style="font-weight:700">Clients:</span> personal and business credit clients.<br><span style="font-weight:700">Firms:</span> credit consultants, funding companies, advisors and brokers.<br><span style="font-weight:700">Reviewers:</span> analysts and partners tracing each number.</div></div></div>')
     + '</div>', "Experian dominates nationally, but Equifax leads 2 states and TransUnion 3, with 6 ties. Hover the tiles in the Tableau Story for each formula.")
 
 # 4 KPIs (table with inline data bars) ---------------------------------
@@ -161,7 +161,7 @@ def tilemap(bureau, mx):
         else:
             sh = int(r[bureau]) / int(r["Total Datapoints"]); bg = mix(BC[bureau], min(sh / mx, 1) ** .8); lab = f"{sh:.0%}"
         cells += (f'<div style="position:absolute;left:{x * 44}px;top:{y * 44}px;width:41px;height:41px;background:{bg};font-size:11px;line-height:1.1;color:{INK};'
-                  f'display:flex;flex-direction:column;align-items:center;justify-content:center"><b>{ab}</b><span style="font-size:10px;color:{INK2}">{lab}</span></div>')
+                  f'display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-weight:700">{ab}</span><span style="font-size:10px;color:{INK2}">{lab}</span></div>')
     return f'<div style="position:relative;width:528px;height:352px">{cells}</div>'
 maps = "".join(card(f'<div style="font-size:24px;font-weight:600;margin-bottom:14px">{b(k)} <span style="color:{INK2};font-weight:400">Share of Pulls</span></div>{tilemap(k, mx)}', "padding:22px 24px")
                for k, mx in (("Experian", 1.0), ("Equifax", .5), ("TransUnion", .5)))
@@ -183,7 +183,7 @@ GCOL = {"Clear lean": "#ECE6D6", "Moderate lean": "#A69F8E", "Toss-up": "#F2B634
 GDESC = {"Clear lean": "leader holds in 90%+ of 150 refits", "Moderate lean": "leader holds in 70%+ of refits", "Toss-up": "leader holds in under 70% of refits", "Thin data (national pattern)": "under 10 datapoints; national pattern shown"}
 gcards = ""
 for g, col in GCOL.items():
-    chips = "".join(f'<span style="display:inline-block;border:1px solid {LINE};background:{CARD2};padding:8px 12px;margin:0 10px 10px 0;font-size:24px"><b>{ab}</b> <span style="color:{EXP}">{v:.0%}</span></span>' for ab, v in sorted(groups.get(g, [])))
+    chips = "".join(f'<span style="display:inline-block;border:1px solid {LINE};background:{CARD2};padding:8px 12px;margin:0 10px 10px 0;font-size:24px"><span style="font-weight:700">{ab}</span> <span style="color:{EXP}">{v:.0%}</span></span>' for ab, v in sorted(groups.get(g, [])))
     gcards += card(f'<div style="display:flex;align-items:baseline;gap:14px"><span style="font-size:64px;font-weight:700;color:{col}">{len(groups.get(g, []))}</span><span style="font-size:26px;font-weight:600">{g.replace(" (national pattern)", "")}</span></div>'
                    f'<div style="font-size:22px;color:{MUT};margin:4px 0 18px">{GDESC[g]}</div>{chips}', f"border-top:0")
 S["close"] = section("close", header(8, "Close Calls: The Model's Best Forecast", "In 24 states the top two bureaus are within 20 points. Chips show Experian's predicted likelihood for a typical application.", "Maps") +
