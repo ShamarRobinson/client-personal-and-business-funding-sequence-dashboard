@@ -1,5 +1,9 @@
 # Change Log
 
+## 2026-10-17 (night)
+
+- Pick a Lender map: tie colors changed from dark variants to light pastels (lavender, mint, sand, pale slate) so single-bureau states stand out and ties read as a subtle contrast.
+
 ## 2026-10-17 (late evening)
 
 - Share Maps card: 2x2 map grid with lower-48 framing so each map gets more room; compact State Detail panel.

@@ -1006,8 +1006,8 @@ x = x.replace("</encodings>", "</encodings>" + tooltip(
     + tiprun(f"&lt;[{SQLNAME}].[sum:Equifax:qk]&gt;") + tiprun("   TransUnion ", TIPB["TransUnion"], 9, True) + tiprun(f"&lt;[{SQLNAME}].[sum:TransUnion:qk]&gt;") + NLR
     + tiprun("Counts are recorded pulls for this lender in this state.", "#4A5568", 8)), 1)
 s = s[:i] + x + s[j:]
-TOPMAP = {"Experian": EXP, "Equifax": EQ, "TransUnion": TU, "Tie: Experian / Equifax": "#6B6F86", "Tie: Experian / TransUnion": "#4F7C77",
-          "Tie: Equifax / TransUnion": "#7F6E58", "Tie: Experian / Equifax / TransUnion": "#5A6270"}
+TOPMAP = {"Experian": EXP, "Equifax": EQ, "TransUnion": TU, "Tie: Experian / Equifax": "#D4CCEB", "Tie: Experian / TransUnion": "#BFE3E0",
+          "Tie: Equifax / TransUnion": "#E9DFB8", "Tie: Experian / Equifax / TransUnion": "#DCDFE5"}
 s = re.sub(r"(<encoding attr='color' field='\[none:Top Bureau:nk\]' type='palette'>).*?(</encoding>)",
            lambda mm: mm.group(1) + "".join(f"<map to='{c}'><bucket>&quot;{esc(k)}&quot;</bucket></map>" for k, c in TOPMAP.items()) + mm.group(2), s, flags=re.S)
 if "field='[none:Top Bureau:nk]' type='palette'" not in s:
