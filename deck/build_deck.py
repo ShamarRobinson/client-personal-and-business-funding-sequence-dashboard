@@ -124,11 +124,11 @@ KPIS = [("Bureau Share of Pulls", "pulls on one bureau in a state ÷ all bureau 
         ("Lender Confidence Mix", "lenders at each level ÷ 204", "39 (High), 104 (Medium), 61 (Low) of 204 (lenders)", .19, TEAL)]
 rows = "".join(f'<tr style="background:{CARD if i % 2 == 0 else CARD2}"><td style="padding:11px 16px;color:{TEAL};font-family:{MONO};font-size:18px">KPI {i + 1}</td>'
                f'<td style="padding:11px 16px;font-weight:600;color:{INK}">{n}</td><td style="padding:11px 16px;color:{INK2}">{f}</td><td style="padding:11px 16px;color:{INK2}">{b(e)}</td>'
-               f'<td style="padding:11px 16px;width:220px"><div style="background:#262C35;height:14px"><div style="width:{v * 100:.0f}%;height:14px;background:{c}"></div></div></td></tr>'
+               f'<td style="padding:11px 16px;color:{c};font-weight:700">{v:.0%}</td></tr>'
                for i, (n, f, e, v, c) in enumerate(KPIS))
 S["kpis"] = section("kpis", header(5, "Ten KPIs With Formulas", "Each formula worked with the October 7, 2026 numbers. The bar shows the worked value.", "Overview") +
     f'<table style="width:100%;border-collapse:collapse;font-size:21px;line-height:1.3;border:1px solid {LINE}"><tr style="background:#0F1217;text-align:left;font-family:{MONO};font-size:16px;color:{MUT};letter-spacing:.08em">'
-    f'<th style="padding:12px 16px">#</th><th style="padding:12px 16px">KPI</th><th style="padding:12px 16px">FORMULA</th><th style="padding:12px 16px">WORKED EXAMPLE</th><th style="padding:12px 16px">VALUE</th></tr>{rows}</table>',
+    f'<th style="padding:12px 16px;width:8%">#</th><th style="padding:12px 16px;width:20%">KPI</th><th style="padding:12px 16px;width:29%">FORMULA</th><th style="padding:12px 16px;width:33%">WORKED EXAMPLE</th><th style="padding:12px 16px;width:10%">VALUE</th></tr>{rows}</table>',
     "In the Tableau Story, click any KPI to open its detail card with what it tells you, the formula and the worked example.")
 
 # 5 data and method ----------------------------------------------------
@@ -162,7 +162,7 @@ def tilemap(bureau, mx):
             sh = int(r[bureau]) / int(r["Total Datapoints"]); bg = mix(BC[bureau], min(sh / mx, 1) ** .8); lab = f"{sh:.0%}"
         cells += (f'<div style="position:absolute;left:{x * 44}px;top:{y * 44}px;width:41px;height:41px;background:{bg};font-size:11px;line-height:1.1;color:{INK};'
                   f'display:flex;flex-direction:column;align-items:center;justify-content:center"><span style="font-weight:700">{ab}</span><span style="font-size:10px;color:{INK2}">{lab}</span></div>')
-    return f'<div style="position:relative;width:528px;height:352px">{cells}</div>'
+    return f'<div data-snap="map_{bureau}" style="position:relative;width:528px;height:352px;background:{CARD}">{cells}</div>'
 maps = "".join(card(f'<div style="font-size:24px;font-weight:600;margin-bottom:14px">{b(k)} <span style="color:{INK2};font-weight:400">Share of Pulls</span></div>{tilemap(k, mx)}', "padding:22px 24px")
                for k, mx in (("Experian", 1.0), ("Equifax", .5), ("TransUnion", .5)))
 S["maps"] = section("maps", header(7, "Share Maps: Where Each Bureau Is Pulled", "Share = pulls on one bureau in a state ÷ all bureau pulls in that state. Brighter means a bigger share.", "Maps") +
@@ -204,6 +204,7 @@ HAB = [("All lenders", 54, 25, 21), ("American Express", 87, 5, 8), ("Bank of Am
 bars = "".join(f'<div style="display:flex;align-items:center;gap:12px;margin-bottom:18px"><div style="width:220px;font-size:22px;color:{INK2};text-align:right">{n}</div><div style="flex:1;display:flex;height:40px">'
                + "".join(f'<div style="width:{v}%;background:{c};font-size:18px;font-weight:600;color:#fff;display:flex;align-items:center;padding-left:6px">{str(v) + "%" if v >= 12 else ""}</div>' for v, c in ((e, EXP), (q, EQ), (t, TU)))
                + '</div></div>' for n, e, q, t in HAB)
+bars = f'<div data-snap="habits" style="width:860px;background:{CARD};padding:4px 0">{bars}</div>'
 NOTES = [("Sources", "56 (cited sources) plus the original 355-row (inquiry) table."),
          ("Clean", "229 (spellings) matched to 102 (lenders); every mark normalized."),
          ("Check", "193 (rows checked), 0 (contradicted)."),
