@@ -464,9 +464,16 @@ D[DASH[9]] = dashboard(DASH[9], shell(10, "Recommendations: The Best Move for Ea
 ] + [izone(192 + k * 201.5, 264, 194, 528, f"c9_rec{k}.png") for k in range(5)])
 
 # ------------------------------------------------------------------ card 11: sources (the very last page, under the story title)
+SITE_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/"
+LINKS = [("Slideshow", SITE_URL + "presentation/"), ("Slideshow PDF", SITE_URL + "presentation/Credit_Stacking_and_Funding_Sequencing_Strategy.pdf"),
+         ("Dashboard Website", SITE_URL), ("Funding Generator", SITE_URL + "generator.html")]
+LINK_ROW = []
+for k_, (t_, u_) in enumerate(LINKS):
+    IMG.link_button(238, 34, t_, f"lnk_{k_}")
+    LINK_ROW.append(f"<zone {geo(192 + k_ * 254, 754, 238, 34)} id='{nid()}' is-scaled='1' param='Image/lnk_{k_}.png' type-v2='bitmap' url='{u_}'>{zstyle(0, 0)}</zone>")
 D[DASH[10]] = dashboard(DASH[10], shell(11, "FP&A: Credit Stacking & Funding Sequencing Strategy", "Which Bureau Will They Pull? Sources: click a name to open it. As of October 7, 2026.") + [
-    szone(192, 96, 1000, 696, "Sources List", title=True, pad=12),
-])
+    szone(192, 96, 1000, 648, "Sources List", title=True, pad=12),
+] + LINK_ROW)
 
 GEN_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/generator.html"
 IMG.link_button(200, 34, "Open Full Page in a New Tab", "gen_open")

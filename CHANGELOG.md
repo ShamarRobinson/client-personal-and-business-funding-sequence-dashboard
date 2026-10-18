@@ -2,6 +2,7 @@
 
 ## 2026-10-17 (late night)
 
+- Story card 11 (Sources): new link buttons for the Slideshow, Slideshow PDF, Dashboard Website and Funding Generator.
 - Slideshow moved to this site at `presentation/`: a standalone 12-slide presentation with self-hosted fonts, arrow-key, click and swipe navigation, full-screen mode and a downloadable PDF. No sign-in, no third-party branding. The Slideshow links on every page and in the README now point here. Built by `analysis/build_presentation.py`.
 - New page and Story card 12, **Credit Stack and Funding Generator**: a form for a client's 3-bureau scores, inquiries, late payments, cards (limits and utilization), banking relationships, entity, NAICS, time in business, revenue, employees and business credit scores (Paydex, Experian Intelliscore, Equifax Business, Creditsafe). It returns a readiness check, a state-specific bureau plan for each major lender, an ordered application sequence with dated rounds, benchmarks, a business credit plan and funding entities matched to the NAICS code, and downloads it all as a PDF. Runs entirely in the browser; nothing is uploaded or saved.
 - `analysis/build_generator_data.py` builds `data/generator.json` from the same files as the dashboard and Story.
