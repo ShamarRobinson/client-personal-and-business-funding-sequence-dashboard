@@ -2,7 +2,9 @@
 
 ## 2026-10-17 (night)
 
-- Pick a Lender map: tie colors changed from dark variants to light pastels (lavender, mint, sand, pale slate) so single-bureau states stand out and ties read as a subtle contrast.
+- Pick a Lender map: tie colors are now light, high-contrast hues (lime for Experian / Equifax, aqua for Experian / TransUnion, yellow for Equifax / TransUnion, lilac for all three) so single-bureau states stand out and each tie is easy to tell apart.
+- Pick a Lender map: states with no recorded pulls for the chosen lender now show in light gray as "No Data: No Pulls Recorded" instead of blank, with a tooltip explaining why.
+- Pick a Lender tooltip: bureau counts separated with " | " so they no longer run together.
 
 ## 2026-10-17 (late evening)
 

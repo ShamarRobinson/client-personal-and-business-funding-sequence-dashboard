@@ -942,6 +942,19 @@ for key_, xml_ in list(calcs.items()):
                                 f"&quot;% ({bb} share)&quot; + CHAR(10) + CHAR(10) +&#10;&quot;All bureau pulls")
             calcs[key_] = xml_
 ls_rows = list(csv.DictReader(open(DT / "lender_state.csv")))
+NODATA = "No Data: No Pulls Recorded"
+_states = dict(zip("Alabama Alaska Arizona Arkansas California Colorado Connecticut Delaware District_of_Columbia Florida Georgia Hawaii Idaho Illinois Indiana Iowa Kansas Kentucky Louisiana Maine Maryland Massachusetts Michigan Minnesota Mississippi Missouri Montana Nebraska Nevada New_Hampshire New_Jersey New_Mexico New_York North_Carolina North_Dakota Ohio Oklahoma Oregon Pennsylvania Rhode_Island South_Carolina South_Dakota Tennessee Texas Utah Vermont Virginia Washington West_Virginia Wisconsin Wyoming".replace("_", "~").split(),
+                   "AL AK AZ AR CA CO CT DE DC FL GA HI ID IL IN IA KS KY LA ME MD MA MI MN MS MO MT NE NV NH NJ NM NY NC ND OH OK OR PA RI SC SD TN TX UT VT VA WA WV WI WY".split()))
+_states = {k.replace("~", " "): v for k, v in _states.items()}
+for r_ in ls_rows: _states.setdefault(r_["State"], r_["StateAbbr"])
+_lend = {}
+for r_ in ls_rows: _lend[r_["Lender"]] = r_["Industry"]
+_have = {(r_["Lender"], r_["State"]) for r_ in ls_rows}
+for l_, ind_ in _lend.items():
+    for st_, ab_ in _states.items():
+        if (l_, st_) not in _have:
+            ls_rows.append({"State": st_, "StateAbbr": ab_, "Lender": l_, "Industry": ind_, "Experian": 0, "Equifax": 0, "TransUnion": 0,
+                            "Top Bureau": NODATA, "Total Datapoints": 0, "Bureaus Reported": ""})
 ls_cols = [("State", "string"), ("StateAbbr", "string"), ("Lender", "string"), ("Industry", "string"), ("Experian", "integer"), ("Equifax", "integer"),
            ("TransUnion", "integer"), ("Top Bureau", "string"), ("Total Datapoints", "integer"), ("Bureaus Reported", "string")]
 def sd_line(b):
@@ -952,9 +965,13 @@ SDCALC = {"Calc_sd_title": 'IF COUNTD([State]) > 1 THEN "All States" ELSE ATTR([
           "Calc_sd_sub": 'IF COUNTD([State]) > 1 THEN "Click any state on a map to open its detail card." ELSE "Share of this state\'s recorded pulls, all lenders" END',
           "Calc_sd_exp": sd_line("Experian"), "Calc_sd_eq": sd_line("Equifax"), "Calc_sd_tu": sd_line("TransUnion"),
           "Calc_sd_note": 'IF SUM([Total Datapoints]) < 10 THEN "Under 10 pulls: treat this as a hint, not a finding." ELSE "Based on " + STR(INT(SUM([Total Datapoints]))) + " recorded pulls." END'}
+MAPNOTE = ('IF SUM([Total Datapoints]) = 0 THEN "Why is this state blank? No pull by this lender has been recorded here yet. " + '
+           '"The sources (consumer inquiry reports and lender pages) have no inquiry for this lender in this state, so no bureau can be shown." '
+           'ELSE "Counts are recorded pulls for this lender in this state." END')
+mapnote_xml = cf("Calc_map_note", F(MAPNOTE))
 sd_xml = "".join(cf(k, F(v)) for k, v in SDCALC.items())
 ds_pulls = datasource("lenderstate", "Funding Lender State Bureau Pulls", "lender_state.csv", ls_cols, ls_rows,
-                      "".join(calcs.values()) + sd_xml + "<column-instance column='[Top Bureau]' derivation='None' name='[none:Top Bureau:nk]' pivot='key' type='nominal' />", dsname=SQLNAME)
+                      "".join(calcs.values()) + sd_xml + mapnote_xml + "<column-instance column='[Top Bureau]' derivation='None' name='[none:Top Bureau:nk]' pivot='key' type='nominal' />", dsname=SQLNAME)
 s = s[:m.start()] + ds_pulls + s[m.end():]
 s = re.sub(r"\s*<datasource [^>]*formatted-name='Funding Lender State Bureau Pulls'.*?</datasource>", "", s, flags=re.S)
 WS["State Detail"] = worksheet("State Detail", "", SQLNAME, "Funding Lender State Bureau Pulls", deps(SQLNAME, ls_cols, [uk(k) for k in SDCALC], sd_xml),
@@ -1002,12 +1019,14 @@ x = x.replace("<format attr='washout' value='0.0' />", DARKMAP).replace("<style>
 x = x.replace("</encodings>", "</encodings>" + tooltip(
     tiprun(T(SQLNAME, "State"), "#0E1115", 11, True) + NLR + tiprun(T(SQLNAME, "Lender"), "#4A5568", 9) + NLR + NLR
     + tiprun("Pulled most: ", "#1F2937", 9) + tiprun(T(SQLNAME, "Top Bureau"), "#0E1115", 9, True) + NLR
-    + tiprun("Experian ", TIPB["Experian"], 9, True) + tiprun(f"&lt;[{SQLNAME}].[sum:Experian:qk]&gt;") + tiprun("   Equifax ", TIPB["Equifax"], 9, True)
-    + tiprun(f"&lt;[{SQLNAME}].[sum:Equifax:qk]&gt;") + tiprun("   TransUnion ", TIPB["TransUnion"], 9, True) + tiprun(f"&lt;[{SQLNAME}].[sum:TransUnion:qk]&gt;") + NLR
-    + tiprun("Counts are recorded pulls for this lender in this state.", "#4A5568", 8)), 1)
+    + tiprun("Experian ", TIPB["Experian"], 9, True) + tiprun(f"&lt;[{SQLNAME}].[sum:Experian:qk]&gt;") + tiprun("  |  Equifax ", TIPB["Equifax"], 9, True)
+    + tiprun(f"&lt;[{SQLNAME}].[sum:Equifax:qk]&gt;") + tiprun("  |  TransUnion ", TIPB["TransUnion"], 9, True) + tiprun(f"&lt;[{SQLNAME}].[sum:TransUnion:qk]&gt;") + NLR
+    + tiprun(T(SQLNAME, "Calc_map_note", "nk", "usr"), "#4A5568", 8)), 1)
+x = x.replace("</encodings>", f"<tooltip column='[{SQLNAME}].[usr:Calc_map_note:nk]' /></encodings>", 1)
+x = re.sub(r"(<datasource-dependencies datasource='" + re.escape(SQLNAME) + r"'>)", lambda mm: mm.group(1) + mapnote_xml + uk("Calc_map_note"), x, count=1)
 s = s[:i] + x + s[j:]
-TOPMAP = {"Experian": EXP, "Equifax": EQ, "TransUnion": TU, "Tie: Experian / Equifax": "#D4CCEB", "Tie: Experian / TransUnion": "#BFE3E0",
-          "Tie: Equifax / TransUnion": "#E9DFB8", "Tie: Experian / Equifax / TransUnion": "#DCDFE5"}
+TOPMAP = {"Experian": EXP, "Equifax": EQ, "TransUnion": TU, "Tie: Experian / Equifax": "#CDEB8B", "Tie: Experian / TransUnion": "#7FDCE6",
+          "Tie: Equifax / TransUnion": "#F6DC6A", "Tie: Experian / Equifax / TransUnion": "#C4B0F5", NODATA: "#E4E7EC"}
 s = re.sub(r"(<encoding attr='color' field='\[none:Top Bureau:nk\]' type='palette'>).*?(</encoding>)",
            lambda mm: mm.group(1) + "".join(f"<map to='{c}'><bucket>&quot;{esc(k)}&quot;</bucket></map>" for k, c in TOPMAP.items()) + mm.group(2), s, flags=re.S)
 if "field='[none:Top Bureau:nk]' type='palette'" not in s:
