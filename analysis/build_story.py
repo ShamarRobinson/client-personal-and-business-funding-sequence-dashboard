@@ -848,14 +848,16 @@ LADDER = [("500-549", "Repair first", "Fix errors, builder loan, trade credit.")
 LAD_ORDER = {t: i + 1 for i, (t, _, _) in enumerate(LADDER)}
 LAD_HEAD = {t: h for t, h, _ in LADDER}
 LAD_SUM = {t: m for t, _, m in LADDER}
+LAD_SHORT = {"500-549": "Fix errors, builder loan", "550-599": "Prequalify, starter card", "600-649": "Mainstream cards", "650-699": "Chase, then Amex",
+             "700-749": "0% business cards", "750-799": "Bank lines, SBA", "800+": "Largest facilities"}
 lad_rows = []
 for r_ in db["seq"]:
     tier, step, when, action, lenders_, product, bureau, amount, note = (list(r_) + [""] * 9)[:9]
-    lad_rows.append(dict(Tier=tier, TierOrder=str(LAD_ORDER[tier]), Headline=LAD_HEAD[tier], Summary=f"{LAD_SUM[tier]} {len(seq_by_tier[tier])} (steps).",
+    lad_rows.append(dict(Tier=tier, TierOrder=str(LAD_ORDER[tier]), Headline=LAD_HEAD[tier], Summary=f"{LAD_SUM[tier]} {len(seq_by_tier[tier])} (steps).", Short=LAD_SHORT[tier], Rung=str(LAD_ORDER[tier]),
                          Step=str(step), When=when or "n/a", Action=action, Lenders=lenders_ or "n/a", Product=product or "n/a", Bureau=bureau or "n/a",
                          Amount=amount or "n/a", Note=note or "", Steps="1"))
 LD = "federated." + rid()
-lad_cols = [("Tier", "string"), ("TierOrder", "integer"), ("Headline", "string"), ("Summary", "string"), ("Step", "integer"), ("When", "string"), ("Action", "string"),
+lad_cols = [("Tier", "string"), ("TierOrder", "integer"), ("Headline", "string"), ("Summary", "string"), ("Short", "string"), ("Rung", "real"), ("Step", "integer"), ("When", "string"), ("Action", "string"),
             ("Lenders", "string"), ("Product", "string"), ("Bureau", "string"), ("Amount", "string"), ("Note", "string"), ("Steps", "integer")]
 TEAL_RAMP = ["#1A6F67", "#1F8A80", "#23A597", "#27BAAB", "#2FD4C4", "#5EDFD3", "#8DEAE1"]
 ds_ladder = palette_style(datasource(LD[10:], "Funding Ladder Steps", "funding_ladder_steps.csv", lad_cols, lad_rows, dsname=LD),
@@ -987,16 +989,17 @@ WS["Issuer Habits"] = worksheet("Issuer Habits", f"<run bold='true' fontcolor='{
 
 # funding ladder: rungs as bars (click one to list its steps) and the step table
 lad_sort = f"<sort class='manual' column='{ref(LD, 'Tier')}' direction='ASC'><dictionary>" + "".join(f"<bucket>&quot;{t}&quot;</bucket>" for t, _, _ in LADDER) + "</dictionary></sort>"
-WS["Ladder Bars"] = worksheet("Ladder Bars", f"<run bold='true' fontcolor='{INK}' fontsize='12'>The Funding Ladder: Steps on Each Rung (Click a Rung to List Its Steps)</run>", LD, "Funding Ladder Steps",
-    deps(LD, lad_cols, [inst("Tier", "nk"), inst("Steps", "sum"), inst("Headline", "attr"), inst("Summary", "attr")]) + lad_sort,
+WS["Ladder Bars"] = worksheet("Ladder Bars", f"<run bold='true' fontcolor='{INK}' fontsize='12'>The Funding Ladder: One Score Step at a Time (Click a Rung to List Its Steps)</run>", LD, "Funding Ladder Steps",
+    deps(LD, lad_cols, [inst("Tier", "nk"), inst("Rung", "avg"), inst("Steps", "sum"), inst("Headline", "attr"), inst("Short", "attr"), inst("Summary", "attr")]) + lad_sort,
     f"<pane selection-relaxation-option='selection-relaxation-allow'><view><breakdown value='auto' /></view><mark class='Bar' /><encodings>"
-    f"<color column='{ref(LD, 'Tier')}' /><text column='[{LD}].[attr:Headline:nk]' /><text column='[{LD}].[sum:Steps:qk]' /><tooltip column='[{LD}].[attr:Summary:nk]' /></encodings>"
+    f"<color column='{ref(LD, 'Tier')}' /><text column='[{LD}].[attr:Headline:nk]' /><text column='[{LD}].[attr:Short:nk]' /><text column='[{LD}].[sum:Steps:qk]' /><tooltip column='[{LD}].[attr:Summary:nk]' /></encodings>"
     + tooltip(tiprun(T(LD, "Tier") + ": " + T(LD, "Headline", "nk", "attr"), "#0E1115", 10, True) + NLR + tiprun(T(LD, "Summary", "nk", "attr")) + NLR
-              + tiprun(f"&lt;[{LD}].[sum:Steps:qk]&gt;", "#0E1115", 9, True) + tiprun(" (steps on this rung). Click the bar to list them in the table below.", "#4A5568", 8))
-    + label(f"<run bold='true' fontalignment='1' fontcolor='{INK}' fontsize='9'>{T(LD, 'Headline', 'nk', 'attr')}</run>{NLR}<run fontalignment='1' fontcolor='{INK2}' fontsize='8'>&lt;[{LD}].[sum:Steps:qk]&gt; steps</run>")
-    + "<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /><format attr='mark-labels-cull' value='false' /><format attr='size' value='0.85' /></style-rule></style></pane>",
-    f"[{LD}].[sum:Steps:qk]", ref(LD, "Tier"),
-    style=bgstyle(f"<style-rule element='axis'><format attr='display' class='0' field='[{LD}].[sum:Steps:qk]' scope='rows' value='false' /></style-rule>"
+              + tiprun("Rung " + f"&lt;[{LD}].[avg:Rung:qk]&gt;" + " of 7. ", "#0E1115", 9, True) + tiprun("Click the step to list its moves in the table below.", "#4A5568", 8))
+    + label(f"<run bold='true' fontalignment='1' fontcolor='{INK}' fontsize='9'>{T(LD, 'Headline', 'nk', 'attr')}</run>{NLR}<run fontalignment='1' fontcolor='{INK2}' fontsize='7'>{T(LD, 'Short', 'nk', 'attr')}</run>{NLR}<run fontalignment='1' fontcolor='{TEAL}' fontsize='7'>&lt;[{LD}].[sum:Steps:qk]&gt; steps</run>")
+    + "<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /><format attr='mark-labels-cull' value='false' /><format attr='size' value='1.9' /></style-rule></style></pane>",
+    f"[{LD}].[avg:Rung:qk]", ref(LD, "Tier"),
+    style=bgstyle(f"<style-rule element='axis'><encoding attr='space' class='0' field='[{LD}].[avg:Rung:qk]' field-type='quantitative' max='10.8' min='0' range-type='fixed' scope='rows' type='space' />"
+                  f"<format attr='display' class='0' field='[{LD}].[avg:Rung:qk]' scope='rows' value='false' /></style-rule>"
                   f"<style-rule element='header'><format attr='font-size' field='{ref(LD, 'Tier')}' value='10' /><format attr='color' field='{ref(LD, 'Tier')}' value='{INK}' /></style-rule>"
                   f"<style-rule element='worksheet'><format attr='display-field-labels' scope='cols' value='false' /></style-rule>"))
 WS["Ladder Steps"] = worksheet("Ladder Steps", f"<run bold='true' fontcolor='{INK}' fontsize='11'>Every Step on the Ladder</run>", LD, "Funding Ladder Steps",

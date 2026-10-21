@@ -2,6 +2,7 @@
 
 ## 2026-10-21
 
+- Funding Ladder (card 2): the rungs are drawn as a rising staircase again (each block one step higher, headline, move and step count above it), still live: click a rung to list its steps.
 - Slide 12 links fixed: the Dashboard Website and All 56 Sources links used the old mixed-case site path (404 after the repository rename). The Live Now panel now links the Tableau Story under its new title, the dashboard, the Funding Plan Generator, this slideshow (web and PDF), the sample plan and GitHub.
 - New `samples/Sample_Funding_Plan.pdf`: the plan the generator produces for the built-in sample client. Linked from Tableau cards 11 and 12, the generator page, slide 12 and the README.
 
