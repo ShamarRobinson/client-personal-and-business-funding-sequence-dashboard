@@ -238,13 +238,18 @@ SRC = [("Doctor of Credit: Which Credit Bureau Does Each Card Issuer Pull?", "ht
        ("StackEasy: Credit bureau pull database 2026", "https://www.stackeasy.ai/blog/credit-bureau-pull-database-2026"),
        ("myFICO: Do credit inquiries lower your FICO Score?", "https://www.myfico.com/crediteducation/CreditChecks.aspx"),
        ("FTC: Five percent of consumers had errors (2013)", "https://www.ftc.gov/news-events/news/press-releases/2013/02/ftc-study-five-percent-consumers-had-errors-their-credit-reports-could-result-less-favorable-terms"),
-       ("All 56 sources, cited by row", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sources.html")]
+       ("All 56 sources, cited by row", "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/sources.html")]
 S["sources"] = section("sources", header(12, "Credit Bureau Pull Prediction: Sources", f"A State-by-State Model of 3,003 Lender Inquiries. As of {ASOF}; next update {NEXT_UPDATE}.", "Decide") +
     f'<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;flex:1">'
     + card(h3("Key Sources") + "".join(f'<div style="font-size:25px;line-height:1.35;margin-bottom:18px">{link(t, u)}</div>' for t, u in SRC))
     + '<div style="display:flex;flex-direction:column;gap:24px">'
-    + card(h3("Live Now") + f'<div style="font-size:25px;line-height:1.7">{link("Tableau Story: Which Bureau Will They Pull", "https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no")}<br>'
-           f'{link("Dashboard website", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/")}<br>{link("Code and data on GitHub", "https://github.com/ShamarRobinson/client-personal-and-business-funding-sequence-dashboard")}</div>')
+    + card(h3("Live Now") + f'<div style="font-size:24px;line-height:1.65">{link("Tableau Story: Credit Bureau Pull Prediction", "https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no")}<br>'
+           f'{link("Dashboard website", "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/")}<br>'
+           f'{link("Funding Plan Generator", "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/generator.html")}<br>'
+           f'{link("Sample funding plan (PDF)", "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/samples/Sample_Funding_Plan.pdf")}<br>'
+           f'{link("This slideshow (web)", "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/")}<br>'
+           f'{link("This slideshow (PDF)", "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/Credit_Bureau_Pull_Prediction.pdf")}<br>'
+           f'{link("Code and data on GitHub", "https://github.com/ShamarRobinson/client-personal-and-business-funding-sequence-dashboard")}</div>')
     + card(h3("Next Steps", ORANGE) + p("Log new inquiry datapoints and refit the model; resolve the 11 unidentified names; refresh lender minimums each quarter.", 20))
     + '</div></div>', "Close by pointing to the live Story and the sources page; every source opens from Tableau card 11.")
 

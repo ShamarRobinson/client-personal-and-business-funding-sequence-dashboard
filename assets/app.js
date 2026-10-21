@@ -1,9 +1,9 @@
 (function(){
 const PAGES=[["index.html","Dashboard"],["lenders.html","Lender Database"],["states.html","All States & Banks"],["matrix.html","Bureau by State"],["sequence.html","Funding Sequence"],["likelihood.html","Bureau Likelihood"],["sources.html","Sources & Notes"],["generator.html","Funding Generator"]];
-const SITE="https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/";
+const SITE="https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/";
 const TABLEAU="https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull";
 const DECK="presentation/";
-const REPO="https://github.com/ShamarRobinson/Client-Personal-and-Business-Funding-Sequence-Dashboard";
+const REPO="https://github.com/ShamarRobinson/client-personal-and-business-funding-sequence-dashboard";
 const here=(location.pathname.split("/").pop()||"index.html");
 const esc=s=>String(s==null?"":s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
 const $=(s,r=document)=>r.querySelector(s);

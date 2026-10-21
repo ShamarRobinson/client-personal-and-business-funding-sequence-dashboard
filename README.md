@@ -1,12 +1,13 @@
 # Client Personal and Business Funding Sequence Dashboard
 
-**Live dashboard:** https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/
+**Live dashboard:** https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/
 
 | View | Link |
 | --- | --- |
-| Dashboard site (this repository, GitHub Pages) | [shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/) |
+| Dashboard site (this repository, GitHub Pages) | [shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/) |
 | Interactive maps and Story (Tableau Public) | [Credit Bureau Pull Prediction: A State-by-State Model of 3,003 Lender Inquiries](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) (full screen, fits one screen with no scrolling) · [profile page](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) |
 | Slideshow | [Presentation](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/) ([PDF](presentation/Credit_Bureau_Pull_Prediction.pdf)) |
+| Funding Plan Generator | [generator.html](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/generator.html) ([sample plan PDF](samples/Sample_Funding_Plan.pdf)) |
 | Full workbook | [data/Inquiry_Database_Expanded.xlsx](data/Inquiry_Database_Expanded.xlsx) |
 
 A state-by-state model of which credit bureau each lender pulls (a multinomial logistic regression on 2,901 datapoints, 13% lower error than national shares, 0 of 193 checked rows contradicted), with funding type, average score needed, documentation level, and a funding sequence for every credit score tier.
@@ -16,7 +17,7 @@ A state-by-state model of which credit bureau each lender pulls (a multinomial l
 | | |
 | --- | --- |
 | **Context** | Every hard inquiry lands on one of three credit reports (**Experian**, **Equifax** or **TransUnion**). Lenders do not publish which one they pull or how it changes by state, so a wrong forecast can stack inquiries on a client's weakest report. |
-| **Sources** | A 355-row inquiry table from 16 states plus 670 outside state-level datapoints from 56 cited sources: Doctor of Credit issuer tables (2008 to 2019), the myFICO Forums state grid (July 2023) and 2025 to 2026 forum posts, MyBankTracker, CardRight, StackEasy, and lender and review pages for minimum scores. Every source is listed on the [Sources & Notes page](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sources.html). |
+| **Sources** | A 355-row inquiry table from 16 states plus 670 outside state-level datapoints from 56 cited sources: Doctor of Credit issuer tables (2008 to 2019), the myFICO Forums state grid (July 2023) and 2025 to 2026 forum posts, MyBankTracker, CardRight, StackEasy, and lender and review pages for minimum scores. Every source is listed on the [Sources & Notes page](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/sources.html). |
 | **As of** | Research completed October 7, 2026. |
 | **Updates** | Lender minimums are reviewed every quarter. Each new inquiry datapoint reruns the cleaning, maps and regression from the scripts in [analysis/](analysis). |
 | **Limits** | Consumer-reported (no lender publishes its bureau by state); uneven in age (the largest tables cover 2008 to 2016); some states rest on fewer than 10 pulls; minimum scores are published floors or community estimates. A planning reference, not financial advice. |
@@ -27,13 +28,13 @@ Context facts used in the story: [myFICO, Do Credit Inquiries Lower Your FICO Sc
 
 | Page | What it shows |
 | --- | --- |
-| [Dashboard](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/index.html) | Headline metrics and charts |
-| [Lender Database](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/lenders.html) | 204 lenders in 19 industry sections |
-| [All States & Banks](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/states.html) | The original 355 inquiry rows, cross-checked |
-| [Bureau by State](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/matrix.html) | 670 outside state-level datapoints |
-| [Funding Sequence](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sequence.html) | Application order for each score tier |
-| [Bureau Likelihood](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/likelihood.html) | Regression: most likely bureau in close-call states, and by lender |
-| [Sources & Notes](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sources.html) | Sources, column guide and data limits |
+| [Dashboard](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/index.html) | Headline metrics and charts |
+| [Lender Database](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/lenders.html) | 204 lenders in 19 industry sections |
+| [All States & Banks](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/states.html) | The original 355 inquiry rows, cross-checked |
+| [Bureau by State](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/matrix.html) | 670 outside state-level datapoints |
+| [Funding Sequence](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/sequence.html) | Application order for each score tier |
+| [Bureau Likelihood](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/likelihood.html) | Regression: most likely bureau in close-call states, and by lender |
+| [Sources & Notes](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/sources.html) | Sources, column guide and data limits |
 
 ## Tableau Public
 
@@ -52,7 +53,7 @@ The [Tableau Story "Credit Bureau Pull Prediction: A State-by-State Model of 3,0
 | 9. Scorecard | Each issuer's bureau habit and where every number comes from |
 | 10. Recommendations | Best move, when to choose it, why, next move, what to watch out for and which card to open, for five stakeholder types |
 | 11. Sources | Every source as a clickable list, under the Story title |
-| 12. Funding Plan Generator | A client's cash flow forecast, bureau-aware application sequence, and cost and repayment model with scenarios, as a PDF (runs in the browser) |
+| 12. Funding Plan Generator | A client's cash flow forecast, bureau-aware application sequence, and cost and repayment model with scenarios, as a PDF (runs in the browser); see [samples/Sample_Funding_Plan.pdf](samples/Sample_Funding_Plan.pdf) |
 
 Interactive features: tooltips with formulas on every number, nested charts (chance bars inside the close-call map tooltip, inline data bars in the State Detail card), dynamic detail cards (KPI, state and close-call panels), annotation callouts, numbered coach marks and a walkthrough, and an About popover on each card. Every number in a worked example or tooltip says what it is in parentheses, for example 466 (Experian pulls in Florida) ÷ 885 (all bureau pulls in Florida) = 53% (Experian's share).
 
@@ -85,7 +86,7 @@ Interactive features: tooltips with formulas on every number, nested charts (cha
 | Lender + era only | 0.905 | 55% |
 | National shares only | 1.041 | 50% |
 
-The lender explains most of which bureau is pulled; the state adds a little, mainly through lenders whose bureau changes by state. For a typical application, Experian is the most likely bureau in all 24 close-call states: 15 with a clear or moderate lean, 4 still toss-ups (Hawaii, Kansas, South Carolina, Virginia) and 5 with too little data to call. Outputs are in [data/tableau](data/tableau) (`regression_*.csv`, `Tableau_Regression_Data.xlsx`) and on the [Bureau Likelihood page](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/likelihood.html).
+The lender explains most of which bureau is pulled; the state adds a little, mainly through lenders whose bureau changes by state. For a typical application, Experian is the most likely bureau in all 24 close-call states: 15 with a clear or moderate lean, 4 still toss-ups (Hawaii, Kansas, South Carolina, Virginia) and 5 with too little data to call. Outputs are in [data/tableau](data/tableau) (`regression_*.csv`, `Tableau_Regression_Data.xlsx`) and on the [Bureau Likelihood page](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/likelihood.html).
 
 ## Files
 

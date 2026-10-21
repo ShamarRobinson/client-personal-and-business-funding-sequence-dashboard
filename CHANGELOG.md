@@ -2,6 +2,9 @@
 
 ## 2026-10-21
 
+- Slide 12 links fixed: the Dashboard Website and All 56 Sources links used the old mixed-case site path (404 after the repository rename). The Live Now panel now links the Tableau Story under its new title, the dashboard, the Funding Plan Generator, this slideshow (web and PDF), the sample plan and GitHub.
+- New `samples/Sample_Funding_Plan.pdf`: the plan the generator produces for the built-in sample client. Linked from Tableau cards 11 and 12, the generator page, slide 12 and the README.
+
 Changes from an outside critique of the project (domain fit, interactivity, framing):
 
 - **Retitled** the Tableau Story, slideshow, PDF and README to **Credit Bureau Pull Prediction: A State-by-State Model of 3,003 Lender Inquiries**. "FP&A" is gone from every title (the project is consumer lending analytics, not corporate planning) and "credit stacking" is gone from every title and label (lenders and regulators read that term as a risk signal); the ladder, tree and recommendations now say "sequence", "rounds" and "apply in order".

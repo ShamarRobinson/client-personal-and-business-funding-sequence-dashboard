@@ -524,7 +524,7 @@ D[DASH[9]] = dashboard(DASH[9], shell(10, "Recommendations: The Best Move for Ea
 # ------------------------------------------------------------------ card 11: sources (the very last page, under the story title)
 SITE_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/"
 LINKS = [("Slideshow", SITE_URL + "presentation/"), ("Slideshow PDF", SITE_URL + "presentation/Credit_Bureau_Pull_Prediction.pdf"),
-         ("Dashboard Website", SITE_URL), ("Funding Generator", SITE_URL + "generator.html")]
+         ("Funding Plan Generator", SITE_URL + "generator.html"), ("Sample Funding Plan (PDF)", SITE_URL + "samples/Sample_Funding_Plan.pdf")]
 LINK_ROW = []
 for k_, (t_, u_) in enumerate(LINKS):
     IMG.link_button(238, 34, t_, f"lnk_{k_}")
@@ -535,9 +535,12 @@ D[DASH[10]] = dashboard(DASH[10], shell(11, "Credit Bureau Pull Prediction: Sour
 
 GEN_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/generator.html"
 IMG.link_button(200, 34, "Open Full Page in a New Tab", "gen_open")
+IMG.link_button(238, 34, "See a Sample Funding Plan (PDF)", "gen_sample")
+SAMPLE_URL = SITE_URL + "samples/Sample_Funding_Plan.pdf"
 D[DASH[11]] = dashboard(DASH[11], shell(12, "Funding Plan Generator", "Enter a client's profile and business cash flow; get a funding need forecast, a bureau-aware application sequence and a cost and repayment model as a PDF. Runs in the browser; nothing is saved.") + [
     f"<zone {geo(192, 96, 1000, 650)} id='{nid()}' param='{GEN_URL}' type-v2='web'>{zstyle(0, 0, CARD)}</zone>",
     f"<zone {geo(192, 754, 200, 34)} id='{nid()}' is-scaled='1' param='Image/gen_open.png' type-v2='bitmap' url='{GEN_URL}'>{zstyle(0, 0)}</zone>",
+    f"<zone {geo(404, 754, 238, 34)} id='{nid()}' is-scaled='1' param='Image/gen_sample.png' type-v2='bitmap' url='{SAMPLE_URL}'>{zstyle(0, 0)}</zone>",
 ])
 
 # ================================================================== KPI definitions (used by the KPI list, detail panel and tooltips)
@@ -829,7 +832,7 @@ HELP = [
     ("8", "Reading the Decision Tree", "Check the Step 1 overrides first. Click Experian, Equifax or TransUnion to keep only that branch in Step 2 (click again for all three), then apply in the Step 3 order. The bars on the right show the model's chance of each bureau for four real lender and state cases (KPI 6); hover a bar for the exact chance."),
     ("9", "Reading the Scorecard", "Each bar shows the share of an issuer's recorded pulls that landed on each bureau (KPI 5); hover a bar for the exact share. The notes on the right show how every number was built and what the data cannot tell you."),
     ("10", "Using the Recommendations", "Find your stakeholder type. Each card gives the best move, when to choose it, why (with the number behind it) and the next move. Every recommendation traces back to a KPI or an earlier card. A planning guide, not financial advice."),
-    ("12", "Using the Funding Plan Generator", "Fill in the client's 3-bureau scores, inquiries, cards, banks, business details and the business's monthly cash flow, then click Generate Plan. The plan runs in three layers: a 12-month cash flow forecast sizes the funding need; the bureau model orders the applications; a cost and repayment model prices the plan and tests it against base, downside and upside cases. Download PDF saves it. Everything runs in the browser; nothing is uploaded or saved."),
+    ("12", "Using the Funding Plan Generator", "Fill in the client's 3-bureau scores, inquiries, cards, banks, business details and the business's monthly cash flow, then click Generate Plan (or open the sample plan PDF from the button below the form to see a finished one). The plan runs in three layers: a 12-month cash flow forecast sizes the funding need; the bureau model orders the applications; a cost and repayment model prices the plan and tests it against base, downside and upside cases. Download PDF saves it. Everything runs in the browser; nothing is uploaded or saved."),
     ("11", "Sources", "Every source behind the story, with the date it was published or read. Click a name to open it. Lender minimums are reviewed quarterly (next update " + NEXT_UPDATE + "); new datapoints rerun the maps and model.")
 ]
 HP = "federated." + rid()
