@@ -1,5 +1,17 @@
 # Change Log
 
+## 2026-10-21
+
+Changes from an outside critique of the project (domain fit, interactivity, framing):
+
+- **Retitled** the Tableau Story, slideshow, PDF and README to **Credit Bureau Pull Prediction: A State-by-State Model of 3,003 Lender Inquiries**. "FP&A" is gone from every title (the project is consumer lending analytics, not corporate planning) and "credit stacking" is gone from every title and label (lenders and regulators read that term as a risk signal); the ladder, tree and recommendations now say "sequence", "rounds" and "apply in order".
+- **Overview leads with the method.** Card 1 and slide 2 open with the regression, its 13% lift over national shares, 55% versus 50% accuracy and the 0-of-193 cross-check; the funding angle moves below. The headline tiles are now lift, accuracy, contradicted rows, pulls and sources.
+- **Funding Ladder is live** (card 2): a Tableau bar chart of the seven rungs; click a rung to filter the live 57-step table; hover a step for its product, lenders, bureau pulled, amount and note. No images except the rules panel.
+- **Decision Tree is live** (card 8): Step 1 overrides, a bureau picker that keeps only the strongest report's branch, Step 3 ordering rules and the model's chance bars for four lender and state cases, all as Tableau sheets with tooltips.
+- **Funding Plan Generator** (card 12, `generator.html`) adds the planning layers the critique asked for: a 12-month cash flow forecast that sizes the funding need and the month it hits; a cost and repayment model (0% promo on card rounds, go-to APR after, 36-month amortization, peak payment, 24-month interest, debt service coverage); and base, downside (revenue -20%, promo ends month 13) and upside (+15%) scenarios with a Works / Tight / Fails verdict. All three layers print in the PDF.
+- Fixed the Georgia line that ran out of its box in the decision tree.
+- Slideshow and deck rebuilt with the new title and overview; new PDF `presentation/Credit_Bureau_Pull_Prediction.pdf`.
+
 ## 2026-10-17 (late night)
 
 - Presentation: freshness check reloads the page once when a newer build is live, so a browser's saved copy never shows outdated slides.

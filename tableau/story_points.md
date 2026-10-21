@@ -1,6 +1,6 @@
 # Tableau Story Points
 
-1. Overview: Context, Purpose, Sources and Limits
+1. Overview: The Model, 13% Lower Error, 0 Contradicted
 2. The Funding Ladder: One Score Step at a Time
 3. Market and KPIs: Experian Gets 54% of Pulls
 4. Data and Method: 355 Rows, 0 Contradicted
@@ -11,4 +11,4 @@
 9. Scorecard: Issuer Habits and Where the Numbers Come From
 10. Recommendations: The Best Move for Each Stakeholder
 11. Sources
-12. Funding Generator: A Client's Strategy and Timeline as a PDF
+12. Funding Plan Generator: Cash Flow, Sequence and Cost as a PDF

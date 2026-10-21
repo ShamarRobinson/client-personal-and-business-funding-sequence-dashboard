@@ -1,4 +1,4 @@
-/* Credit Stack and Funding Generator
+/* Funding Plan Generator
    Turns a client's personal and business credit profile into a funding tier, a state-specific bureau plan,
    an ordered application sequence and a dated benchmark timeline, then exports the result as a PDF.
    Data: data/generator.json (built by analysis/build_generator_data.py from the same files as the dashboard).
@@ -79,6 +79,7 @@
       $("#cardrows").innerHTML = "";
       [{ name: "Chase Freedom Unlimited", limit: 8000, bal: 3100 }, { name: "Discover it", limit: 5000, bal: 900 }, { name: "Amex Blue Business Plus", limit: 10000, bal: 4200, type: "Business" }].forEach(addCard);
       f.querySelectorAll("input[name=bank]").forEach(c => { c.checked = ["Chase", "Navy Federal"].includes(c.value); });
+      Object.entries({ cf_rev: 18000, cf_growth: 3, cf_fixed: 9500, cf_var: 35, cf_cash: 6000, cf_buffer: 5000, cf_capex: 40000, cf_capex_m: 2, cf_debt: 650, cf_apr: 24 }).forEach(([k, v]) => { if (f[k]) f[k].value = v; });
     }, 10);
   };
 
@@ -103,7 +104,9 @@
       score: bureau("s"), inq6: bureau("i6"), inq24: bureau("i24"), derog: bureau("d"), new24: num(g("new24")), oldest: num(g("oldest")), pubrec: g("pubrec"),
       cards, banks, banktenure: num(g("banktenure")),
       paydex: num(g("paydex")), intelliscore: num(g("intelliscore")), eqbiz: num(g("eqbiz")), creditsafe: num(g("creditsafe")), tradelines: num(g("tradelines")),
-      notes: g("notes").trim(), docs: files("rpt_personal").concat(files("rpt_business"))
+      notes: g("notes").trim(), docs: files("rpt_personal").concat(files("rpt_business")),
+      cf: { rev: num(g("cf_rev")), growth: num(g("cf_growth")), fixed: num(g("cf_fixed")), varPct: num(g("cf_var")), cash: num(g("cf_cash")), buffer: num(g("cf_buffer")),
+            capex: num(g("cf_capex")), capexM: num(g("cf_capex_m")), debt: num(g("cf_debt")), apr: num(g("cf_apr")) }
     };
   }
 
@@ -233,7 +236,7 @@
       T(need + (need ? 0 : start1), "Business Funding", (P.tib || 0) >= 6 && dep >= 10000 ? "Online business line of credit (soft pull to see offers)" : "Online business line of credit once 6 months in business and steady deposits",
         "Fundbox about 600, Bluevine and OnDeck about 625; bank statements, no hard pull to quote.", "No hard pull to quote", "$5,000 to $100,000");
       if ((P.tib || 0) < 24) T((24 - (P.tib || 0)) * 30, "Business Funding", "Bank line of credit or SBA 7(a) once 2 years in business", "Two years of returns and steady revenue open the lowest-cost capital.", "Lender's choice", "Up to $5M (SBA)");
-      else T(Math.max(start1, 30), "Business Funding", "Bank line of credit or SBA 7(a)", "The business has two years of history; price these against the card stack.", "Lender's choice", "Up to $5M (SBA)");
+      else T(Math.max(start1, 30), "Business Funding", "Bank line of credit or SBA 7(a)", "The business has two years of history; price these against the card rounds.", "Lender's choice", "Up to $5M (SBA)");
     }
     P.timeline.sort((a, b) => a.day - b.day);
 
@@ -251,7 +254,7 @@
     if (P.util != null && P.util > 0.1) P.bench.push({ when: fmtDate(addDays(x.start, 35)), what: "Personal utilization under 10%", how: `Total personal balances at or below ${money(0.09 * sum(pc, "limit"))}.` });
     if (inqMax >= 3) P.bench.push({ when: fmtDate(addDays(x.start, 180)), what: "Under 3 hard inquiries per bureau in the past 6 months", how: "Inquiries count in scoring for 12 months and stay on the report for 24." });
     if (P.hasEntity) P.bench.push({ when: fmtDate(addDays(x.start, 120)), what: x.paydex != null && x.paydex >= 80 ? "Keep Paydex at 80 or higher" : "Paydex score of 80 (pays on time)", how: "Pay every vendor on or before the due date; paying early lifts it above 80." });
-    if (P.tierIdx >= 3 && P.stackEnd != null) P.bench.push({ when: fmtDate(addDays(x.start, P.stackEnd)), what: "Core business card stack complete", how: "No more than one hard pull per bureau per round, 7 to 14 days apart." });
+    if (P.tierIdx >= 3 && P.stackEnd != null) P.bench.push({ when: fmtDate(addDays(x.start, P.stackEnd)), what: "Core business card rounds complete", how: "No more than one hard pull per bureau per round, 7 to 14 days apart." });
     if (P.hasEntity && (P.tib || 0) < 24) P.bench.push({ when: fmtDate(addDays(x.start, (24 - (P.tib || 0)) * 30)), what: "2 years in business", how: "Opens bank lines, SBA 7(a) and larger term loans." });
     P.bench.sort((a, b) => new Date(a.when) - new Date(b.when));
 
@@ -275,7 +278,58 @@
     if (dep >= 10000 && ["44", "45", "72"].includes(s2)) pick("Merchant Cash Advance", "Fast, but the most expensive option. Use only for short gaps.");
     pick("Vendor / Net-30", "Builds the business credit file with no personal pull.");
     P.cats = cats;
+    P.fin = financials(x, P);
     return P;
+  }
+
+  // ------------------------------------------------------------------ planning layers: cash flow forecast, cost and repayment, scenarios
+  function forecast(c, revAdj, promoMonths) {
+    // 12-month operating cash flow; the funding need is the deepest dip below the cash buffer
+    const rows = []; let cash = c.cash || 0, rev = (c.rev || 0) * revAdj, need = 0, needMonth = null, low = Infinity;
+    for (let m = 1; m <= 12; m++) {
+      const opIn = rev, opOut = (c.fixed || 0) + rev * ((c.varPct || 0) / 100) + (c.debt || 0);
+      const capex = c.capex && c.capexM === m ? c.capex : 0;
+      const op = opIn - opOut; cash += op - capex;
+      const short = (c.buffer || 0) - cash;
+      if (short > need) { need = short; needMonth = m; }
+      if (cash < low) low = cash;
+      rows.push({ m, rev: opIn, out: opOut, capex, op, cash });
+      rev *= 1 + (c.growth || 0) / 100;
+    }
+    return { rows, need: Math.ceil(Math.max(0, need) / 1000) * 1000, needMonth, low, opAvg: rows.reduce((t, r) => t + r.op, 0) / 12 };
+  }
+  function repayment(amount, apr, promoMonths, fundMonth) {
+    // 0% promo on the card rounds, then the go-to APR; minimum payment 2% of balance during the promo, 36-month amortization after it
+    const r = apr / 100 / 12, sched = []; let bal = amount, interest = 0;
+    for (let m = 1; m <= 24; m++) {
+      if (m < fundMonth) { sched.push({ m, pay: 0, bal }); continue; }
+      const inPromo = m - fundMonth < promoMonths;
+      let pay;
+      if (inPromo) { pay = Math.max(25, bal * 0.02); bal -= pay; }
+      else { const n = 36, i = bal * r; interest += i; pay = r ? bal * r / (1 - Math.pow(1 + r, -n)) : bal / n; bal = bal + i - pay; }
+      if (bal < 0) { pay += bal; bal = 0; }
+      sched.push({ m, pay, bal: Math.max(0, bal) });
+    }
+    const peak = Math.max(...sched.map(s => s.pay));
+    return { sched, peak, interest24: interest, balanceAt24: sched[23].bal };
+  }
+  function financials(x, P) {
+    const c = x.cf || {}; if (c.rev == null && c.fixed == null && c.capex == null) return null;
+    const apr = c.apr != null ? c.apr : 24, promo = P.tierIdx >= 3 ? 12 : 0;
+    const base = forecast(c, 1, promo);
+    const goal = x.goal || 0;
+    const amount = Math.max(base.need, goal, 0) || 0;
+    const fundMonth = Math.max(1, Math.min(12, base.needMonth || (c.capexM || 1)));
+    const rep = repayment(amount, apr, promo, fundMonth);
+    const dscr = rep.peak ? (base.opAvg + (c.debt || 0)) / (rep.peak + (c.debt || 0)) : null;
+    const scen = [["Base", 1, promo], ["Downside: revenue -20%, promo ends month 13", 0.8, Math.min(promo, 12)], ["Upside: revenue +15%", 1.15, promo]].map(([name, adj, pm]) => {
+      const f = forecast(c, adj, pm), amt = Math.max(f.need, goal, 0), r = repayment(amt, apr, adj < 1 ? Math.min(pm, 12) : pm, Math.max(1, Math.min(12, f.needMonth || (c.capexM || 1))));
+      const d = r.peak ? (f.opAvg + (c.debt || 0)) / (r.peak + (c.debt || 0)) : null;
+      const runway = f.rows.findIndex(row => row.cash < 0); // first month cash goes negative without funding
+      return { name, need: amt, peak: r.peak, dscr: d, runway: runway < 0 ? "12+" : String(runway + 1), lift: f.opAvg, verdict: d == null ? "No debt service" : d >= 1.25 ? "Works" : d >= 1.0 ? "Tight" : "Fails" };
+    });
+    const months = base.rows.map(r => r.m);
+    return { c, apr, promo, base, amount, fundMonth, rep, dscr, scen, months, weighted: amount ? apr * (1 - promo / 24) : 0 };
   }
 
   // ------------------------------------------------------------------ render
@@ -286,20 +340,22 @@
     const sb = P.stateBureau;
     let h = `<h2>Funding Strategy for ${esc(x.client)}</h2>
       <p class="note">Prepared ${fmtDate(new Date())}${x.preparer !== "N/A" ? " by " + esc(x.preparer) : ""}. Strategy start ${fmtDate(addDays(x.start, 0))}. Data as of ${esc(D.asof)}; next update ${esc(D.next || "")}.</p>
-      <div class="kpis">${kp(P.mid ?? "N/A", "Middle credit score")}${kp(P.tier, "Funding tier")}${kp(pct(P.util), "Personal utilization")}${kp(x.new24 ?? "N/A", "New accounts (24 mo)")}${kp(P.best ? B[P.best] : "N/A", "Strongest report")}${kp(P.tib != null ? P.tib + " mo" : "N/A", "Time in business")}${kp(P.rangeHi ? money(P.rangeLo) + " to " + money(P.rangeHi) : "Build first", "Planning range, card stack")}${kp(money(x.goal), "Funding goal")}</div>
+      <div class="kpis">${kp(P.mid ?? "N/A", "Middle credit score")}${kp(P.tier, "Funding tier")}${kp(pct(P.util), "Personal utilization")}${kp(x.new24 ?? "N/A", "New accounts (24 mo)")}${kp(P.best ? B[P.best] : "N/A", "Strongest report")}${kp(P.tib != null ? P.tib + " mo" : "N/A", "Time in business")}${kp(P.rangeHi ? money(P.rangeLo) + " to " + money(P.rangeHi) : "Build first", "Planning range, card rounds")}${kp(money(x.goal), "Funding goal")}</div>
       <h2>Readiness Check</h2>${P.flags.map(fl => `<div class="flag ${fl.lvl}">${esc(fl.t)}</div>`).join("") || `<div class="flag good">No blocking issues found.</div>`}
-      <h2>Bureau Plan for ${esc(P.stateName)}</h2>
+      ${finHtml1(P)}
+      <h2>Layer 2: Bureau Plan for ${esc(P.stateName)}</h2>
       <p>Across all lenders, ${esc(P.stateName)} leans ${bc(sb.b)} (${pct(sb.p)}; ${esc(sb.status.toLowerCase())}, ${sb.n} datapoints). Each lender's likely bureau below comes from the state by lender model in the dashboard.</p>
       <table class="res"><thead><tr><th>Order</th><th>Lender</th><th>Likely Bureau</th><th>Fit</th><th>Why</th></tr></thead><tbody>
       ${P.lenders.map((l, i) => `<tr><td>${i + 1}</td><td><b>${esc(l.name)}</b></td><td>${bc(l.bureau)} ${pct(l.p)}</td><td class="fit-${l.fit}">${{ good: "Good", warn: "Caution", bad: "Skip" }[l.fit]}</td><td>${esc(l.why)}${l.rule ? `<br><span class="note">${esc(l.rule)}</span>` : ""}</td></tr>`).join("")}
       </tbody></table>
-      <h2>Funding Sequence and Benchmark Timeline</h2>
+      <h2>Layer 2: Funding Sequence and Benchmark Timeline</h2>
       <table class="res"><thead><tr><th>Date</th><th>Phase</th><th>Action</th><th>Bureau</th><th>Typical Amount</th></tr></thead><tbody>
       ${P.timeline.map(t => `<tr><td style="white-space:nowrap">${t.date}</td><td>${esc(t.phase)}</td><td><b>${esc(t.action)}</b>${t.detail ? `<br><span class="note">${esc(t.detail)}</span>` : ""}</td><td>${bc(t.bureau)}</td><td>${esc(t.amount)}</td></tr>`).join("")}
       </tbody></table>
       <h3>Benchmarks</h3>
       <table class="res"><thead><tr><th>Target Date</th><th>Benchmark</th><th>How</th></tr></thead><tbody>${P.bench.map(b => `<tr><td style="white-space:nowrap">${b.when}</td><td><b>${esc(b.what)}</b></td><td>${esc(b.how)}</td></tr>`).join("")}</tbody></table>
       <p class="note">Target dates are planning estimates from the inputs, not guarantees. Recheck scores monthly and move dates as results come in.</p>
+      ${finHtml3(P)}
       <h2>Business Credit Plan</h2>
       <table class="res"><thead><tr><th>Report</th><th>Entered</th><th>Next Step</th></tr></thead><tbody>
       <tr><td>Dun &amp; Bradstreet Paydex</td><td>${x.paydex ?? "N/A"}</td><td>${x.paydex == null ? "Get a D-U-N-S number and add vendors that report to D&amp;B." : x.paydex >= 80 ? "On track. Paying early pushes it above 80." : "Below 80: pay every vendor on or before the due date."}</td></tr>
@@ -316,6 +372,30 @@
       ${x.docs.length ? `<h3>Documents Reviewed</h3><p>${x.docs.map(esc).join(", ")}</p>` : ""}`;
     $("#report").innerHTML = h;
   }
+  const kpBox = (v, l) => `<div class="kpi"><b>${v}</b><span>${l}</span></div>`;
+  function finHtml1(P) {
+    const F = P.fin; if (!F) return `<h2>Layer 1: Cash Flow Forecast</h2><p class="note">Enter the business cash flow above (monthly revenue, costs, cash on hand) and the plan adds a 12-month forecast that sizes the funding need, then a cost and repayment model and three scenarios after the sequence.</p>`;
+    const b = F.base;
+    return `<h2>Layer 1: Cash Flow Forecast (12 Months)</h2>
+      <div class="kpis">${kpBox(money(b.need), "Forecast shortfall")}${kpBox(money(F.amount), "Plan size")}${kpBox(b.needMonth ? "Month " + b.needMonth : "None", "Deepest shortfall")}${kpBox(money(b.opAvg), "Avg monthly operating cash flow")}${kpBox(money(b.low), "Lowest cash without funding")}</div>
+      <p class="note">Shortfall = the deepest dip below the ${money(F.c.buffer || 0)} cash buffer in the base case${P.x.goal ? `; the plan is sized to the larger of that and the ${money(P.x.goal)} funding goal` : ""}. Revenue grows ${F.c.growth || 0}% a month; variable costs ${F.c.varPct || 0}% of revenue; fixed costs ${money(F.c.fixed || 0)} a month.</p>
+      <table class="res"><thead><tr><th>Month</th><th>Revenue</th><th>Outflows</th><th>One-Time Spend</th><th>Operating Cash Flow</th><th>Ending Cash (no funding)</th></tr></thead><tbody>
+      ${b.rows.map(r => `<tr><td>${r.m}</td><td>${money(r.rev)}</td><td>${money(r.out)}</td><td>${r.capex ? money(r.capex) : ""}</td><td>${money(r.op)}</td><td class="${r.cash < (F.c.buffer || 0) ? "fit-bad" : ""}">${money(r.cash)}</td></tr>`).join("")}</tbody></table>`;
+  }
+  function finHtml3(P) {
+    const F = P.fin; if (!F) return "";
+    const q = F.rep.sched.filter(s => s.m % 3 === 0);
+    return `<h2>Layer 3: Cost and Repayment Model</h2>
+      <div class="kpis">${kpBox(money(F.amount), "Amount funded, month " + F.fundMonth)}${kpBox(F.promo + " mo", "0% promo on card rounds")}${kpBox(F.apr + "%", "Go-to APR after promo")}${kpBox(money(F.rep.peak), "Peak monthly payment")}${kpBox(money(F.rep.interest24), "Interest, first 24 months")}${kpBox(F.dscr == null ? "N/A" : F.dscr.toFixed(2) + "x", "Debt service coverage")}</div>
+      <p class="note">Minimum payment 2% of balance during the promo, then a 36-month amortization at the go-to APR. Debt service coverage = (operating cash flow + existing debt payments) ÷ (peak plan payment + existing debt payments); lenders usually want 1.25x or better. Balance after 24 months: ${money(F.rep.balanceAt24)}.</p>
+      <table class="res"><thead><tr><th>Month</th>${q.map(s => `<th>${s.m}</th>`).join("")}</tr></thead><tbody>
+      <tr><td><b>Payment</b></td>${q.map(s => `<td>${money(s.pay)}</td>`).join("")}</tr>
+      <tr><td><b>Balance</b></td>${q.map(s => `<td>${money(s.bal)}</td>`).join("")}</tr></tbody></table>
+      <h2>Scenarios: Does the Plan Still Work?</h2>
+      <table class="res"><thead><tr><th>Case</th><th>Funding Need</th><th>Peak Payment</th><th>Avg Operating Cash Flow</th><th>Coverage</th><th>Months Until Cash Runs Out (no funding)</th><th>Verdict</th></tr></thead><tbody>
+      ${F.scen.map(sc => `<tr><td><b>${esc(sc.name)}</b></td><td>${money(sc.need)}</td><td>${money(sc.peak)}</td><td>${money(sc.lift)}</td><td>${sc.dscr == null ? "N/A" : sc.dscr.toFixed(2) + "x"}</td><td>${sc.runway}</td><td class="fit-${sc.verdict === "Works" ? "good" : sc.verdict === "Tight" ? "warn" : sc.verdict === "Fails" ? "bad" : "good"}">${sc.verdict}</td></tr>`).join("")}</tbody></table>
+      <p class="note">Works: coverage at or above 1.25x. Tight: 1.0x to 1.25x; keep the promo-period payments on schedule and avoid new fixed costs. Fails: the business cannot carry the payments after the promo ends; fund less, extend the term, or raise revenue first.</p>`;
+  }
   const vendorsText = () => D.lenders.filter(l => l.ind.startsWith("Vendor") && /no personal pull/i.test(l.min)).slice(0, 4).map(l => l.name.split(" (")[0]).join(", ");
 
   // ------------------------------------------------------------------ PDF
@@ -328,7 +408,7 @@
     let y = 0;
     doc.setFillColor(...NAVY); doc.rect(0, 0, W, 86, "F");
     doc.setFillColor(...TEAL); doc.rect(0, 86, W, 3, "F");
-    doc.setTextColor(255); doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.text("Credit Stack and Funding Strategy", M, 40);
+    doc.setTextColor(255); doc.setFont("helvetica", "bold"); doc.setFontSize(20); doc.text("Funding Plan: Cash Flow, Sequence and Cost", M, 40);
     doc.setFont("helvetica", "normal"); doc.setFontSize(11);
     doc.text(`${x.client}${x.bizname !== "N/A" ? "  |  " + x.bizname : ""}  |  ${P.stateName}`, M, 60);
     doc.text(`Prepared ${fmtDate(new Date())}${x.preparer !== "N/A" ? " by " + x.preparer : ""}  |  Start ${fmtDate(addDays(x.start, 0))}`, M, 76);
@@ -336,7 +416,7 @@
     const H = t => { if (y > 700) { doc.addPage(); y = 50; } doc.setTextColor(...NAVY); doc.setFont("helvetica", "bold"); doc.setFontSize(14); doc.text(t, M, y); doc.setDrawColor(...TEAL); doc.setLineWidth(1.5); doc.line(M, y + 5, M + 60, y + 5); y += 18; };
     const P_ = (t, size = 10, color = INK) => { doc.setTextColor(...color); doc.setFont("helvetica", "normal"); doc.setFontSize(size); const lines = doc.splitTextToSize(t, W - 2 * M); if (y + lines.length * size * 1.3 > 750) { doc.addPage(); y = 50; } doc.text(lines, M, y); y += lines.length * size * 1.3 + 4; };
     const tbl = (head, body, opts = {}) => { doc.autoTable(Object.assign({ head: [head], body, startY: y, margin: { left: M, right: M }, styles: { fontSize: 8.5, cellPadding: 4, textColor: INK, lineColor: [217, 222, 231], lineWidth: 0.5 }, headStyles: { fillColor: NAVY, textColor: 255, fontStyle: "bold" }, alternateRowStyles: { fillColor: [244, 246, 250] },
-      didParseCell: d => { if (d.section === "body") { const t = String(d.cell.raw || ""); const k = Object.keys(COL).find(b => t.startsWith(b)); if (k && opts.bureauCols && opts.bureauCols.includes(d.column.index)) { d.cell.styles.textColor = COL[k]; d.cell.styles.fontStyle = "bold"; } if (opts.fitCol === d.column.index) { d.cell.styles.fontStyle = "bold"; d.cell.styles.textColor = t === "Good" ? [12, 140, 12] : t === "Skip" ? [208, 59, 59] : [185, 122, 0]; } } } }, opts.extra || {})); y = doc.lastAutoTable.finalY + 16; };
+      didParseCell: d => { if (d.section === "body") { const t = String(d.cell.raw || ""); const k = Object.keys(COL).find(b => t.startsWith(b)); if (k && opts.bureauCols && opts.bureauCols.includes(d.column.index)) { d.cell.styles.textColor = COL[k]; d.cell.styles.fontStyle = "bold"; } if (opts.fitCol === d.column.index) { d.cell.styles.fontStyle = "bold"; d.cell.styles.textColor = (t === "Good" || t === "Works") ? [12, 140, 12] : (t === "Skip" || t === "Fails") ? [208, 59, 59] : [185, 122, 0]; } } } }, opts.extra || {})); y = doc.lastAutoTable.finalY + 16; };
 
     H("Profile Snapshot");
     tbl(["Measure", "Value", "Measure", "Value"], [
@@ -355,17 +435,32 @@
     H("Readiness Check");
     tbl(["Status", "Finding"], P.flags.map(fl => [{ good: "Good", warn: "Caution", bad: "Fix first" }[fl.lvl], fl.t]), { fitCol: 0, extra: { columnStyles: { 0: { cellWidth: 60 } } } });
 
-    H(`Bureau Plan for ${P.stateName}`);
+    if (P.fin) {
+      const F = P.fin, b = F.base;
+      H("Layer 1: Cash Flow Forecast (12 Months)");
+      P_(`Funding need ${money(F.amount)}${b.needMonth ? ", deepest shortfall in month " + b.needMonth : ""}. Average monthly operating cash flow ${money(b.opAvg)}; lowest cash without funding ${money(b.low)}. Need = the deepest dip below the ${money(F.c.buffer || 0)} cash buffer${x.goal ? ", or the " + money(x.goal) + " funding goal if larger" : ""}.`, 9.5, MUT);
+      tbl(["Month", "Revenue", "Outflows", "One-Time Spend", "Operating Cash Flow", "Ending Cash (no funding)"], b.rows.map(r => [String(r.m), money(r.rev), money(r.out), r.capex ? money(r.capex) : "", money(r.op), money(r.cash)]));
+    }
+    H(`Layer 2: Bureau Plan for ${P.stateName}`);
     P_(`Across all lenders, ${P.stateName} leans ${P.stateBureau.b} (${pct(P.stateBureau.p)}; ${P.stateBureau.status.toLowerCase()}, ${P.stateBureau.n} datapoints).`, 9.5, MUT);
     tbl(["#", "Lender", "Likely Bureau", "Fit", "Why"], P.lenders.map((l, i) => [String(i + 1), l.name, `${l.bureau} ${pct(l.p)}`, { good: "Good", warn: "Caution", bad: "Skip" }[l.fit], l.why + (l.rule ? " " + l.rule : "")]), { bureauCols: [2], fitCol: 3, extra: { columnStyles: { 0: { cellWidth: 20 }, 1: { cellWidth: 90, fontStyle: "bold" }, 2: { cellWidth: 80 }, 3: { cellWidth: 48 } } } });
 
-    H("Funding Sequence and Benchmark Timeline");
+    H("Layer 2: Funding Sequence and Benchmark Timeline");
     tbl(["Date", "Phase", "Action", "Bureau", "Typical Amount"], P.timeline.map(t => [t.date, t.phase, t.action + (t.detail ? "\n" + t.detail : ""), t.bureau, t.amount]), { bureauCols: [3], extra: { columnStyles: { 0: { cellWidth: 66 }, 1: { cellWidth: 62 }, 3: { cellWidth: 80 }, 4: { cellWidth: 80 } } } });
-    if (P.rangeHi) P_(`Planning range for the card stack: ${money(P.rangeLo)} to ${money(P.rangeHi)} in initial limits, before limit increases.`, 9.5, MUT);
+    if (P.rangeHi) P_(`Planning range for the card rounds: ${money(P.rangeLo)} to ${money(P.rangeHi)} in initial limits, before limit increases.`, 9.5, MUT);
 
     H("Benchmarks");
     tbl(["Target Date", "Benchmark", "How"], P.bench.map(b => [b.when, b.what, b.how]), { extra: { columnStyles: { 0: { cellWidth: 70 }, 1: { cellWidth: 170, fontStyle: "bold" } } } });
     P_("Target dates are planning estimates from the inputs, not guarantees. Recheck scores monthly and move dates as results come in.", 8.5, MUT);
+    if (P.fin) {
+      const F = P.fin;
+      H("Layer 3: Cost and Repayment Model");
+      P_(`${money(F.amount)} funded in month ${F.fundMonth}; ${F.promo} months at 0% on the card rounds, then ${F.apr}% APR amortized over 36 months. Peak monthly payment ${money(F.rep.peak)}; interest in the first 24 months ${money(F.rep.interest24)}; balance after 24 months ${money(F.rep.balanceAt24)}. Debt service coverage ${F.dscr == null ? "N/A" : F.dscr.toFixed(2) + "x"} (lenders usually want 1.25x or better).`, 9.5, MUT);
+      tbl(["Month", ...F.rep.sched.filter(s => s.m % 3 === 0).map(s => String(s.m))], [["Payment", ...F.rep.sched.filter(s => s.m % 3 === 0).map(s => money(s.pay))], ["Balance", ...F.rep.sched.filter(s => s.m % 3 === 0).map(s => money(s.bal))]], { extra: { columnStyles: { 0: { fontStyle: "bold" } } } });
+      H("Scenarios: Does the Plan Still Work?");
+      tbl(["Case", "Funding Need", "Peak Payment", "Avg Operating CF", "Coverage", "Months to Cash-Out", "Verdict"], F.scen.map(sc => [sc.name, money(sc.need), money(sc.peak), money(sc.lift), sc.dscr == null ? "N/A" : sc.dscr.toFixed(2) + "x", sc.runway, sc.verdict]), { fitCol: 6, extra: { columnStyles: { 0: { cellWidth: 150, fontStyle: "bold" } } } });
+      P_("Works: coverage at or above 1.25x. Tight: 1.0x to 1.25x. Fails: the business cannot carry the payments after the promo ends; fund less, extend the term or raise revenue first.", 8.5, MUT);
+    }
 
     H("Business Credit Plan");
     tbl(["Report", "Entered", "Next Step"], [
@@ -388,7 +483,7 @@
     P_(`Bureau likelihoods come from a logistic regression on consumer-reported inquiry datapoints (2008 to 2026) across ${Object.keys(D.states).length} states and 56 cited sources, as of ${D.asof}. No lender publishes which bureau it pulls by state. Minimum scores are published floors or community estimates. Income, debt-to-income, utilization, account age, recent inquiries and deposits decide outcomes as much as the score. This is a planning reference, not financial, credit or legal advice.`, 8.5, MUT);
     P_("Full data, methods and sources: shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard", 8.5, MUT);
     const n = doc.getNumberOfPages();
-    for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setFontSize(8); doc.setTextColor(...MUT); doc.text(`${x.client}  |  Credit Stack and Funding Strategy  |  Page ${i} of ${n}`, M, 776); }
+    for (let i = 1; i <= n; i++) { doc.setPage(i); doc.setFontSize(8); doc.setTextColor(...MUT); doc.text(`${x.client}  |  Funding Plan  |  Page ${i} of ${n}`, M, 776); }
     const safe = x.client.replace(/[^A-Za-z0-9]+/g, "_").replace(/^_|_$/g, "") || "Client";
     doc.save(`${safe}_Funding_Strategy_${x.start}.pdf`);
   }

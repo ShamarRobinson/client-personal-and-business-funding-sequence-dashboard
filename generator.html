@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Credit Stack and Funding Generator | Client Personal and Business Funding Sequence Dashboard</title>
+<title>Funding Plan Generator | Client Personal and Business Funding Sequence Dashboard</title>
 <meta name="description" content="Enter a client's personal and business credit profile to generate a funding strategy, bureau plan and benchmark timeline, downloadable as a PDF.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
@@ -54,8 +54,8 @@
 </head>
 <body>
 <main class="gen" data-page="generator">
-  <h1>Credit Stack and Funding Generator</h1>
-  <p class="lede">Enter a client's personal and business credit profile. The generator picks a funding tier, forecasts which bureau each major lender will pull in the client's state, orders the applications to protect the weakest report, and lays out a dated benchmark timeline. Download the result as a PDF.</p>
+  <h1>Funding Plan Generator</h1>
+  <p class="lede">Enter a client's credit profile and the business's monthly cash flow. The plan runs in three layers: a 12-month cash flow forecast sizes how much funding the business needs and when; the bureau model orders the applications and forecasts which report each lender will pull in the client's state; a cost and repayment model prices the plan (blended rate after promos end, monthly payments, debt service coverage) and tests it against base, downside and upside cases. Download the result as a PDF.</p>
   <div class="privacy"><b>Private by design:</b> everything runs in this browser. Nothing you type or attach is uploaded, saved or sent anywhere. Closing the page clears it.</div>
 
   <form id="f" autocomplete="off" novalidate>
@@ -88,6 +88,23 @@
         <label>EIN on File<select name="ein"><option>No</option><option>Yes</option></select></label>
         <label>D-U-N-S Number<select name="duns"><option>No</option><option>Yes</option></select></label>
         <label>Business Bank Account<select name="bizbank"><option>No</option><option>Yes</option></select></label>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Business Cash Flow (Sizes the Funding Need)</legend>
+      <p class="hint">Monthly figures from the last bank statements or the budget. Leave blank to skip the cash flow forecast; the plan then falls back to the funding goal.</p>
+      <div class="grid">
+        <label>Monthly Revenue Now ($)<input name="cf_rev" type="number" min="0" step="500" placeholder="e.g. 18000"></label>
+        <label>Expected Monthly Revenue Growth (%)<input name="cf_growth" type="number" step="0.5" placeholder="e.g. 3"></label>
+        <label>Monthly Fixed Costs ($)<input name="cf_fixed" type="number" min="0" step="500" placeholder="Rent, payroll, software, insurance"></label>
+        <label>Variable Costs (% of revenue)<input name="cf_var" type="number" min="0" max="100" step="1" placeholder="e.g. 35"></label>
+        <label>Cash on Hand Today ($)<input name="cf_cash" type="number" min="0" step="500"></label>
+        <label>Minimum Cash Buffer ($)<input name="cf_buffer" type="number" min="0" step="500" placeholder="Never let cash fall below this"></label>
+        <label>One-Time Spend From the Funding ($)<input name="cf_capex" type="number" min="0" step="1000" placeholder="Equipment, inventory, build-out"></label>
+        <label>Month of That Spend (1 to 12)<input name="cf_capex_m" type="number" min="1" max="12" step="1" placeholder="e.g. 2"></label>
+        <label>Existing Monthly Debt Payments ($)<input name="cf_debt" type="number" min="0" step="100" placeholder="Loans and cards already in place"></label>
+        <label>Go-To APR After Promos End (%)<input name="cf_apr" type="number" min="0" max="60" step="0.5" placeholder="Default 24"></label>
       </div>
     </fieldset>
 
@@ -144,7 +161,7 @@
     </fieldset>
 
     <div class="actions">
-      <button type="submit" class="btn">Generate Strategy</button>
+      <button type="submit" class="btn">Generate Plan</button>
       <button type="button" class="btn ghost" id="sample">Load Sample Client</button>
       <button type="reset" class="btn ghost">Clear Form</button>
       <span id="msg" class="err" role="alert"></span>

@@ -173,18 +173,21 @@ D = {}
 # ------------------------------------------------------------------ card 1: overview (hero photo, tiles, context, sources and limits, walkthrough)
 PHOTO = ROOT / "assets" / "cover_cards.png"
 IMG.photo_hero(1000, 262, PHOTO, "hero",
-               ["FP&A: Credit Stacking &", "Funding Sequencing Strategy"],
-               "Experian, Equifax or TransUnion: which report a lender is most likely to check, state by state, and the order to apply in so approvals stack up without piling inquiries on one report.",
-               [], subhead="Which Bureau Will They Pull?")
+               ["Credit Bureau Pull Prediction"],
+               f"A multinomial logistic regression on 2,901 lender-by-state datapoints forecasts which of Experian, Equifax or TransUnion a lender will pull in each state: {1 - LL_FULL / LL_BASE:.0%} lower error than national shares, {CHECKED} rows cross-checked, 0 contradicted. It then sets the order to apply in.",
+               [], subhead="A State-by-State Model of 3,003 Lender Inquiries")
 IMG.text_card(326, 414, [
-    ("Context", "Every hard inquiry lands on one of three credit reports. The same person can have a strong report at one bureau and a weak one at another, and no lender publishes which bureau it pulls by state."),
-    ("Purpose", "Forecast the bureau a lender will pull in each state, then turn that into an application order for personal and business funding."),
+    ("Method", f"A multinomial logistic regression weighs state, lender and data era together on 2,901 datapoints, with 5-fold cross-validation and 150 refits per state to test how stable each leader is."),
+    ("Result", [("Lift", f"{1 - LL_FULL / LL_BASE:.0%} lower log loss than national shares; accuracy {ACC_FULL:.0%} versus {ACC_BASE:.0%} (KPI 8)."),
+                ("Cross-check", f"{CHECKED} (rows checked against outside data), 0 (contradicted) (KPI 9)."),
+                ("Close calls", f"{close_n} (states within 20 points) get a forecast; {len(tossups)} are toss-ups (KPI 4).")]),
+    ("What It Answers", "Which of the three reports a lender will check in each state, and how sure the data is. The funding sequence on cards 2 and 8 is built on that forecast.")], "c1_context", size=10)
+IMG.text_card(326, 414, [
+    ("Data", "A 355-row inquiry table from 16 states plus 670 outside datapoints from 56 cited sources: Doctor of Credit, the myFICO state grid, 2025 to 2026 forum posts and lender pages."),
+    ("Updates", f"As of {ASOF}. Next update: {NEXT_UPDATE}. Lender minimums are reviewed quarterly."),
+    ("Limits", "Consumer-reported, mostly 2008 to 2016, thin in some states. Likelihoods, not promises. Not financial advice."),
     ("Why It Matters", [("Under 5 points", "what one more hard inquiry usually costs; it counts for a year (myFICO)."),
-                        ("1 in 5", "consumers had an error on at least one report (FTC, 2013).")])], "c1_context", size=10)
-IMG.text_card(326, 414, [
-    ("Sources", "A 355-row inquiry table from 16 states, plus 670 outside datapoints from 56 cited sources: Doctor of Credit tables (2008 to 2019), the myFICO state grid (2023), 2025 to 2026 forum posts and lender pages."),
-    ("Updates", f"As of {ASOF}. Next update: {NEXT_UPDATE}. Lender minimums are reviewed quarterly; each new datapoint reruns the maps and model."),
-    ("Limits", "Consumer-reported, uneven in age (most pulls are 2008 to 2016) and thin in some states. Likelihoods, not promises. Not financial advice.")], "c1_sources", size=10)
+                        ("1 in 5", "consumers had an error on at least one report (FTC, 2013).")])], "c1_sources", size=10)
 IMG.steps_card(324, 414, "How to Use This Story", [
     ("Move through 12 cards", "Use the arrows or the captions above; the side panel shows where you are."),
     ("Hover any number", "Tooltips show each formula and its source."),
@@ -333,7 +336,7 @@ IMG.decision_tree2(1000, 510,
      ("you want business funding", "most business cards still check your personal report; plan it as a personal pull")],
     [("Experian", f"most-pulled bureau, {tot['Experian'] / TOTAL:.0%} (of all pulls)", [
         ("650 to 699", f"Chase first (5/24 rule), then Amex, {A['American Express']['Experian']:.0%} (Amex pulls on Experian)"),
-        ("700+", f"stack Chase, Amex, BofA {A['Bank of America']['Experian']:.0%} (on Experian), Wells Fargo"),
+        ("700+", f"sequence Chase, Amex, BofA {A['Bank of America']['Experian']:.0%} (on Experian), Wells Fargo"),
         ("in VA, SC or NC", "Equifax leans higher there, so stick to Amex and BofA")]),
      ("Equifax", f"{tot['Equifax'] / TOTAL:.0%} (of all pulls); lead with it on purpose", [
         ("you want bank cards", f"Citi {A['Citi']['Equifax']:.0%} and Chase {A['Chase']['Equifax']:.0%} (of their pulls on Equifax)"),
@@ -342,7 +345,7 @@ IMG.decision_tree2(1000, 510,
      ("TransUnion", f"least pulled, {tot['TransUnion'] / TOTAL:.0%} (of all pulls), so pick lenders that lead with it", [
         ("you want store cards", f"Synchrony, {A['Synchrony']['TransUnion']:.0%} (of its pulls on TransUnion)"),
         ("you want bank cards", f"U.S. Bank {A['U.S. Bank']['TransUnion']:.0%} (on TransUnion), Barclays, Navy Federal"),
-        ("in Georgia", "37 of 116 (TransUnion pulls of all Georgia pulls) = 32%")])],
+        ("in Georgia", "TransUnion took 37 of 116 Georgia pulls (32%)")])],
     [("Strictest first", "Chase (5/24), then Amex, U.S. Bank, Wells Fargo, Bank of America, regionals."),
      ("One per bureau per round", "spread each round across Experian-, Equifax- and TransUnion-leaning lenders."),
      ("Soft pull, then hard pull", "prequalify; apply for real only when the offer looks good."),
@@ -357,7 +360,7 @@ IMG.decision_tree2(1150, 690,
      ("you want business funding", "most business cards still check your personal report; plan it as a personal pull")],
     [("Experian", f"most-pulled bureau, {tot['Experian'] / TOTAL:.0%} (of all pulls)", [
         ("650 to 699", f"Chase first (5/24 rule), then Amex, {A['American Express']['Experian']:.0%} (Amex pulls on Experian)"),
-        ("700+", f"stack Chase, Amex, BofA {A['Bank of America']['Experian']:.0%} (on Experian), Wells Fargo"),
+        ("700+", f"sequence Chase, Amex, BofA {A['Bank of America']['Experian']:.0%} (on Experian), Wells Fargo"),
         ("in VA, SC or NC", "Equifax leans higher there, so stick to Amex and BofA")]),
      ("Equifax", f"{tot['Equifax'] / TOTAL:.0%} (of all pulls); lead with it on purpose", [
         ("you want bank cards", f"Citi {A['Citi']['Equifax']:.0%} and Chase {A['Chase']['Equifax']:.0%} (of their pulls on Equifax)"),
@@ -366,7 +369,7 @@ IMG.decision_tree2(1150, 690,
      ("TransUnion", f"least pulled, {tot['TransUnion'] / TOTAL:.0%} (of all pulls), so pick lenders that lead with it", [
         ("you want store cards", f"Synchrony, {A['Synchrony']['TransUnion']:.0%} (of its pulls on TransUnion)"),
         ("you want bank cards", f"U.S. Bank {A['U.S. Bank']['TransUnion']:.0%} (on TransUnion), Barclays, Navy Federal"),
-        ("in Georgia", "37 of 116 (TransUnion pulls of all Georgia pulls) = 32%")])],
+        ("in Georgia", "TransUnion took 37 of 116 Georgia pulls (32%)")])],
     [("Strictest first", "Chase (5/24), then Amex, U.S. Bank, Wells Fargo, Bank of America, regionals."),
      ("One per bureau per round", "spread each round across Experian-, Equifax- and TransUnion-leaning lenders."),
      ("Soft pull, then hard pull", "prequalify; apply for real only when the offer looks good."),
@@ -382,16 +385,19 @@ IMG.whatif_table(400, 188, [
 IMG.ladder_strip(592, 188, [
     ("500-549", "Repair", "Fix errors, builder loan."), ("550-599", "Start small", "Prequalify, starter card."),
     ("600-649", "Unsecured", "Mainstream cards."), ("650-699", "Majors", "Chase, then Amex."),
-    ("700-749", "Stack", "0% business cards."), ("750-799", "Banks", "Bank lines, SBA."),
+    ("700-749", "Sequence", "0% business cards."), ("750-799", "Banks", "Bank lines, SBA."),
     ("800+", "Biggest first", "Largest facilities.")], name="c7_ladder")
-IMG.callouts(592, 178, "How the Tree Connects", [
+IMG.callouts(352, 300, "How the Tree Connects", [
     (TEAL, "Step 1 comes from the ladder", "Your score step (card 2) decides which lenders are in reach at all."),
     ("#F2B634", "Close calls come from the model", "Card 7 shows the chance of each bureau in your state."),
     (ORANGE, "Step 3 comes from issuer habits", "Card 9 shows each issuer's bureau habit (KPI 5).")], "c8_links")
-D[DASH[7]] = dashboard(DASH[7], shell(8, "Decision Tree: Which Lender, in What Order", "Check the five overrides, follow your strongest report's branch, then apply in the Step 3 order.") + [
-    izone(192, 96, 1000, 510, "c7_tree.png"),
-    izone(192, 614, 400, 178, "c7_whatif.png"),
-    izone(600, 614, 592, 178, "c8_links.png"),
+D[DASH[7]] = dashboard(DASH[7], shell(8, "Decision Tree: Which Lender, in What Order", "Check the five overrides, pick your strongest report to keep only its branch, then apply in the Step 3 order. Every rule is live data.") + [
+    szone(192, 96, 640, 200, "Tree Gates", title=True, pad=6),
+    szone(192, 302, 640, 40, "Tree Picker", pad=2),
+    szone(192, 348, 640, 290, "Tree Branch", title=True, pad=6),
+    szone(192, 644, 640, 148, "Tree Order", title=True, pad=6),
+    szone(840, 96, 352, 384, "Forecast Cases", title=True, pad=8),
+    izone(840, 488, 352, 304, "c8_links.png"),
 ])
 
 # ------------------------------------------------------------------ card 7: the funding ladder (its own page, before the tree)
@@ -403,7 +409,7 @@ IMG.ladder(1000, 300, [
     ("550-599", "Start small", f"Prequalify, starter or secured card. {len(seq_by_tier['550-599'])} (steps)."),
     ("600-649", "Go unsecured", f"Mainstream cards, credit union lines. {len(seq_by_tier['600-649'])} (steps)."),
     ("650-699", "Enter the majors", f"Chase first at 670+, then Amex. {len(seq_by_tier['650-699'])} (steps)."),
-    ("700-749", "Build the stack", f"0% business cards in 6 (rounds). {len(seq_by_tier['700-749'])} (steps)."),
+    ("700-749", "Build the sequence", f"0% business cards in 6 (rounds). {len(seq_by_tier['700-749'])} (steps)."),
     ("750-799", "Add the banks", f"Bank lines, SBA, personal loans. {len(seq_by_tier['750-799'])} (steps)."),
     ("800+", "Go biggest first", f"Largest bank facilities, then cards. {len(seq_by_tier['800+'])} (steps).")], name="c7_ladder_big")
 IMG.ladder(1390, 300, [
@@ -411,7 +417,7 @@ IMG.ladder(1390, 300, [
     ("550-599", "Start small", f"Prequalify, starter or secured card. {len(seq_by_tier['550-599'])} (steps)."),
     ("600-649", "Go unsecured", f"Mainstream cards, credit union lines. {len(seq_by_tier['600-649'])} (steps)."),
     ("650-699", "Enter the majors", f"Chase first at 670+, then Amex. {len(seq_by_tier['650-699'])} (steps)."),
-    ("700-749", "Build the stack", f"0% business cards in 6 (rounds). {len(seq_by_tier['700-749'])} (steps)."),
+    ("700-749", "Build the sequence", f"0% business cards in 6 (rounds). {len(seq_by_tier['700-749'])} (steps)."),
     ("750-799", "Add the banks", f"Bank lines, SBA, personal loans. {len(seq_by_tier['750-799'])} (steps)."),
     ("800+", "Go biggest first", f"Largest bank facilities, then cards. {len(seq_by_tier['800+'])} (steps).")], name="c7_ladder_wide")   # wider copy for the slide deck
 IMG.tier_table(620, 388, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding sequence)",
@@ -420,7 +426,7 @@ IMG.tier_table(620, 388, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding se
     (("550-599", "Start small"), "Starter and secured cards, microloans", "Capital One, Mission Lane, Discover, Kiva", "Capital One: all three; Mission Lane: TransUnion", "$300 to $1,000 (per card)"),
     (("600-649", "Go unsecured"), "Unsecured cards, credit union lines, Fundbox", "Discover, Synchrony, Navy Federal, PenFed", "Discover: Experian; Synchrony: TransUnion; PenFed: Equifax", "$500 to $15,000 (per account)"),
     (("650-699", "Enter the majors"), "0% business cards in rounds 7 to 14 days apart", "Chase Ink, Amex Blue Business, Wells Fargo", "Experian most often", "$3,000 to $25,000 (per card)"),
-    (("700-749", "Build the stack"), "Six-round 0% card stack, charge cards", "Chase, Amex, U.S. Bank, Wells Fargo, BofA", "Experian; U.S. Bank: TransUnion", "$35,000 to $127,000 (whole stack)"),
+    (("700-749", "Build the sequence"), "Six rounds of 0% cards, charge cards", "Chase, Amex, U.S. Bank, Wells Fargo, BofA", "Experian; U.S. Bank: TransUnion", "$35,000 to $127,000 (all six rounds)"),
     (("750-799", "Add the banks"), "Bank lines, SBA loans, personal loans", "Chase, BofA, U.S. Bank, Huntington, LightStream", "The bank's usual bureau; LightStream: TransUnion", "$25,000 to $250,000 (per line)"),
     (("800+", "Go biggest first"), "Bank facilities, SBA 7(a), premium cards", "Chase, BofA, Wells Fargo, SBA lenders", "The bank's usual bureau; Capital One: all three", "$50,000 to $250,000+ (per facility)"),
 ], "c7_tiers")
@@ -430,21 +436,24 @@ IMG.tier_table(1200, 290, "WHAT EACH STEP LOOKS LIKE (from the 57-step funding s
     (("550-599", "Start small"), "Starter and secured cards, microloans", "Capital One, Mission Lane, Discover, Kiva", "Capital One: all three; Mission Lane: TransUnion", "$300 to $1,000 (per card)"),
     (("600-649", "Go unsecured"), "Unsecured cards, credit union lines, Fundbox", "Discover, Synchrony, Navy Federal, PenFed", "Discover: Experian; Synchrony: TransUnion; PenFed: Equifax", "$500 to $15,000 (per account)"),
     (("650-699", "Enter the majors"), "0% business cards in rounds 7 to 14 days apart", "Chase Ink, Amex Blue Business, Wells Fargo", "Experian most often", "$3,000 to $25,000 (per card)"),
-    (("700-749", "Build the stack"), "Six-round 0% card stack, charge cards", "Chase, Amex, U.S. Bank, Wells Fargo, BofA", "Experian; U.S. Bank: TransUnion", "$35,000 to $127,000 (whole stack)"),
+    (("700-749", "Build the sequence"), "Six rounds of 0% cards, charge cards", "Chase, Amex, U.S. Bank, Wells Fargo, BofA", "Experian; U.S. Bank: TransUnion", "$35,000 to $127,000 (all six rounds)"),
     (("750-799", "Add the banks"), "Bank lines, SBA loans, personal loans", "Chase, BofA, U.S. Bank, Huntington, LightStream", "The bank's usual bureau; LightStream: TransUnion", "$25,000 to $250,000 (per line)"),
     (("800+", "Go biggest first"), "Bank facilities, SBA 7(a), premium cards", "Chase, BofA, Wells Fargo, SBA lenders", "The bank's usual bureau; Capital One: all three", "$50,000 to $250,000+ (per facility)"),
 ], "c7_tiers_wide")   # wider copy for the slide deck
-IMG.steps_card(372, 388, "Five Rules for Climbing", [
+IMG.steps_card(292, 438, "Five Rules for Climbing", [
     ("Read your own reports first", "Pull all three and note which bureau is cleanest."),
     ("Spread inquiries across bureaus", "One Experian-, one Equifax-, one TransUnion-leaning lender per round."),
     ("Strictest rule first", "Chase (5/24), Amex (2 cards per 90 days), then U.S. Bank, Wells Fargo, BofA."),
     ("Soft pulls before hard pulls", "Prequalify with Capital One, Discover, Amex, Upgrade or Fundbox."),
     ("Business credit in parallel", "Entity, EIN, D-U-N-S, business checking, 3 to 5 (net-30 vendors)."),
 ], "c7_rules")
-D[DASH[1]] = dashboard(DASH[1], shell(2, "The Funding Ladder: One Score Step at a Time", "Find your step by credit score, finish its moves, let the score rise, then climb. 57 (steps) across 7 (score ranges).") + [
-    izone(192, 96, 1000, 300, "c7_ladder_big.png"),
-    izone(192, 404, 620, 388, "c7_tiers.png"),
-    izone(820, 404, 372, 388, "c7_rules.png"),
+IMG.coach(1, "Click a rung", "cm_lad1", w=110, h=26); IMG.coach(2, "Hover a row for its product and note", "cm_lad2", w=250, h=26)
+D[DASH[1]] = dashboard(DASH[1], shell(2, "The Funding Ladder: One Score Step at a Time", f"Find your step by credit score, finish its moves, let the score rise, then climb. {len(db['seq'])} (steps) across 7 (score ranges). Every row is live data.") + [
+    szone(192, 96, 1000, 250, "Ladder Bars", title=True, pad=8),
+    szone(192, 354, 740, 438, "Ladder Steps", title=True, pad=6),
+    izone(940, 354, 252, 438, "c7_rules.png"),
+    izone(1070, 104, 110, 26, "cm_lad1.png"),
+    izone(672, 360, 250, 26, "cm_lad2.png"),
 ])
 
 # ------------------------------------------------------------------ card 9: scorecard and where the numbers come from
@@ -466,7 +475,7 @@ D[DASH[8]] = dashboard(DASH[8], shell(9, "Scorecard: Issuer Habits and Where the
     izone(690, 96, 502, 696, "c10_notes.png"),
 ])
 # ------------------------------------------------------------------ card 10: recommendations (its own page, right before the sources)
-IMG.photo_card(1000, 160, ROOT / "assets" / "photo_approved.png", "c9_photo", "RECOMMENDATIONS", "Approvals That Stack Up: The Best Move for Each Stakeholder",
+IMG.photo_card(1000, 160, ROOT / "assets" / "photo_approved.png", "c9_photo", "RECOMMENDATIONS", "Approvals That Add Up: The Best Move for Each Stakeholder",
                [("", "Find your type below. Every move traces back to a KPI or an earlier card. A planning guide, not financial advice.")], focus=(0.5, 0.55))
 RECS = [
     ("Personal Credit Clients", [
@@ -491,11 +500,11 @@ RECS = [
         ("Watch out", "disputes take time to post; apply only after the fix shows on the report."),
         ("Open", "card 4 (Data and Method) and card 6 (Share Maps).")]),
     ("Business Funding Companies", [
-        ("Best move", "stack in strictest-rule order and spread each round across bureaus."),
-        ("Choose this when", "a client is at 700+ (credit score) and ready for a stack."),
+        ("Best move", "apply in strictest-rule order and spread each round across bureaus."),
+        ("Choose this when", "a client is at 700+ (credit score) and ready for a funding round."),
         ("Why", "Chase (5/24) first, then Amex, U.S. Bank, Wells Fargo, Bank of America; Capital One last."),
         ("Next move", "use the ladder (card 2) and one lender per bureau group per round."),
-        ("Watch out", "Chase 5/24 and Amex 2 (cards per 90 days) cap how fast a stack can grow."),
+        ("Watch out", "Chase 5/24 and Amex 2 (cards per 90 days) cap how fast a sequence can move."),
         ("Open", "card 2 (Funding Ladder) and card 8 (Decision Tree).")]),
     ("Funding Advisors and Brokers", [
         ("Best move", "run the close-call check before advising a client."),
@@ -514,19 +523,19 @@ D[DASH[9]] = dashboard(DASH[9], shell(10, "Recommendations: The Best Move for Ea
 
 # ------------------------------------------------------------------ card 11: sources (the very last page, under the story title)
 SITE_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/"
-LINKS = [("Slideshow", SITE_URL + "presentation/"), ("Slideshow PDF", SITE_URL + "presentation/Credit_Stacking_and_Funding_Sequencing_Strategy.pdf"),
+LINKS = [("Slideshow", SITE_URL + "presentation/"), ("Slideshow PDF", SITE_URL + "presentation/Credit_Bureau_Pull_Prediction.pdf"),
          ("Dashboard Website", SITE_URL), ("Funding Generator", SITE_URL + "generator.html")]
 LINK_ROW = []
 for k_, (t_, u_) in enumerate(LINKS):
     IMG.link_button(238, 34, t_, f"lnk_{k_}")
     LINK_ROW.append(f"<zone {geo(192 + k_ * 254, 754, 238, 34)} id='{nid()}' is-scaled='1' param='Image/lnk_{k_}.png' type-v2='bitmap' url='{u_}'>{zstyle(0, 0)}</zone>")
-D[DASH[10]] = dashboard(DASH[10], shell(11, "FP&A: Credit Stacking & Funding Sequencing Strategy", f"Which Bureau Will They Pull? Sources: click a name to open it. As of {ASOF}; next update {NEXT_UPDATE}.") + [
+D[DASH[10]] = dashboard(DASH[10], shell(11, "Credit Bureau Pull Prediction: Sources", f"A State-by-State Model of 3,003 Lender Inquiries. Click a name to open it. As of {ASOF}; next update {NEXT_UPDATE}.") + [
     szone(192, 96, 1000, 648, "Sources List", title=True, pad=12),
 ] + LINK_ROW)
 
 GEN_URL = "https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/generator.html"
 IMG.link_button(200, 34, "Open Full Page in a New Tab", "gen_open")
-D[DASH[11]] = dashboard(DASH[11], shell(12, "Credit Stack and Funding Generator", "Enter a client's profile; get a funding strategy and dated timeline as a PDF. Runs in the browser; nothing is saved.") + [
+D[DASH[11]] = dashboard(DASH[11], shell(12, "Funding Plan Generator", "Enter a client's profile and business cash flow; get a funding need forecast, a bureau-aware application sequence and a cost and repayment model as a PDF. Runs in the browser; nothing is saved.") + [
     f"<zone {geo(192, 96, 1000, 650)} id='{nid()}' param='{GEN_URL}' type-v2='web'>{zstyle(0, 0, CARD)}</zone>",
     f"<zone {geo(192, 754, 200, 34)} id='{nid()}' is-scaled='1' param='Image/gen_open.png' type-v2='bitmap' url='{GEN_URL}'>{zstyle(0, 0)}</zone>",
 ])
@@ -742,11 +751,11 @@ def bgstyle(extra=""):
 
 # ------------------------------------------------------------------ tiles (BANs with formula tooltips)
 TILES = [
-    ("1", 1, "355", "original rows", "Ink", "The inquiry table this project started from: 355 rows from 16 states, every one cross-checked."),
-    ("1", 2, "670", "outside datapoints", "Ink", "State-level datapoints added from 56 cited sources, 2008 to 2026."),
-    ("1", 3, "204", "lenders profiled", "Ink", f"Each with funding type, typical score and paperwork level; {conf['High']} High, {conf['Medium']} Medium and {conf['Low']} Low confidence."),
-    ("1", 4, "56", "cited sources", "Ink", "Doctor of Credit, myFICO, MyBankTracker, CardRight, StackEasy and lender pages. Every link is on card 11."),
-    ("1", 5, f"{TOTAL:,}", "recorded pulls", "Teal", f"{tot['Experian']:,} (Experian pulls) + {tot['Equifax']:,} (Equifax pulls) + {tot['TransUnion']:,} (TransUnion pulls) = {TOTAL:,} (all recorded bureau pulls, all lenders combined)."),
+    ("1", 1, f"{1 - LL_FULL / LL_BASE:.0%}", "lower error than national shares", "Teal", f"KPI 8. 1 − ({LL_FULL:.3f} model log loss ÷ {LL_BASE:.3f} baseline log loss) = {1 - LL_FULL / LL_BASE:.0%} (model lift), from 5-fold cross-validation."),
+    ("1", 2, f"{ACC_FULL:.0%} vs {ACC_BASE:.0%}", "model accuracy vs national shares", "Ink", f"KPI 8. Held-out accuracy of the full model ({ACC_FULL:.0%}) against guessing the national leader every time ({ACC_BASE:.0%})."),
+    ("1", 3, f"0 of {CHECKED}", "checked rows contradicted", "Ink", f"KPI 9. {CHECKED} (rows that could be checked) = {CONF_ROWS} (confirmed) + {PART_ROWS} (partly confirmed) + {FIT_ROWS} (fit the national pattern); 0 (contradicted)."),
+    ("1", 4, f"{TOTAL:,}", "recorded pulls", "Teal", f"{tot['Experian']:,} (Experian pulls) + {tot['Equifax']:,} (Equifax pulls) + {tot['TransUnion']:,} (TransUnion pulls) = {TOTAL:,} (all recorded bureau pulls, all lenders combined)."),
+    ("1", 5, "56", "cited sources", "Ink", "Doctor of Credit, myFICO, MyBankTracker, CardRight, StackEasy and lender pages. Every link is on card 11."),
     ("2", 1, f"{tot['Experian'] / TOTAL:.0%}", "Experian share", "Experian", f"KPI 2. {tot['Experian']:,} (Experian pulls) ÷ {TOTAL:,} (all recorded pulls) = {tot['Experian'] / TOTAL:.0%} (Experian share of all pulls)."),
     ("2", 2, f"{tot['Equifax'] / TOTAL:.0%}", "Equifax share", "Equifax", f"KPI 2. {tot['Equifax']:,} (Equifax pulls) ÷ {TOTAL:,} (all recorded pulls) = {tot['Equifax'] / TOTAL:.0%} (Equifax share of all pulls)."),
     ("2", 3, f"{tot['TransUnion'] / TOTAL:.0%}", "TransUnion share", "TransUnion", f"KPI 2. {tot['TransUnion']:,} (TransUnion pulls) ÷ {TOTAL:,} (all recorded pulls) = {tot['TransUnion'] / TOTAL:.0%} (TransUnion share of all pulls)."),
@@ -754,16 +763,16 @@ TILES = [
     ("2", 5, f"{close_n}", "close-call states", "Teal", f"KPI 4. {close_n} (states where the top two bureaus are within 20 points) = {status_n.get('Clear lean', 0)} (clear leans) + {status_n.get('Moderate lean', 0)} (moderate leans) + {len(tossups)} (toss-ups) + {status_n.get('Thin data (national pattern)', 0)} (thin data)."),
 ]
 TILE_MORE = {  # (what it means, how to use it) for each tile, in order
-    ("1", 1): ("Each row is one consumer-reported hard inquiry: a lender, a state and the bureau or bureaus it pulled.",
-               "This is the starting dataset; every other number in the story was built from it or checked against it."),
-    ("1", 2): ("Each datapoint is an outside record of a lender pulling a bureau in a state, from issuer tables, forums and lender pages.",
-               "They confirm or correct the original rows; 0 rows were contradicted (card 4)."),
-    ("1", 3): ("Every lender in the database has a profile: what it funds, the score it typically needs and how much paperwork it asks for.",
-               "Use the lender map (card 5) to see which bureau a lender pulls in each state."),
-    ("1", 4): ("Every number traces to a named, dated source.",
-               "Open any source from the clickable list on card 11."),
-    ("1", 5): ("A pull is one bureau checked for one application. Counts are weighted so one large report cannot dominate.",
+    ("1", 1): ("Log loss scores how well the predicted chances match what was pulled; lower is better. The model beats the national-share baseline by this margin.",
+               "Treat the forecasts as a measured edge over the national pattern, not a certainty; KPI 7 shows how stable each state's leader is."),
+    ("1", 2): ("Accuracy is the share of held-out datapoints where the model's top bureau was the one pulled.",
+               "A modest gain is expected: three outcomes, consumer-reported data and many close-call states cap what any model can reach."),
+    ("1", 3): ("Every original row that outside data could check was confirmed, partly confirmed or fit the national pattern. None pointed the other way.",
+               "This is the evidence behind the data; card 4 shows the cleaning and cross-check steps."),
+    ("1", 4): ("A pull is one bureau checked for one application. Counts are weighted so one large report cannot dominate.",
                "Shares on the maps and KPIs are calculated from these pulls."),
+    ("1", 5): ("Every number traces to a named, dated source.",
+               "Open any source from the clickable list on card 11."),
     ("2", 1): ("More than half of all recorded pulls landed on Experian.",
                "If your Experian report is your strongest, most lenders will see your best file."),
     ("2", 2): ("About one pull in four landed on Equifax; it is often the second report a lender checks.",
@@ -810,23 +819,97 @@ ds_habit = ds_habit.replace("<column datatype='real' name='[Share]'", "<column d
 
 # ------------------------------------------------------------------ help popovers (one per card)
 HELP = [
-    ("1", "About This Story", "Twelve cards move from context to a decision, ending with a generator that builds a client's plan. Card 1 holds the context, purpose, sources, update cadence and data limits. Key terms: a hard inquiry (hard pull) is a lender's check of one report when you apply; a soft pull, such as prequalification, does not affect the score."),
+    ("1", "About This Story", "Twelve cards move from the model to a decision, ending with a generator that builds a client's plan. Card 1 leads with the method and its results, then the data, update cadence and limits. Key terms: a hard inquiry (hard pull) is a lender's check of one report when you apply; a soft pull, such as prequalification, does not affect the score."),
     ("3", "Reading the KPIs", "The tiles are the headline shares (KPI 2) and the close-call count (KPI 4). Click a KPI in the list to open its detail card with the formula and a worked example. A close call is a state where the top two bureaus are within 20 points."),
     ("4", "How the Data Was Built", "Read each row left to right: the original table was cleaned, matched to 102 lenders, enriched with funding facts, then cross-checked against 670 outside datapoints. 0 rows were contradicted."),
     ("5", "Using the Lender Map", "Pick a lender in the drop-down list. Each state is colored by the bureau that lender pulled most in the recorded data. Gray means a tie. Hover a state to see the Experian, Equifax and TransUnion counts behind it."),
     ("6", "Reading a Share Map", "A share is a part out of a whole: pulls on one bureau ÷ all bureau pulls in the state. Click any state and the State Detail panel shows all three shares with mini bars. States with under 10 pulls are hints, not findings."),
     ("7", "Using the Close-Call Explorer", "Colors show the model's verdict. Click a state to load its forecast in the side panel; hover a state to see its chance bars inside the tooltip. Clear lean: the leader holds in at least 90% of 150 refits; moderate: at least 70%."),
-    ("2", "Reading the Funding Ladder", "Each step is a credit score range. Finish the moves on your step, let the score rise, then climb. The table shows the products, example lenders, bureau pulled and typical limit for each step, taken from the 57-step funding sequence. Limits are typical ranges, not offers."),
-    ("8", "Reading the Decision Tree", "Start at the top with your strongest report and follow its branch. Check the override rules first. The forecast table shows the model's chance of each bureau for four real lender and state cases (KPI 6)."),
+    ("2", "Reading the Funding Ladder", "Each rung is a credit score range. Click a rung to list its steps in the table; hover a row for the product and note behind it. Finish the moves on your rung, let the score rise, then climb. All 57 steps come from the funding sequence file; amounts are typical ranges, not offers."),
+    ("8", "Reading the Decision Tree", "Check the Step 1 overrides first. Click Experian, Equifax or TransUnion to keep only that branch in Step 2 (click again for all three), then apply in the Step 3 order. The bars on the right show the model's chance of each bureau for four real lender and state cases (KPI 6); hover a bar for the exact chance."),
     ("9", "Reading the Scorecard", "Each bar shows the share of an issuer's recorded pulls that landed on each bureau (KPI 5); hover a bar for the exact share. The notes on the right show how every number was built and what the data cannot tell you."),
     ("10", "Using the Recommendations", "Find your stakeholder type. Each card gives the best move, when to choose it, why (with the number behind it) and the next move. Every recommendation traces back to a KPI or an earlier card. A planning guide, not financial advice."),
-    ("12", "Using the Funding Generator", "Fill in the client's 3-bureau scores, inquiries, cards, banks, business details and business credit scores, then click Generate Strategy. The plan uses this story's data: the funding ladder for the client's tier and each lender's likely bureau in the client's state. Download PDF saves it. Everything runs in the browser; nothing is uploaded or saved."),
+    ("12", "Using the Funding Plan Generator", "Fill in the client's 3-bureau scores, inquiries, cards, banks, business details and the business's monthly cash flow, then click Generate Plan. The plan runs in three layers: a 12-month cash flow forecast sizes the funding need; the bureau model orders the applications; a cost and repayment model prices the plan and tests it against base, downside and upside cases. Download PDF saves it. Everything runs in the browser; nothing is uploaded or saved."),
     ("11", "Sources", "Every source behind the story, with the date it was published or read. Click a name to open it. Lender minimums are reviewed quarterly (next update " + NEXT_UPDATE + "); new datapoints rerun the maps and model.")
 ]
 HP = "federated." + rid()
 help_rows = [dict(Card=c, Icon="ⓘ  About", Title=t, Tip=tp) for c, t, tp in HELP]
 help_cols = [("Card", "string"), ("Icon", "string"), ("Title", "string"), ("Tip", "string")]
 ds_help = datasource(HP[10:], "Story Help", "story_help.csv", help_cols, help_rows, dsname=HP)
+
+# ------------------------------------------------------------------ funding ladder (live): one row per step of the 57-step sequence
+LADDER = [("500-549", "Repair first", "Fix errors, builder loan, trade credit."), ("550-599", "Start small", "Prequalify, starter or secured card."),
+          ("600-649", "Go unsecured", "Mainstream cards, credit union lines."), ("650-699", "Enter the majors", "Chase first at 670+, then Amex."),
+          ("700-749", "Build the sequence", "0% business cards in 6 (rounds)."), ("750-799", "Add the banks", "Bank lines, SBA, personal loans."),
+          ("800+", "Go biggest first", "Largest bank facilities, then cards.")]
+LAD_ORDER = {t: i + 1 for i, (t, _, _) in enumerate(LADDER)}
+LAD_HEAD = {t: h for t, h, _ in LADDER}
+LAD_SUM = {t: m for t, _, m in LADDER}
+lad_rows = []
+for r_ in db["seq"]:
+    tier, step, when, action, lenders_, product, bureau, amount, note = (list(r_) + [""] * 9)[:9]
+    lad_rows.append(dict(Tier=tier, TierOrder=str(LAD_ORDER[tier]), Headline=LAD_HEAD[tier], Summary=f"{LAD_SUM[tier]} {len(seq_by_tier[tier])} (steps).",
+                         Step=str(step), When=when or "n/a", Action=action, Lenders=lenders_ or "n/a", Product=product or "n/a", Bureau=bureau or "n/a",
+                         Amount=amount or "n/a", Note=note or "", Steps="1"))
+LD = "federated." + rid()
+lad_cols = [("Tier", "string"), ("TierOrder", "integer"), ("Headline", "string"), ("Summary", "string"), ("Step", "integer"), ("When", "string"), ("Action", "string"),
+            ("Lenders", "string"), ("Product", "string"), ("Bureau", "string"), ("Amount", "string"), ("Note", "string"), ("Steps", "integer")]
+TEAL_RAMP = ["#1A6F67", "#1F8A80", "#23A597", "#27BAAB", "#2FD4C4", "#5EDFD3", "#8DEAE1"]
+ds_ladder = palette_style(datasource(LD[10:], "Funding Ladder Steps", "funding_ladder_steps.csv", lad_cols, lad_rows, dsname=LD),
+                          {"Tier": {t: c for (t, _, _), c in zip(LADDER, TEAL_RAMP)}})
+
+# ------------------------------------------------------------------ decision tree (live): gates, branches and the apply order as rows
+TREE = []
+def tr(step, order, branch, cond, then, so):
+    TREE.append(dict(Step=step, StepOrder=str(so), Branch=branch, Order=str(order), Cond=cond, Then=then))
+for i_, (c_, t_) in enumerate([("your score is under 650", "start on ladder steps 1 to 3: fix errors, builder loan, starter cards"),
+                               ("a report has errors", "dispute and fix it before applying anywhere that pulls it"),
+                               ("a report has 3+ new inquiries", "route the next round to issuers that pull a different bureau"),
+                               ("you live in a close-call state", f"check card 7; {len(tossups)} (toss-up states) can land on any bureau"),
+                               ("you want business funding", "most business cards check your personal report: plan it as one")], 1):
+    tr("Step 1: Check These Overrides First", i_, "All", "If " + c_, t_, 1)
+BRANCH_DESC = {"Experian": f"most-pulled bureau, {tot['Experian'] / TOTAL:.0%} (of all pulls)",
+               "Equifax": f"{tot['Equifax'] / TOTAL:.0%} (of all pulls); lead with it on purpose",
+               "TransUnion": f"least pulled, {tot['TransUnion'] / TOTAL:.0%} (of all pulls), so pick lenders that lead with it"}
+for i_, b_ in enumerate(("Experian", "Equifax", "TransUnion"), 1):
+    tr("Picker", i_, b_, b_ + " is strongest", BRANCH_DESC[b_], 0)
+BRANCHES = {"Experian": [("650 to 699", f"Chase first (5/24), then Amex, {habit['American Express']['Experian']:.0%} Experian (Amex pulls)"),
+                         ("700+", f"sequence Chase, Amex, BofA {habit['Bank of America']['Experian']:.0%} (on Experian), Wells Fargo"),
+                         ("in VA, SC or NC", "Equifax leans higher there, so stick to Amex and BofA")],
+            "Equifax": [("you want bank cards", f"Citi {habit['Citi']['Equifax']:.0%} and Chase {habit['Chase']['Equifax']:.0%} (of their pulls on Equifax)"),
+                        ("you want credit unions", "Truist, PenFed, Citizens, Huntington lean Equifax"),
+                        ("in VA, SC or NC", "the Equifax belt: 39%, 37%, 36% (Equifax share of pulls)")],
+            "TransUnion": [("you want store cards", f"Synchrony, {habit['Synchrony']['TransUnion']:.0%} (of its pulls on TransUnion)"),
+                           ("you want bank cards", f"U.S. Bank {habit['U.S. Bank']['TransUnion']:.0%} (on TransUnion), Barclays, Navy Federal"),
+                           ("in Georgia", "TransUnion took 37 of 116 Georgia pulls (32%)")]}
+for b_, rows_ in BRANCHES.items():
+    for i_, (c_, t_) in enumerate(rows_, 1):
+        tr("Step 2: Follow Your Strongest Report", i_, b_, "If " + c_, t_, 2)
+for i_, (c_, t_) in enumerate([("Strictest first", "Chase (5/24), Amex, U.S. Bank, Wells Fargo, BofA, regionals."),
+                               ("One per bureau per round", "one lender leaning each bureau per round, 7 to 14 days apart."),
+                               ("Soft pull, then hard pull", "prequalify; apply for real only when the offer looks good."),
+                               ("Capital One last", "it checks all three reports, so it goes last in every round.")], 1):
+    tr("Step 3: Apply in This Order", i_, "All", c_, t_, 3)
+DR = "federated." + rid()
+tree_cols = [("Step", "string"), ("StepOrder", "integer"), ("Branch", "string"), ("Order", "integer"), ("Cond", "string"), ("Then", "string")]
+ds_tree = palette_style(datasource(DR[10:], "Decision Tree Rules", "decision_tree_rules.csv", tree_cols, TREE, dsname=DR),
+                        {"Branch": dict(BUREAU_COL, All=INK)})
+
+# ------------------------------------------------------------------ forecast cases (live): the model's chance of each bureau for four real lender and state cases
+_lsw = {(r["Lender"], r["StateAbbr"]): r for r in csv.DictReader(open(DT / "regression_lender_state_wide.csv"))}
+CASES = [("Amex in Kansas", "American Express", "KS"), ("Chase in Florida", "Chase", "FL"), ("Capital One in Virginia", "Capital One", "VA"), ("Synchrony in Ohio", "Synchrony", "OH")]
+fc_rows = []
+for i_, (label_, lender_, stab_) in enumerate(CASES, 1):
+    r_ = _lsw.get((lender_, stab_))
+    for b_ in ("Experian", "Equifax", "TransUnion"):
+        ch = float(r_[f"P_{b_}"]) if r_ else {"Amex in Kansas": {"Experian": .84, "Equifax": .05, "TransUnion": .11}, "Chase in Florida": {"Experian": .43, "Equifax": .37, "TransUnion": .21},
+                                               "Capital One in Virginia": {"Experian": .29, "Equifax": .45, "TransUnion": .26}, "Synchrony in Ohio": {"Experian": .26, "Equifax": .09, "TransUnion": .65}}[label_][b_]
+        fc_rows.append(dict(Case=label_, Order=str(i_), Bureau=b_, Chance=f"{ch:.4f}", Pct=f"{ch:.0%}" if ch >= 0.1 else "",
+                            Lead=(r_["Most Likely Bureau"] if r_ else max(("Experian", "Equifax", "TransUnion"), key=lambda b: float(r_[f"P_{b}"]) if r_ else 0))))
+FC = "federated." + rid()
+fc_cols = [("Case", "string"), ("Order", "integer"), ("Bureau", "string"), ("Chance", "real"), ("Pct", "string"), ("Lead", "string")]
+ds_cases = palette_style(datasource(FC[10:], "Forecast Cases", "forecast_cases.csv", fc_cols, fc_rows, dsname=FC), {"Bureau": BUREAU_COL})
+ds_cases = ds_cases.replace("<column datatype='real' name='[Chance]'", "<column datatype='real' default-format='p0%' name='[Chance]'")
 
 # ------------------------------------------------------------------ close calls (dark theme colors)
 # close-call verdicts: one neutral light-to-dark ramp for confidence (so no verdict looks like a bureau color), gold for toss-ups
@@ -899,6 +982,80 @@ WS["Issuer Habits"] = worksheet("Issuer Habits", f"<run bold='true' fontcolor='{
                   f"<style-rule element='header'><format attr='width' field='{ref(HB, 'Issuer')}' value='130' /></style-rule>"
                   f"<style-rule element='worksheet'><format attr='display-field-labels' scope='rows' value='false' /></style-rule>"))
 
+# funding ladder: rungs as bars (click one to list its steps) and the step table
+lad_sort = f"<sort class='manual' column='{ref(LD, 'Tier')}' direction='ASC'><dictionary>" + "".join(f"<bucket>&quot;{t}&quot;</bucket>" for t, _, _ in LADDER) + "</dictionary></sort>"
+WS["Ladder Bars"] = worksheet("Ladder Bars", f"<run bold='true' fontcolor='{INK}' fontsize='12'>The Funding Ladder: Steps on Each Rung (Click a Rung to List Its Steps)</run>", LD, "Funding Ladder Steps",
+    deps(LD, lad_cols, [inst("Tier", "nk"), inst("Steps", "sum"), inst("Headline", "attr"), inst("Summary", "attr")]) + lad_sort,
+    f"<pane selection-relaxation-option='selection-relaxation-allow'><view><breakdown value='auto' /></view><mark class='Bar' /><encodings>"
+    f"<color column='{ref(LD, 'Tier')}' /><text column='[{LD}].[attr:Headline:nk]' /><text column='[{LD}].[sum:Steps:qk]' /><tooltip column='[{LD}].[attr:Summary:nk]' /></encodings>"
+    + tooltip(tiprun(T(LD, "Tier") + ": " + T(LD, "Headline", "nk", "attr"), "#0E1115", 10, True) + NLR + tiprun(T(LD, "Summary", "nk", "attr")) + NLR
+              + tiprun(f"&lt;[{LD}].[sum:Steps:qk]&gt;", "#0E1115", 9, True) + tiprun(" (steps on this rung). Click the bar to list them in the table below.", "#4A5568", 8))
+    + label(f"<run bold='true' fontalignment='1' fontcolor='{INK}' fontsize='9'>{T(LD, 'Headline', 'nk', 'attr')}</run>{NLR}<run fontalignment='1' fontcolor='{INK2}' fontsize='8'>&lt;[{LD}].[sum:Steps:qk]&gt; steps</run>")
+    + "<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /><format attr='mark-labels-cull' value='false' /><format attr='size' value='0.85' /></style-rule></style></pane>",
+    f"[{LD}].[sum:Steps:qk]", ref(LD, "Tier"),
+    style=bgstyle(f"<style-rule element='axis'><format attr='display' class='0' field='[{LD}].[sum:Steps:qk]' scope='rows' value='false' /></style-rule>"
+                  f"<style-rule element='header'><format attr='font-size' field='{ref(LD, 'Tier')}' value='10' /><format attr='color' field='{ref(LD, 'Tier')}' value='{INK}' /></style-rule>"
+                  f"<style-rule element='worksheet'><format attr='display-field-labels' scope='cols' value='false' /></style-rule>"))
+WS["Ladder Steps"] = worksheet("Ladder Steps", f"<run bold='true' fontcolor='{INK}' fontsize='11'>Every Step on the Ladder</run>", LD, "Funding Ladder Steps",
+    deps(LD, lad_cols, [inst("TierOrder", "ok"), inst("Tier", "nk"), inst("Step", "ok"), inst("When", "nk"), inst("Action", "nk"), inst("Lenders", "nk"), inst("Bureau", "nk"), inst("Amount", "nk"), inst("Note", "attr"), inst("Product", "attr")]),
+    txt_pane(f"<text column='{ref(LD, 'Action')}' /><text column='{ref(LD, 'Lenders')}' /><text column='{ref(LD, 'Bureau')}' /><text column='{ref(LD, 'Amount')}' /><tooltip column='[{LD}].[attr:Product:nk]' /><tooltip column='[{LD}].[attr:Note:nk]' />",
+             tiprun(T(LD, "Tier") + ", step " + T(LD, "Step", "ok"), "#0E1115", 10, True) + NLR + tiprun(T(LD, "Action"), "#1F2937", 9, True) + NLR
+             + tiprun("Product: ", "#0E1115", 9, True) + tiprun(T(LD, "Product", "nk", "attr")) + NLR + tiprun("Lenders: ", "#0E1115", 9, True) + tiprun(T(LD, "Lenders")) + NLR
+             + tiprun("Bureau pulled: ", "#0E1115", 9, True) + tiprun(T(LD, "Bureau")) + NLR + tiprun("Typical amount: ", "#0E1115", 9, True) + tiprun(T(LD, "Amount")) + NLR + tiprun(T(LD, "Note", "nk", "attr"), "#4A5568", 8),
+             f"<run bold='true' fontcolor='{INK}' fontsize='9'>{T(LD, 'Action')}</run>{NLR}<run fontcolor='{INK2}' fontsize='8'>Lenders: {T(LD, 'Lenders')}  |  Bureau: {T(LD, 'Bureau')}  |  Amount: {T(LD, 'Amount')}</run>",
+             "<style-rule element='cell'><format attr='text-align' value='left' /><format attr='vertical-align' value='top' /><format attr='height' value='56' /></style-rule>"),
+    f"([{LD}].[none:TierOrder:ok] / {ref(LD, 'Tier')} / [{LD}].[none:Step:ok] / {ref(LD, 'When')})", "",
+    style=bgstyle(f"<style-rule element='header'><format attr='display' class='0' field='[{LD}].[none:TierOrder:ok]' scope='rows' value='false' />"
+                  f"<format attr='width' field='{ref(LD, 'Tier')}' value='56' /><format attr='width' field='[{LD}].[none:Step:ok]' value='28' /><format attr='width' field='{ref(LD, 'When')}' value='74' />"
+                  f"<format attr='font-size' value='8' /><format attr='color' value='{INK2}' /></style-rule>"
+                  f"<style-rule element='label'><format attr='display' field='[{LD}].[none:TierOrder:ok]' value='false' /><format attr='color' field='{ref(LD, 'Tier')}' value='{TEAL}' /><format attr='font-size' value='8' /></style-rule>"
+                  f"<style-rule element='worksheet'><format attr='display-field-labels' scope='rows' value='false' /></style-rule>"))
+
+# decision tree: the override gates, a branch picker, the branches and the apply order, all as rows that respond to clicks
+def tree_sheet(name, title, step, with_branch=False):
+    inst_list = [inst("Step", "nk"), inst("Branch", "nk"), inst("Order", "ok"), inst("Cond", "nk"), inst("Then", "nk")]
+    rows_ = (f"({ref(DR, 'Branch')} / " if with_branch else "(") + f"[{DR}].[none:Order:ok] / {ref(DR, 'Cond')})"
+    return worksheet(name, f"<run bold='true' fontcolor='{INK}' fontsize='11'>{title}</run>", DR, "Decision Tree Rules",
+        deps(DR, tree_cols, inst_list) + catfilter(DR, "Step", step) + f"<sort class='manual' column='{ref(DR, 'Branch')}' direction='ASC'><dictionary><bucket>&quot;All&quot;</bucket><bucket>&quot;Experian&quot;</bucket><bucket>&quot;Equifax&quot;</bucket><bucket>&quot;TransUnion&quot;</bucket></dictionary></sort>",
+        txt_pane(f"<color column='{ref(DR, 'Branch')}' /><text column='{ref(DR, 'Then')}' />",
+                 tiprun(T(DR, "Cond"), "#0E1115", 10, True) + NLR + tiprun("then " + T(DR, "Then")) + NLR + tiprun("Branch: " + T(DR, "Branch"), "#4A5568", 8),
+                 f"<run fontsize='9'>{T(DR, 'Then')}</run>",
+                 "<style-rule element='cell'><format attr='text-align' value='left' /><format attr='vertical-align' value='center' /><format attr='height' value='30' /></style-rule>"),
+        rows_, "",
+        style=bgstyle(f"<style-rule element='header'><format attr='display' class='0' field='[{DR}].[none:Order:ok]' scope='rows' value='false' />"
+                      f"<format attr='width' field='{ref(DR, 'Cond')}' value='160' /><format attr='width' field='{ref(DR, 'Branch')}' value='76' /><format attr='font-size' value='9' /><format attr='color' value='{INK}' /></style-rule>"
+                      f"<style-rule element='label'><format attr='display' field='[{DR}].[none:Order:ok]' value='false' /><format attr='font-size' value='9' /></style-rule>"
+                      f"<style-rule element='worksheet'><format attr='display-field-labels' scope='rows' value='false' /></style-rule>"))
+WS["Tree Gates"] = tree_sheet("Tree Gates", "Step 1: Check These Overrides First (If ..., Then ...)", "Step 1: Check These Overrides First")
+WS["Tree Branch"] = tree_sheet("Tree Branch", "Step 2: Follow Your Strongest Report (Pick a Bureau Above to Keep Only Its Branch)", "Step 2: Follow Your Strongest Report", with_branch=True)
+WS["Tree Order"] = tree_sheet("Tree Order", "Step 3: Apply in This Order", "Step 3: Apply in This Order")
+pk_sort = f"<sort class='manual' column='{ref(DR, 'Branch')}' direction='ASC'><dictionary><bucket>&quot;Experian&quot;</bucket><bucket>&quot;Equifax&quot;</bucket><bucket>&quot;TransUnion&quot;</bucket></dictionary></sort>"
+WS["Tree Picker"] = worksheet("Tree Picker", "", DR, "Decision Tree Rules",
+    deps(DR, tree_cols, [inst("Step", "nk"), inst("Branch", "nk"), inst("Then", "attr")]) + catfilter(DR, "Step", "Picker") + pk_sort,
+    txt_pane(f"<color column='{ref(DR, 'Branch')}' /><text column='{ref(DR, 'Branch')}' /><tooltip column='[{DR}].[attr:Then:nk]' />",
+             tiprun(T(DR, "Branch") + " is your strongest report", "#0E1115", 10, True) + NLR + tiprun(T(DR, "Then", "nk", "attr")) + NLR + tiprun("Click to show only this branch in Step 2; click again to show all three.", "#4A5568", 8),
+             f"<run bold='true' fontalignment='1' fontsize='11'>{T(DR, 'Branch')}</run>",
+             "<style-rule element='cell'><format attr='text-align' value='center' /><format attr='vertical-align' value='center' /></style-rule>"),
+    "", ref(DR, "Branch"),
+    style=bgstyle(f"<style-rule element='header'><format attr='display' class='0' field='{ref(DR, 'Branch')}' scope='cols' value='false' /></style-rule>"
+                  f"<style-rule element='label'><format attr='display' field='{ref(DR, 'Branch')}' value='false' /></style-rule>"
+                  f"<style-rule element='worksheet'><format attr='display-field-labels' scope='cols' value='false' /></style-rule>").replace(CARD, CARD2))
+fc_sort = (f"<sort class='manual' column='{ref(FC, 'Case')}' direction='ASC'><dictionary>" + "".join(f"<bucket>&quot;{c}&quot;</bucket>" for c, _, _ in CASES) + "</dictionary></sort>"
+           f"<sort class='manual' column='{ref(FC, 'Bureau')}' direction='ASC'><dictionary><bucket>&quot;TransUnion&quot;</bucket><bucket>&quot;Equifax&quot;</bucket><bucket>&quot;Experian&quot;</bucket></dictionary></sort>")
+WS["Forecast Cases"] = worksheet("Forecast Cases", f"<run bold='true' fontcolor='{INK}' fontsize='11'>What If: the Model's Chance of Each Bureau (KPI 6)</run>", FC, "Forecast Cases",
+    deps(FC, fc_cols, [inst("Case", "nk"), inst("Bureau", "nk"), inst("Chance", "sum"), inst("Pct", "nk"), inst("Lead", "attr")]) + fc_sort,
+    f"<pane selection-relaxation-option='selection-relaxation-allow'><view><breakdown value='auto' /></view><mark class='Bar' /><encodings>"
+    f"<color column='{ref(FC, 'Bureau')}' /><text column='{ref(FC, 'Pct')}' /><tooltip column='[{FC}].[attr:Lead:nk]' /></encodings>"
+    + tooltip(tiprun(T(FC, "Case"), "#0E1115", 10, True) + NLR + tiprun(T(FC, "Bureau"), "#1F2937", 9, True) + tiprun(": ") + tiprun(f"&lt;[{FC}].[sum:Chance:qk]&gt;", "#0E1115", 9, True)
+              + tiprun(" chance this bureau is pulled for a typical application (KPI 6).") + NLR + tiprun("Most likely bureau: " + T(FC, "Lead", "nk", "attr"), "#4A5568", 8))
+    + label(f"<run bold='true' fontcolor='#FFFFFF' fontsize='8'>{T(FC, 'Pct')}</run>")
+    + "<style><style-rule element='mark'><format attr='mark-labels-show' value='true' /><format attr='mark-labels-cull' value='true' /><format attr='size' value='0.7' /></style-rule></style></pane>",
+    ref(FC, "Case"), f"[{FC}].[sum:Chance:qk]",
+    style=bgstyle(f"<style-rule element='axis'><encoding attr='space' class='0' field='[{FC}].[sum:Chance:qk]' field-type='quantitative' max='1' min='0' range-type='fixed' scope='cols' type='space' />"
+                  f"<format attr='display' class='0' field='[{FC}].[sum:Chance:qk]' scope='cols' value='false' /></style-rule>"
+                  f"<style-rule element='header'><format attr='width' field='{ref(FC, 'Case')}' value='118' /><format attr='font-size' field='{ref(FC, 'Case')}' value='8' /></style-rule>"
+                  f"<style-rule element='worksheet'><format attr='display-field-labels' scope='rows' value='false' /></style-rule>"))
+
 # close-call sheets (map gets a viz in tooltip: the chance bars for the hovered state)
 ccdeps = lambda inst_list, extra="": deps(CC, cc_cols, inst_list, extra)
 WS["CC Map"] = worksheet("CC Map", "", CC, "Close Calls by State",
@@ -961,6 +1118,12 @@ ACTIONS = (f"<action caption='Pick a state' name='[Action_ccpick]'><activation a
                      f"<source dashboard='{DASH[5]}' type='sheet' worksheet='{m}' /><command command='tsc:tsl-filter'>"
                      f"<param name='exclude' value='{','.join(x for x in MAPS if x != m)},Help 6' /><param name='special-fields' value='all' /><param name='target' value='{DASH[5]}' /></command></action>"
                      for i, m in enumerate(MAPS))
+           + f"<action caption='Pick a rung' name='[Action_rung]'><activation auto-clear='true' type='on-select' />"
+           f"<source dashboard='{DASH[1]}' type='sheet' worksheet='Ladder Bars' /><command command='tsc:tsl-filter'>"
+           f"<param name='exclude' value='Help 2' /><param name='special-fields' value='all' /><param name='target' value='{DASH[1]}' /></command></action>"
+           f"<action caption='Pick a branch' name='[Action_branch]'><activation auto-clear='true' type='on-select' />"
+           f"<source dashboard='{DASH[7]}' type='sheet' worksheet='Tree Picker' /><command command='tsc:tsl-filter'>"
+           f"<param name='exclude' value='Help 8,Tree Gates,Tree Order,Forecast Cases' /><param name='special-fields' value='all' /><param name='target' value='{DASH[7]}' /></command></action>"
            + f"<action caption='Open source' name='[Action_srcurl]'><activation auto-clear='true' type='on-select' />"
            f"<source dashboard='{DASH[10]}' type='sheet' worksheet='Sources List' />"
            f"<link caption='' delimiter=',' escape='\\' expression='&lt;url&gt;' include-null='true' multi-select='false' url-escape='false' /></action>")
@@ -1100,13 +1263,13 @@ for b in ("Experian", "Equifax", "TransUnion"):
     s = s.replace(f"caption='SUM([{b}])/SUM([Total Datapoints])'", f"caption='{b} Share of Pulls'")
 s = s.replace("caption='SUM([Trans Union])/SUM([Total Datapoints])'", "caption='TransUnion Share of Pulls'")
 
-NEW_DS = ds_cc + ds_src + ds_tiles + ds_kpi + ds_habit + ds_help
+NEW_DS = ds_cc + ds_src + ds_tiles + ds_kpi + ds_habit + ds_help + ds_ladder + ds_tree + ds_cases
 s = s.replace("</datasources>\n  <worksheets>", NEW_DS + "</datasources>\n  <worksheets>", 1) if "</datasources>\n  <worksheets>" in s else s.replace("</datasources>", NEW_DS + "</datasources>", 1)
 s = s.replace("</worksheets>", "".join(WS.values()) + "</worksheets>", 1)
 s = s.replace("<dashboards>", "<dashboards>" + "".join(D.values()), 1)
 s = s.replace("<worksheets>", f"<actions>{ACTIONS}</actions><worksheets>", 1)
 
-STORY = [(DASH[0], "Overview: context, purpose, sources and limits"),
+STORY = [(DASH[0], f"Overview: the model, {1 - LL_FULL / LL_BASE:.0%} lower error, 0 contradicted"),
          (DASH[1], "The funding ladder: one score step at a time"),
          (DASH[2], f"Market and KPIs: Experian gets {tot['Experian'] / TOTAL:.0%} of pulls"),
          (DASH[3], "Data and method: 355 rows, 0 contradicted"),
@@ -1117,7 +1280,7 @@ STORY = [(DASH[0], "Overview: context, purpose, sources and limits"),
          (DASH[8], "Scorecard: issuer habits and where the numbers come from"),
          (DASH[9], "Recommendations: the best move for each stakeholder"),
          (DASH[10], "Sources"),
-         (DASH[11], "Funding generator: a client's strategy and timeline as a PDF")]
+         (DASH[11], "Funding plan generator: cash flow, sequence and cost as a PDF")]
 pts = "".join(f"<story-point caption='{i}. {esc(tc(c))}' captured-sheet='{esc(n)}' id='{100 + i}' />" for i, (n, c) in enumerate(STORY, 1))
 s = re.sub(r"<story-points>.*?</story-points>", f"<story-points>{pts}</story-points>", s, flags=re.S)
 s = re.sub(r"<flipboard active-id='\d+'", "<flipboard active-id='101'", s)
@@ -1135,16 +1298,16 @@ s = re.sub(r"<zone h='(\d+)' id='3' type-v2='title' w='98426' x='787' y='(\d+)' 
               r"<zone h='\1' id='3' type-v2='title' w='98426' x='787' y='\2'><zone-style><format attr='border-style' value='none' /><format attr='border-width' value='0' /></zone-style></zone>", s, count=1)
 s = s.replace("<dashboard name='Which Bureau Will They Pull' type='storyboard'>",
               "<dashboard name='Which Bureau Will They Pull' type='storyboard'><layout-options><title><formatted-text>"
-              "<run bold='true' fontcolor='#14213D' fontsize='18'>FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy</run>"
-              "<run fontcolor='#4A5568' fontsize='13'>   Which Bureau Will They Pull?</run></formatted-text></title></layout-options>", 1)
+              "<run bold='true' fontcolor='#14213D' fontsize='18'>Credit Bureau Pull Prediction</run>"
+              "<run fontcolor='#4A5568' fontsize='13'>   A State-by-State Model of 3,003 Lender Inquiries</run></formatted-text></title></layout-options>", 1)
 # dark story frame
 s = re.sub(r"(<dashboard name='Which Bureau Will They Pull' type='storyboard'>.*?<zone h='100000' id='2' type-v2='layout-basic' w='100000' x='0' y='0'>)",
            r"\1", s, flags=re.S)
 
-VIEWS = {DASH[0]: ["Help 1", "Overview Tiles"], DASH[1]: ["Help 2"], DASH[2]: ["Help 3", "Market Tiles", "KPI List", "KPI Detail"], DASH[3]: ["Help 4"],
+VIEWS = {DASH[0]: ["Help 1", "Overview Tiles"], DASH[1]: ["Help 2", "Ladder Bars", "Ladder Steps"], DASH[2]: ["Help 3", "Market Tiles", "KPI List", "KPI Detail"], DASH[3]: ["Help 4"],
          DASH[4]: ["Help 5", "Top Bureau by State, by Lender"], DASH[5]: ["Help 6", "State Detail"] + MAPS,
-         DASH[6]: ["Help 7", "CC Map", "CC State Panel", "CC Chance Bars"], DASH[7]: ["Help 8"], DASH[8]: ["Help 9", "Issuer Habits"], DASH[9]: ["Help 10"], DASH[10]: ["Help 11", "Sources List"], DASH[11]: ["Help 12"]}
-ZOOM = {"Sources List": "fit-width"}
+         DASH[6]: ["Help 7", "CC Map", "CC State Panel", "CC Chance Bars"], DASH[7]: ["Help 8", "Tree Gates", "Tree Picker", "Tree Branch", "Tree Order", "Forecast Cases"], DASH[8]: ["Help 9", "Issuer Habits"], DASH[9]: ["Help 10"], DASH[10]: ["Help 11", "Sources List"], DASH[11]: ["Help 12"]}
+ZOOM = {"Sources List": "fit-width", "Ladder Steps": "fit-width", "Tree Gates": "fit-width", "Tree Branch": "fit-width", "Tree Order": "fit-width"}
 new_windows = "".join(f"<window class='dashboard' name='{esc(n)}'><viewpoints>{''.join(f'<viewpoint name={chr(39)}{esc(v)}{chr(39)}><zoom type={chr(39)}{ZOOM.get(v, chr(101)+'ntire-view')}{chr(39)} /></viewpoint>' for v in VIEWS.get(n, []))}</viewpoints>"
                       f"<active id='-1' /><simple-id uuid='{WINUUID[n]}' /></window>" for n in D)
 new_windows += "".join(f"<window class='worksheet' name='{esc(n)}'><cards><edge name='left'><strip size='160'><card type='pages' /><card type='filters' /><card type='marks' /></strip></edge>"

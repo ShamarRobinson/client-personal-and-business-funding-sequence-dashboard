@@ -1,4 +1,4 @@
-"""Build data/generator.json for the Credit Stack and Funding Generator page.
+"""Build data/generator.json for the Funding Plan Generator page.
 
 Reads the same files as the dashboard, website and Tableau story so every number matches:
   data/db.json                                   lender records, funding ladder by score tier, rules, sources

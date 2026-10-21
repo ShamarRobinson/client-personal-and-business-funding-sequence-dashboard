@@ -1,7 +1,7 @@
 """Build the standalone presentation at presentation/ (GitHub Pages), plus its PDF.
 
 Input:  a folder of raw slide sections (slides/*.html) and assets/ produced by deck/build_deck.py
-Output: presentation/index.html, presentation/assets/*, presentation/fonts/*, presentation/Credit_Stacking_and_Funding_Sequencing_Strategy.pdf
+Output: presentation/index.html, presentation/assets/*, presentation/fonts/*, presentation/Credit_Bureau_Pull_Prediction.pdf
 
 Usage:  python3 analysis/build_presentation.py <raw_deck_project_dir> <fontsource_node_modules_dir>
 Self-contained: fonts are self-hosted and nothing loads from a third-party service.
@@ -12,8 +12,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 SRC = Path(sys.argv[1]); NM = Path(sys.argv[2])
 OUT = ROOT / "presentation"
-TITLE = "FP&A: Credit Stacking & Funding Sequencing Strategy"
-PDF = "Credit_Stacking_and_Funding_Sequencing_Strategy.pdf"
+TITLE = "Credit Bureau Pull Prediction"
+PDF = "Credit_Bureau_Pull_Prediction.pdf"
 
 if OUT.exists(): shutil.rmtree(OUT)
 (OUT / "assets").mkdir(parents=True); (OUT / "fonts").mkdir()
@@ -38,7 +38,7 @@ html = f"""<!doctype html>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>{TITLE.replace("&", "&amp;")} | Presentation</title>
-<meta name="description" content="Which credit bureau a lender is most likely to pull, state by state, and the order to apply in. A 12-slide presentation by Shamar Robinson.">
+<meta name="description" content="A state-by-state model of 3,003 lender inquiries: which credit bureau a lender is most likely to pull, and the order to apply in. A 12-slide presentation by Shamar Robinson.">
 <style>
 {face}
 *{{box-sizing:border-box}}

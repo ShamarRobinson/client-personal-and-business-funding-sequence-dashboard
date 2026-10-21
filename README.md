@@ -5,11 +5,11 @@
 | View | Link |
 | --- | --- |
 | Dashboard site (this repository, GitHub Pages) | [shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard](https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/) |
-| Interactive maps and Story (Tableau Public) | [FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) (full screen, fits one screen with no scrolling) · [profile page](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) |
-| Slideshow | [Presentation](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/) ([PDF](presentation/Credit_Stacking_and_Funding_Sequencing_Strategy.pdf)) |
+| Interactive maps and Story (Tableau Public) | [Credit Bureau Pull Prediction: A State-by-State Model of 3,003 Lender Inquiries](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) (full screen, fits one screen with no scrolling) · [profile page](https://public.tableau.com/app/profile/shamar.robinson/viz/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull) |
+| Slideshow | [Presentation](https://shamarrobinson.github.io/client-personal-and-business-funding-sequence-dashboard/presentation/) ([PDF](presentation/Credit_Bureau_Pull_Prediction.pdf)) |
 | Full workbook | [data/Inquiry_Database_Expanded.xlsx](data/Inquiry_Database_Expanded.xlsx) |
 
-A dashboard and database of which credit bureau each lender pulls by state, with funding type, average score needed, documentation level, and a funding sequence for every credit score tier.
+A state-by-state model of which credit bureau each lender pulls (a multinomial logistic regression on 2,901 datapoints, 13% lower error than national shares, 0 of 193 checked rows contradicted), with funding type, average score needed, documentation level, and a funding sequence for every credit score tier.
 
 ## About the Data
 
@@ -37,21 +37,22 @@ Context facts used in the story: [myFICO, Do Credit Inquiries Lower Your FICO Sc
 
 ## Tableau Public
 
-The [Tableau Story "FP&A: Credit Stacking & Funding Sequencing Strategy: Which Bureau Will They Pull?"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 11 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 5 and 8), and an About button on every card. Each card is 1320 x 880 so it fills a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
+The [Tableau Story "Credit Bureau Pull Prediction: A State-by-State Model of 3,003 Lender Inquiries"](https://public.tableau.com/views/ClientPersonalandBusinessFundingSequenceDashboard/WhichBureauWillTheyPull?:showVizHome=no) has 12 dashboard cards in an app-style layout: a clickable side menu (each row opens its card), a header band with clickable Overview, Maps and Decide tabs (cards 1, 5 and 8), and an About button on every card. Each card is 1320 x 880 so it fills a 1080p screen; the full-screen link removes the Tableau Public page header so nothing needs scrolling after a click. The theme is a dark "metal card" look taken from the cover photo, with sharp-edged panels and teal-to-orange edge lines. Each bureau keeps one color everywhere: **Experian** blue, **Equifax** orange, **TransUnion** green.
 
 | Card | What it shows |
 | --- | --- |
-| 1. Overview | Cover photo, headline numbers, context, purpose, sources, update cadence, data limits and a guided walkthrough |
-| 2. Funding Ladder | Seven score steps with their moves, what each step looks like (products, example lenders, bureau pulled, typical limit) and five rules for climbing |
+| 1. Overview | Leads with the method: the regression, its lift over national shares, accuracy, the cross-check result; then the data, update cadence, limits and a guided walkthrough |
+| 2. Funding Ladder | Live: click a rung (score range) to list its steps from the 57-step sequence; hover a step for its product, lenders, bureau pulled, typical amount and note; five rules for climbing |
 | 3. Market and KPIs | Bureau shares and close-call count, a KPI list that opens a detail card, scope and who it serves |
 | 4. Data and Method | Enrichment flow, the extract, transform, load process, the cleaning steps and the cross-check result |
 | 5. Pick a Lender | Map of each lender's most-pulled bureau by state, with a lender drop-down and lenders grouped by habit |
 | 6. Share Maps | Experian, Equifax and TransUnion share maps; click a state to open its State Detail card |
 | 7. Close Calls | Click a state for the model's best forecast; hover a state to see its chance bars inside the tooltip |
-| 8. Decision Tree | Five override checks, three bureau branches with three if/then cases each, four ordering rules, and four real forecasts |
+| 8. Decision Tree | Live: five override checks, a bureau picker that keeps only your strongest report's branch, four ordering rules and the model's chance bars for four real lender and state cases |
 | 9. Scorecard | Each issuer's bureau habit and where every number comes from |
 | 10. Recommendations | Best move, when to choose it, why, next move, what to watch out for and which card to open, for five stakeholder types |
 | 11. Sources | Every source as a clickable list, under the Story title |
+| 12. Funding Plan Generator | A client's cash flow forecast, bureau-aware application sequence, and cost and repayment model with scenarios, as a PDF (runs in the browser) |
 
 Interactive features: tooltips with formulas on every number, nested charts (chance bars inside the close-call map tooltip, inline data bars in the State Detail card), dynamic detail cards (KPI, state and close-call panels), annotation callouts, numbered coach marks and a walkthrough, and an About popover on each card. Every number in a worked example or tooltip says what it is in parentheses, for example 466 (Experian pulls in Florida) ÷ 885 (all bureau pulls in Florida) = 53% (Experian's share).
 

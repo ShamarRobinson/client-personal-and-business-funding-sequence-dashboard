@@ -336,7 +336,7 @@ def pipeline(w, h, steps):
 def bureau_groups(w, h, groups):
     im, d = canvas(w, h)
     d.text((10 * S, 8 * S), "Spread Applications Across Bureau Groups", font=f("bold", 12), fill=NAVY)
-    d.text((10 * S, 26 * S), "One lender from each group per round keeps any single report from stacking up", font=f("regular", 8.5), fill=MUTED)
+    d.text((10 * S, 26 * S), "One lender from each group per round keeps hard pulls spread across all three reports", font=f("regular", 8.5), fill=MUTED)
     top, n, gap = 46 * S, len(groups), 10 * S
     bw = (w * S - 20 * S - gap * (n - 1)) / n
     for i, (b, lenders) in enumerate(groups):
@@ -558,11 +558,13 @@ def sidebar(w, h, items, current, name):
     for i, b in enumerate(("Experian", "Equifax", "TransUnion")):
         hh = (34, 24, 18)[i] * S
         d.rounded_rectangle((x0 + i * 22 * S, 58 * S - hh, x0 + i * 22 * S + 14 * S, 58 * S), radius=3 * S, fill=BUREAU[b])
-    for k, line in enumerate(("FP&A: Credit Stacking &", "Funding Sequencing", "Strategy")):
+    for k, line in enumerate(("Credit Bureau", "Pull Prediction")):
         t = f("bold", 12); tw = d.textlength(line, font=t)
         d.text(((w * S - tw) / 2, (66 + k * 16) * S), line, font=t, fill=INK)
     t = f("semibold", 9); line = "Which Bureau Will They Pull?"; tw = d.textlength(line, font=t)
-    d.text(((w * S - tw) / 2, 118 * S), line, font=t, fill=TEAL)
+    d.text(((w * S - tw) / 2, 102 * S), line, font=t, fill=TEAL)
+    t = f("regular", 7.5); line = "A state-by-state model of 3,003 pulls"; tw = d.textlength(line, font=t)
+    d.text(((w * S - tw) / 2, 118 * S), line, font=t, fill=MUTED)
     y = 138 * S
     d.line((14 * S, y, w * S - 16 * S, y), fill=LINE, width=1 * S)
     d.text((18 * S, y + 12 * S), "STORY", font=mono(8, True), fill=TEAL)

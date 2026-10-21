@@ -76,23 +76,23 @@ S["cover"] = (f'<section id="cover" data-transition="fade" style="background:{BG
     f'<div style="position:absolute;left:0;right:0;bottom:0;height:4px;background:{GLOW}"></div>'
     f'<div style="position:relative;padding:120px 96px;display:flex;flex-direction:column;gap:30px;width:980px">'
     f'{kicker("Client Personal and Business Funding Sequence")}'
-    f'<h1 style="font-size:92px;font-weight:700;line-height:1.02;margin:0">FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy</h1>'
-    f'<div style="font-size:40px;font-weight:600;color:{TEAL};margin-top:-6px">Which Bureau Will They Pull?</div>'
-    f'<div style="font-size:30px;line-height:1.4;color:{INK2}">{b("Experian, Equifax or TransUnion: the report a lender is most likely to check, state by state, and the order to apply in so approvals stack up.")}</div>'
-    f'<div style="display:flex;gap:14px;margin-top:30px">{ban("355", "original rows")}{ban("670", "outside datapoints")}{ban("204", "lenders")}{ban("3,003", "recorded pulls", TEAL)}</div>'
+    f'<h1 style="font-size:92px;font-weight:700;line-height:1.02;margin:0">Credit Bureau Pull Prediction</h1>'
+    f'<div style="font-size:40px;font-weight:600;color:{TEAL};margin-top:-6px">A State-by-State Model of 3,003 Lender Inquiries</div>'
+    f'<div style="font-size:30px;line-height:1.4;color:{INK2}">{b("A multinomial logistic regression forecasts which of Experian, Equifax or TransUnion a lender will pull in each state: 13% lower error than national shares, 193 rows cross-checked, 0 contradicted. The forecast then sets the order to apply in.")}</div>'
+    f'<div style="display:flex;gap:14px;margin-top:30px">{ban("13%", "lower error than baseline", TEAL)}{ban("55%", "accuracy (baseline 50%)")}{ban("0", "of 193 checked rows contradicted")}{ban("3,003", "recorded pulls", TEAL)}</div>'
     f'<div style="font-size:20px;color:{MUT};margin-top:10px">As of {ASOF} &middot; Next update {NEXT_UPDATE} &middot; Designed by Shamar Robinson</div></div>'
     f'<aside>Open with the one-line purpose: this replaces guesses about which bureau a lender will pull with recorded datapoints. Each bureau keeps one color throughout: Experian blue, Equifax orange, TransUnion green.</aside></section>\n')
 
 # 2 overview: context, purpose, sources, updates, limits ---------------
-S["overview"] = section("overview", header(2, "Overview: Context, Sources and Limits", "What this answers, where the data comes from, how it is updated and what it cannot tell you.", "Overview", "photo_analytics.jpg") +
+S["overview"] = section("overview", header(2, "Overview: The Model, Its Results and Its Limits", "What the model does, how well it does it, where the data comes from and what it cannot tell you.", "Overview", "photo_analytics.jpg") +
     f'<div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:24px;flex:1">'
-    + card(h3("Context") + p("Every hard inquiry lands on one of three credit reports. The same person can have a strong report at one bureau and a weak one at another, and no lender publishes which bureau it pulls by state.")
-           + '<div style="height:18px"></div>' + h3("Purpose") + p("Forecast the bureau a lender will pull in each state, then turn that into an application order for personal and business funding."))
-    + card(h3("Sources and Updates") + lead("Sources", "a 355-row inquiry table from 16 states plus 670 outside datapoints from 56 cited sources: Doctor of Credit tables (2008 to 2019), the myFICO state grid (2023), 2025 to 2026 forum posts, MyBankTracker, CardRight, StackEasy and lender pages.")
+    + card(h3("Method") + p("A multinomial logistic regression weighs state, lender and data era together on 2,901 datapoints, with 5-fold cross-validation and 150 refits per state to test how stable each leader is.")
+           + '<div style="height:18px"></div>' + h3("Result") + lead("Lift", "13% lower log loss than national shares; accuracy 55% versus 50% (KPI 8).") + lead("Cross-check", "193 (rows checked against outside data), 0 (contradicted) (KPI 9).") + lead("Close calls", "24 (states within 20 points) get a forecast; 4 are toss-ups (KPI 4)."))
+    + card(h3("Data and Updates") + lead("What it answers", "which of the three reports a lender will check in each state, and how sure the data is; the funding sequence is built on that forecast.") + lead("Sources", "a 355-row inquiry table from 16 states plus 670 outside datapoints from 56 cited sources: Doctor of Credit, the myFICO state grid, 2025 to 2026 forum posts and lender pages.")
            + lead("As of", f"{ASOF}. Next update: {NEXT_UPDATE}.") + lead("Updates", "lender minimums are reviewed every quarter; each new datapoint reruns the cleaning, maps and model from the same scripts."))
     + card(h3("Data Limits", ORANGE) + lead("Consumer-reported", "no lender publishes its bureau by state.") + lead("Uneven in age", "most pulls are from 2008 to 2016; the newest are 2025 and 2026.")
            + lead("Thin states", "under 10 pulls is a hint, not a finding.") + lead("Not a promise", "income, utilization and recent inquiries decide approvals. Not financial advice."))
-    + '</div>', "Slide 2 keeps the sources, update cadence and limits up front, as the Tableau Story does on card 1.")
+    + '</div>', "Slide 2 leads with the method and its measured results, then the data, update cadence and limits, as the Tableau Story does on card 1.")
 
 # 3 market, scope, who it serves ---------------------------------------
 S["ladder"] = section("ladder", header(3, "The Funding Ladder: One Score Step at a Time", "Find your step by credit score, finish its moves, let the score rise, then climb. 57 (steps) across 7 (score ranges).", "Overview", "photo_funding.jpg") +
@@ -220,11 +220,11 @@ S["scorecard"] = section("scorecard", header(10, "Scorecard: Issuer Habits and W
 RECS = [("Personal Credit Clients", "Pull all three reports, then apply where your strongest report gets pulled in your state.", "one report is clearly stronger or cleaner.", "check your lender on Tableau card 5; prequalify first."),
         ("Business Credit Clients", "Treat business card applications as personal inquiries.", "you apply for business cards as an owner.", "build the business file in parallel; review the 47 (low or no doc) lenders."),
         ("Credit Consulting Companies", "Plan disputes and inquiry spacing bureau by bureau.", "a client's three reports disagree or carry errors.", "fix the report target lenders pull first, then apply."),
-        ("Business Funding Companies", "Stack in strictest-rule order; spread each round across bureaus.", "a client is at 700+ (credit score).", "use the funding ladder and one lender per bureau group per round."),
+        ("Business Funding Companies", "Apply in strictest-rule order; spread each round across bureaus.", "a client is at 700+ (credit score).", "use the funding ladder and one lender per bureau group per round."),
         ("Funding Advisors and Brokers", "Run the close-call check before advising.", "the client lives in one of the 24 (close-call states).", "in the 4 (toss-up states), plan for any bureau.")]
 S["recs"] = section("recs", header(11, "Recommendations: The Best Move for Each Stakeholder", "Best move, when to choose it and the next move, for five stakeholder types.", "Decide") +
     f'<div style="position:relative;height:170px;border:1px solid {LINE};background:url(assets/photo_approved.jpg) center 55%/cover;display:flex;align-items:flex-end">'
-    f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div><div style="width:100%;padding:18px 28px;background:linear-gradient(transparent,rgba(7,9,12,.92) 45%)">{kicker("Recommendations")}<div style="font-size:34px;font-weight:600">Approvals That Stack Up</div></div></div>'
+    f'<div style="position:absolute;left:0;right:0;top:-1px;height:3px;background:{GLOW}"></div><div style="width:100%;padding:18px 28px;background:linear-gradient(transparent,rgba(7,9,12,.92) 45%)">{kicker("Recommendations")}<div style="font-size:34px;font-weight:600">Approvals That Add Up</div></div></div>'
     + '<div style="display:grid;grid-template-columns:repeat(5,1fr);gap:18px;flex:1">'
     + "".join(card(h3(w) + lead("Best move", m, 22) + lead("Choose this when", c, 22) + lead("Next move", n, 22)) for w, m, c, n in RECS) + '</div>',
     "Every recommendation traces back to a KPI or an earlier slide. A planning guide, not financial advice.")
@@ -239,7 +239,7 @@ SRC = [("Doctor of Credit: Which Credit Bureau Does Each Card Issuer Pull?", "ht
        ("myFICO: Do credit inquiries lower your FICO Score?", "https://www.myfico.com/crediteducation/CreditChecks.aspx"),
        ("FTC: Five percent of consumers had errors (2013)", "https://www.ftc.gov/news-events/news/press-releases/2013/02/ftc-study-five-percent-consumers-had-errors-their-credit-reports-could-result-less-favorable-terms"),
        ("All 56 sources, cited by row", "https://shamarrobinson.github.io/Client-Personal-and-Business-Funding-Sequence-Dashboard/sources.html")]
-S["sources"] = section("sources", header(12, "FP&amp;A: Credit Stacking &amp; Funding Sequencing Strategy", f"Which Bureau Will They Pull? Sources, as of {ASOF}; next update {NEXT_UPDATE}.", "Decide") +
+S["sources"] = section("sources", header(12, "Credit Bureau Pull Prediction: Sources", f"A State-by-State Model of 3,003 Lender Inquiries. As of {ASOF}; next update {NEXT_UPDATE}.", "Decide") +
     f'<div style="display:grid;grid-template-columns:1.3fr 1fr;gap:24px;flex:1">'
     + card(h3("Key Sources") + "".join(f'<div style="font-size:25px;line-height:1.35;margin-bottom:18px">{link(t, u)}</div>' for t, u in SRC))
     + '<div style="display:flex;flex-direction:column;gap:24px">'
